@@ -516,15 +516,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 }
 
                 if(FileChooserDialog.this._enableOptions){
-                    final int color = UiUtil.getThemeAccentColor(getBaseContext());
-                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
-					
                     final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
                     options.setText("");
-                    options.setTextColor(color);
                     options.setVisibility(View.VISIBLE);
                     final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
                             FileChooserDialog.this._optionsIconRes != -1 ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
+                    final int color = UiUtil.getThemeAccentColor(getBaseContext());
+                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
                     if(drawable != null){
                         drawable.setColorFilter(filter);
                         options.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
@@ -532,6 +530,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         options.setCompoundDrawablesWithIntrinsicBounds(
                                 FileChooserDialog.this._optionsIconRes != -1 ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
                     }
+                    options.setTextColor(color);
 
                     final Runnable showOptions = new Runnable(){
                         @Override
@@ -598,7 +597,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if(FileChooserDialog.this._createDirRes == -1) createDir.setText(FileChooserDialog.this._createDir);
                                   else createDir.setText(FileChooserDialog.this._createDirRes);
-								createDir.setTextColor(color);
+                                // Drawable for the button.
                                 final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
                                         FileChooserDialog.this._createDirIconRes != -1 ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
                                 if(plus != null){
@@ -608,6 +607,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(
                                             FileChooserDialog.this._createDirIconRes != -1 ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
                                 }
+								createDir.setTextColor(color);
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
                                 params.leftMargin = 10;
                                 options.addView(createDir, params);
@@ -616,7 +616,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if(FileChooserDialog.this._deleteRes == -1) delete.setText(FileChooserDialog.this._delete);
                                   else delete.setText(FileChooserDialog.this._deleteRes);
-								delete.setTextColor(color);
                                 final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
                                         FileChooserDialog.this._deleteIconRes != -1 ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
                                 if(bin != null){
@@ -626,6 +625,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     delete.setCompoundDrawablesWithIntrinsicBounds(
                                             FileChooserDialog.this._deleteIconRes != -1 ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
                                 }
+								delete.setTextColor(color);
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
                                 params.rightMargin = 10;
                                 options.addView(delete, params);
@@ -949,7 +949,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     private void createNewDirectory(@NonNull final String name){
         final File newDir = new File(this._currentDir, name);
-        if(!newDir.exists() && newDir.mkdir()){
+        if(!newDir.exists() && newDir.mkdirs()){
             refreshDirs();
             return;
         }
@@ -973,18 +973,25 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     public void onItemClick(@Nullable final AdapterView<?> parent, @NonNull final View list, final int position, final long id) {
         if (position < 0 || position >= _entries.size()) return;
 
+        boolean scrollToTop = false;
         File file = _entries.get(position);
         if (file.getName().equals("..")) {
             File f = _currentDir.getParentFile();
             if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
-            if (_folderNavUpCB.canUpTo(f)) _currentDir = f;
-            if(_chooseMode == CHOOSE_MODE_DELETE) _chooseMode = CHOOSE_MODE_NORMAL;
+            if (_folderNavUpCB.canUpTo(f)) {
+                _currentDir = f;
+                _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
+                scrollToTop = true;
+            }
         } else {
             switch(_chooseMode){
                 case CHOOSE_MODE_NORMAL:
                     if (file.isDirectory()){
                         if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
-                        if (_folderNavToCB.canNavigate(file)) _currentDir = file;
+                        if (_folderNavToCB.canNavigate(file)) {
+                            _currentDir = file;
+                            scrollToTop = true;
+                        }
                     } else if ((!_dirOnly) && _onChosenListener != null){
                         _onChosenListener.onChoosePath(file.getAbsolutePath(), file);
                         if(_dismissOnButtonClick) _alertDialog.dismiss();
@@ -994,7 +1001,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 case CHOOSE_MODE_SELECT_MULTIPLE:
                     if(file.isDirectory()){
                         if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
-                        if (_folderNavToCB.canNavigate(file)) _currentDir = file;
+                        if (_folderNavToCB.canNavigate(file)) {
+                            _currentDir = file;
+                            scrollToTop = true;
+                        }
                     } else{
                         _adapter.selectItem(position);
                         if(!_adapter.isAnySelected()){
@@ -1018,6 +1028,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             }
         }
         refreshDirs();
+        if(scrollToTop) _list.setSelection(0);
     }
 
     @Override

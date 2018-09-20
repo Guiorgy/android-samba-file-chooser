@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.InputFilter;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
 import java.io.File;
@@ -94,12 +95,12 @@ public class FileUtil {
 
         public NewFolderFilter() {
             this.maxLength = 255;
-            this.pattern = Pattern.compile("^[<>|\\\\:&;#\n\r\t?*~\0-\37]");
+            this.pattern = Pattern.compile("^[^/<>|\\\\:&;#\n\r\t?*~\0-\37]*$");
         }
 
         public NewFolderFilter(int maxLength) {
             this.maxLength = maxLength;
-            this.pattern = Pattern.compile("^[<>|\\\\:&;#\n\r\t?*~\0-\37]");
+            this.pattern = Pattern.compile("^[^/<>|\\\\:&;#\n\r\t?*~\0-\37]*$");
         }
 
         public NewFolderFilter(String pattern) {
@@ -115,8 +116,8 @@ public class FileUtil {
         @Override
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend){
             Matcher matcher = pattern.matcher(source);
-            if (matcher.matches()) {
-                return "";
+            if (!matcher.matches()) {
+                return source instanceof SpannableStringBuilder ? dest.subSequence(dstart, dend) : "";
             }
 
             int keep = maxLength - (dest.length() - (dend - dstart));

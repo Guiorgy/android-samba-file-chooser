@@ -15,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.obsez.android.lib.smbfilechooser.R;
-import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 
@@ -25,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import jcifs.smb.SmbException;
@@ -38,18 +36,12 @@ import static com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog.getNetwo
  */
 public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
     public SmbDirAdapter(Context cxt, List<SmbFile> entries, int resId) {
-        super(cxt, resId, R.id.text, entries);
-        this.init(null);
+        this(cxt, entries, resId, null);
     }
 
     public SmbDirAdapter(Context cxt, List<SmbFile> entries, int resId, String dateFormat) {
         super(cxt, resId, R.id.text, entries);
         this.init(dateFormat);
-    }
-
-    public SmbDirAdapter(Context cxt, List<SmbFile> entries, int resource, int textViewResourceId) {
-        super(cxt, resource, textViewResourceId, entries);
-        this.init(null);
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -66,11 +58,49 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
         _colorFilter = new PorterDuffColorFilter(accentColorWithAlpha, PorterDuff.Mode.MULTIPLY);
     }
 
+    private static final class File{
+        final String name;
+        final Drawable icon;
+        final boolean isDirectory;
+        final long lastModified;
+        final String fileSize;
+        final int hashCode;
+
+        File(String name, Drawable icon, boolean isDirectory, long lastModified, String fileSize, int hashCode){
+            this.name = name;
+            this.icon = icon;
+            this.isDirectory = isDirectory;
+            this.lastModified = lastModified;
+            this.fileSize = fileSize;
+            this.hashCode = hashCode;
+        }
+
+        static int hashCode(SmbFile file){
+            // For some reason SmbFile default hashCode function takes ages to compute!
+            return file.getServer().hashCode() + file.getCanonicalPath().hashCode();
+        }
+    }
+
     // This function is called to show each view item
     @NonNull
     @Override
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
         ViewGroup rl = (ViewGroup) super.getView(position, convertView, parent);
+
+        Future<File> futureFile = getNetworkThread().submit(new Callable<File>(){
+            @Override
+            public File call() throws SmbException{
+                SmbFile file = SmbDirAdapter.super.getItem(position);
+                if(file == null) return null;
+                String name = file.getName();
+                name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
+                boolean isDirectory = file.isDirectory();
+                Drawable icon = isDirectory ? _defaultFolderIcon : _defaultFileIcon;
+                long lastModified = isDirectory && (!file.getName().trim().equals("../") || !file.getName().trim().equals("..")) ? 0L : file.lastModified();
+                String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLength());
+                return new File(name, icon, isDirectory, lastModified, fileSize, File.hashCode(file));
+            }
+        });
 
         final View root = rl.findViewById(R.id.root);
         final TextView tvName = rl.findViewById(R.id.text);
@@ -78,47 +108,26 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
         final TextView tvDate = rl.findViewById(R.id.txt_date);
         //ImageView ivIcon = (ImageView) rl.findViewById(R.id.icon);
 
-        tvDate.setVisibility(View.VISIBLE);
-
-        Future ret = getNetworkThread().submit(new Runnable(){
-            @Override
-            public void run(){
-                SmbFile file = SmbDirAdapter.super.getItem(position);
-				if(file == null) return;
-				String name = file.getName();
-				name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
-                tvName.setText(name);
-                try{
-                    if(file.isDirectory()){
-                        final Drawable folderIcon = _defaultFolderIcon;
-                        tvName.setCompoundDrawablesWithIntrinsicBounds(folderIcon, null, null, null);
-                        tvSize.setText("");
-                        if(!file.getName().trim().equals("../") && !file.getName().trim().equals("..") && file.lastModified() != 0L){
-                            tvDate.setText(_formatter.format(new Date(file.lastModified())));
-                        } else{
-                            tvDate.setVisibility(View.GONE);
-                        }
-                    } else{
-                        final Drawable fileIcon = _defaultFileIcon;
-                        tvName.setCompoundDrawablesWithIntrinsicBounds(fileIcon, null, null, null);
-                        tvSize.setText(FileUtil.getReadableFileSize(file.length()));
-                        if(file.lastModified() != 0L) tvDate.setText(_formatter.format(new Date(file.lastModified())));
-                          else tvDate.setVisibility(View.GONE);
-                    }
-
-                    if(_selected.get(file.hashCode(), null) == null) root.getBackground().clearColorFilter();
-                      else root.getBackground().setColorFilter(_colorFilter);
-                } catch(SmbException e){
-                    e.printStackTrace();
-                }
-            }
-        });
-
+        File file;
         try{
-            ret.get();
+            file = futureFile.get();
+            if(file == null) return rl;
         } catch(InterruptedException | ExecutionException e){
             e.printStackTrace();
+            return rl;
         }
+
+        tvName.setText(file.name);
+        tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
+        if(file.lastModified != 0L){
+            tvDate.setText(_formatter.format(new Date(file.lastModified)));
+            tvDate.setVisibility(View.VISIBLE);
+        } else{
+            tvDate.setVisibility(View.GONE);
+        }
+        tvSize.setText(file.fileSize);
+        if(_selected.get(file.hashCode, null) == null) root.getBackground().clearColorFilter();
+          else root.getBackground().setColorFilter(_colorFilter);
 
         return rl;
     }
@@ -157,10 +166,9 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
         this._resolveFileType = resolveFileType;
     }
 
-    public void setEntries(List<SmbFile> entries){
+    public void setEntries(@NonNull final List<SmbFile> entries){
         super.clear();
         super.addAll(entries);
-        //notifyDataSetChanged();
     }
 
     @Override
@@ -169,7 +177,7 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
             @Override
             public Long call(){
                 //noinspection ConstantConditions
-                return (long) getItem(position).hashCode();
+                return (long) File.hashCode(getItem(position));
             }
         });
 
@@ -189,7 +197,7 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
         } else{
             _selected.delete(id);
         }
-        //notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     public boolean isSelected(int position){

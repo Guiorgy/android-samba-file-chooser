@@ -1,5 +1,6 @@
 package com.obsez.android.lib.smbfilechooser.demo;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -184,8 +185,8 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 try{
                     SmbFileChooserDialog.newDialog(ctx, "10.186.1.20", auth)
                             .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
-                            .setFilter(true, false)
-                            .enableOptions(true)
+                            //.setFilter(true, false)
+                            .setFilterRegex(false, false, ".*\\.txt")
                             .setStartFile(null) // same as "smb://{domain}/
                             .setOnLastBackPressedListener(new SmbFileChooserDialog.OnBackPressedListener(){
                                 @Override
@@ -193,15 +194,21 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                                     Toast.makeText(ctx, "This dialog won't close by pressing back!", Toast.LENGTH_SHORT).show();
                                 }
                             })
-                            .setNewFolderFilter(new FileUtil.NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "[a-z]"))
+                            .setNewFolderFilter(new FileUtil.NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
                             .setOnChosenListener(new SmbFileChooserDialog.OnChosenListener(){
                                 @Override
                                 public void onChoosePath(@NonNull final String path, @NonNull final SmbFile file){
-                                    Toast.makeText(ctx, "FOLDER: " + path, Toast.LENGTH_SHORT).show();
-                                    _path = path;
-                                    _tv.setText(_path);
+                                    ((Activity) ctx).runOnUiThread(new Runnable(){
+                                        @Override
+                                        public void run(){
+                                            Toast.makeText(ctx, "FOLDER: " + path, Toast.LENGTH_SHORT).show();
+                                            _path = path;
+                                            _tv.setText(_path);
+                                        }
+                                    });
                                 }
                             })
+                            .enableOptions(true)
                             .build()
                             .show();
                 } catch(MalformedURLException | InterruptedException | ExecutionException e){
