@@ -9,34 +9,34 @@
                 tools:context=".ChooseFileActivityFragment">
 
   <Button
-      android:id="@+id/btn_choose_a_file"
+      android:id="@+id/btn_choose_a_folder"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerHorizontal="true"
-      android:text="@string/btn_choose_a_file"/>
+      android:text="@string/btn_choose_a_folder"/>
 
   <Button
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@string/btn_choose_a_folder"
-      android:id="@+id/btn_choose_a_folder"
-      android:layout_below="@+id/btn_choose_a_file"
+      android:text="@string/btn_choose_any_file"
+      android:id="@+id/btn_choose_any_file"
+      android:layout_below="@+id/btn_choose_a_folder"
       android:layout_centerHorizontal="true"/>
 
   <Button
-      android:id="@+id/btn_choose_any_file"
+      android:id="@+id/btn_choose_multiple_files"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_below="@+id/btn_choose_a_folder"
+      android:layout_below="@+id/btn_choose_any_file"
       android:layout_centerHorizontal="true"
-      android:text="@string/btn_choose_any_file"/>
+      android:text="@string/btn_choose_multiple_files"/>
 
   <LinearLayout
       android:id="@+id/edit_holder"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="horizontal"
-      android:layout_below="@+id/btn_choose_any_file">
+      android:layout_below="@+id/btn_choose_multiple_files">
 
       <EditText
           android:id="@+id/edit_domain"
@@ -87,13 +87,12 @@
       android:layout_below="@+id/btn_choose_a_folder_smb"
       android:layout_centerHorizontal="true"/>
 
-  <ImageView
+  <ListView
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:id="@+id/imageView"
+      android:id="@+id/listView"
       android:layout_below="@+id/textView"
       android:layout_centerHorizontal="true"
-      android:background="@android:color/transparent"
-      tools:ignore="ContentDescription" />
+      android:background="@android:color/transparent"/>
 
 </RelativeLayout>

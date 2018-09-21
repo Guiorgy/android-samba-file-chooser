@@ -1,5 +1,6 @@
 package com.obsez.android.lib.smbfilechooser.internals;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
@@ -151,6 +152,10 @@ public class FileUtil {
 
         @NonNull public Resources getResources() {
             return context.getResources();
+        }
+
+        public  void runOnUiThread(Runnable runnable){
+            ((Activity) context).runOnUiThread(runnable);
         }
     }
 }

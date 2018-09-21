@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +43,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
     private static final String TAG = "ChooseFileActivityFragment";
     private String _path;
     private TextView _tv;
-    private ImageView _iv;
+    private ListView _lv;
 
     public ChooseFileActivityFragment() {
     }
@@ -56,8 +57,8 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         View root = inflater.inflate(R.layout.fragment_choose_file, container, false);
         _tv = (TextView) root.findViewById(R.id.textView);
         _tv.setText(BuildConfig.VERSION_NAME);
-        _iv = (ImageView) root.findViewById(R.id.imageView);
-        root.findViewById(R.id.btn_choose_a_file).setOnClickListener(this);
+        _lv = (ListView) root.findViewById(R.id.listView);
+        root.findViewById(R.id.btn_choose_multiple_files).setOnClickListener(this);
         root.findViewById(R.id.btn_choose_a_folder).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,8 +153,6 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
 
                                 _path = path;
                                 _tv.setText(_path);
-                                //_iv.setImageURI(Uri.fromFile(pathFile));
-                                _iv.setImageBitmap(ImageUtil.decodeFile(pathFile));
                             }
                         })
                         .build()
@@ -170,11 +169,11 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 final Context ctx = getActivity();
                 assert ctx != null;
                 String domain = mEditDomain.getText().toString();
-                /*if(domain.isEmpty()){
+                if(domain.isEmpty()){
                     mEditDomain.setError("Required!");
                     mEditDomain.requestFocus();
                     return;
-                }*/
+                }
                 String name = mEditName.getText().toString();
                 if(name.isEmpty()) name = null;
                 String password = mEditPassword.getText().toString();
@@ -183,10 +182,9 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 if(name == null && password == null) auth = null;
                     else auth = new NtlmPasswordAuthentication(domain, name, password);
                 try{
-                    SmbFileChooserDialog.newDialog(ctx, "10.186.1.20", auth)
+                    SmbFileChooserDialog.newDialog(ctx, domain, auth)
                             .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
-                            //.setFilter(true, false)
-                            .setFilterRegex(false, false, ".*\\.txt")
+                            .setFilter(true, false)
                             .setStartFile(null) // same as "smb://{domain}/
                             .setOnLastBackPressedListener(new SmbFileChooserDialog.OnBackPressedListener(){
                                 @Override
@@ -208,7 +206,6 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                                     });
                                 }
                             })
-                            .enableOptions(true)
                             .build()
                             .show();
                 } catch(MalformedURLException | InterruptedException | ExecutionException e){
@@ -225,24 +222,12 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         //choose a file
         final Context ctx = this.getActivity();
         assert ctx != null;
-        //Demo.INSTANCE.demo1(ctx, _path, new ChooserDialog.Result() {
-        //    @Override
-        //    public void onChoosePath(String path, File pathFile) {
-        //        Toast.makeText(ctx, "FILE: " + path, Toast.LENGTH_SHORT).show();
-        //
-        //        _path = path;
-        //        _tv.setText(_path);
-        //        //_iv.setImageURI(Uri.fromFile(pathFile));
-        //        _iv.setImageBitmap(ImageUtil.decodeFile(pathFile));
-        //    }
-        //});
-
         FileChooserDialog.newDialog(ctx)
                 .setFilterRegex(false, true, ".*\\.(jpe?g|png)")
                 .setStartFile(_path)
-                .setResources(R.string.title_nothing, R.string.title_choose, R.string.dialog_cancel)
+                .setResources(R.string.title_choose_multiple_files, R.string.title_choose, R.string.dialog_cancel)
                 .enableOptions(true)
-                .enableMultiple(true, true)
+                .enableMultiple(true, false)
                 .setOnChosenListener(new FileChooserDialog.OnChosenListener() {
                     @Override
                     public void onChoosePath(@NonNull String path, @NonNull File pathFile) {
@@ -250,8 +235,6 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
 
                         _path = path;
                         _tv.setText(_path);
-                        //_iv.setImageURI(Uri.fromFile(pathFile));
-                        _iv.setImageBitmap(ImageUtil.decodeFile(pathFile));
                     }
                 })
                 .setOnSelectedListener(new FileChooserDialog.OnSelectedListener(){
@@ -262,12 +245,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                             paths.add(file.getAbsolutePath());
                         }
 
-                        new AlertDialog.Builder(ctx)
-                                .setTitle(files.size() + " files selected:")
-                                .setAdapter(new ArrayAdapter<String>(ctx,
-                                        android.R.layout.simple_expandable_list_item_1, paths),null)
-                                .create()
-                                .show();
+                        _lv.setAdapter(new ArrayAdapter<String>(ctx, android.R.layout.simple_expandable_list_item_1, paths));
                     }
                 })
                 .build()

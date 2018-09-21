@@ -62,6 +62,7 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
+import kotlin.Triple;
 
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
@@ -915,39 +916,52 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
                                         if(SmbFileChooserDialog.this._chooseMode == CHOOSE_MODE_SELECT_MULTIPLE){
                                             try{
-                                                Queue<SmbFile> parents = new ArrayDeque<SmbFile>();
-                                                final String parentPath = SmbFileChooserDialog.this._currentDir.getParent();
-                                                SmbFile current = new SmbFile(parentPath, _auth);
-                                                while(!current.equals(SmbFileChooserDialog.this._rootDir)){
-                                                    parents.add(current);
-                                                    final String parent = current.getParent();
-                                                    current = new SmbFile(parent, _auth);
-                                                }
+                                                final Queue<SmbFile> parents = new ArrayDeque<SmbFile>();
+                                                EXECUTOR.submit(new Callable<Void>(){
+                                                    @Override
+                                                    public Void call() throws MalformedURLException{
+                                                        final String parentPath = SmbFileChooserDialog.this._currentDir.getParent();
+                                                        SmbFile current = new SmbFile(parentPath, _auth);
+                                                        while(!current.equals(SmbFileChooserDialog.this._rootDir)){
+                                                            parents.add(current);
+                                                            final String parent = current.getParent();
+                                                            current = new SmbFile(parent, _auth);
+                                                        }
+                                                        return null;
+                                                    }
+                                                }).get();
 
                                                 for(SmbFile file : SmbFileChooserDialog.this._adapter.getSelected()){
                                                     deleteFile(file);
                                                 }
                                                 SmbFileChooserDialog.this._adapter.clearSelected();
 
-                                                // Check whether the current directory was deleted.
-                                                if(!SmbFileChooserDialog.this._currentDir.exists()){
-                                                    SmbFile parent;
+                                                SmbFile currentDir = EXECUTOR.submit( new Callable<SmbFile>(){
+                                                    @Override
+                                                    public SmbFile call() throws SmbException{
+                                                        if(!SmbFileChooserDialog.this._currentDir.exists()){
+                                                            SmbFile parent;
 
-                                                    while((parent = parents.poll()) != null){
-                                                        if(parent.exists()) break;
-                                                    }
+                                                            while((parent = parents.poll()) != null){
+                                                                if(parent.exists()) break;
+                                                            }
 
-                                                    if(parent != null && parent.exists()){
-                                                        SmbFileChooserDialog.this._currentDir = parent;
-                                                    } else{
-                                                        SmbFileChooserDialog.this._currentDir = SmbFileChooserDialog.this._rootDir;
+                                                            if(parent != null && parent.exists()){
+                                                                SmbFileChooserDialog.this._currentDir = parent;
+                                                            } else{
+                                                                SmbFileChooserDialog.this._currentDir = SmbFileChooserDialog.this._rootDir;
+                                                            }
+                                                        }
+                                                        return SmbFileChooserDialog.this._currentDir;
                                                     }
-                                                }
+                                                }).get();
+
+                                                boolean scrollTop = !SmbFileChooserDialog.this._currentDir.equals(currentDir);
+                                                SmbFileChooserDialog.this._currentDir = currentDir;
 
                                                 refreshDirs();
-                                            } catch(MalformedURLException e){
-                                                e.printStackTrace();
-                                            } catch(SmbException e){
+                                                if(scrollTop) SmbFileChooserDialog.this._list.setSelection(0);
+                                            } catch(InterruptedException | ExecutionException e){
                                                 e.printStackTrace();
                                             }
 
@@ -974,6 +988,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
         this._list = this._alertDialog.getListView();
         this._list.setOnItemClickListener(this);
+        this._list.setOnItemLongClickListener(this);
         return SmbFileChooserDialog.this;
     }
 
@@ -1114,19 +1129,24 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             @Override
             public void run(){
                 try{
-                    final SmbFile newDir = new SmbFile(SmbFileChooserDialog.this._currentDir.getPath(), name, _auth);
+                    final SmbFile newDir = new SmbFile(SmbFileChooserDialog.this._currentDir.getPath(), name, SmbFileChooserDialog.this._auth);
                     if(!newDir.exists()){
                         newDir.mkdirs();
-                        refreshDirs();
+                        runOnUiThread(new Runnable(){
+                            @Override
+                            public void run(){
+                                refreshDirs();
+                            }
+                        });
                         return;
                     }
                 } catch(MalformedURLException | SmbException e){
                     e.printStackTrace();
                 }
-                ((Activity) getBaseContext()).runOnUiThread(new Runnable(){
+                runOnUiThread(new Runnable(){
                     @Override
                     public void run(){
-                        Toast.makeText(getBaseContext(), "Couldn't create folder " + name + SmbFileChooserDialog.this._currentDir, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getBaseContext(), "Couldn't create folder " + name + " at " + SmbFileChooserDialog.this._currentDir, Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -1136,109 +1156,126 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     // todo: ask for confirmation! (inside an AlertDialog.. Ironical, I know)
     private void deleteFile(@NonNull final SmbFile file){
         try{
-            file.delete();
-        } catch(SmbException e){
-            e.printStackTrace();
-            ((Activity) getBaseContext()).runOnUiThread(new Runnable(){
+            this._chooseMode = CHOOSE_MODE_NORMAL;
+            if(EXECUTOR.submit(new Callable<Boolean>(){
                 @Override
-                public void run(){
-                    Toast.makeText(getBaseContext(), "Couldn't delete " + file.getName() + " at " + file.getPath(), Toast.LENGTH_LONG).show();
+                public Boolean call(){
+                    try{
+                        file.delete();
+                        return true;
+                    } catch(SmbException e){
+                        e.printStackTrace();
+                        return false;
+                    }
                 }
-            });
+            }).get()) return;
+        } catch(InterruptedException | ExecutionException e){
+            e.printStackTrace();
         }
-        this._chooseMode = CHOOSE_MODE_NORMAL;
+        Toast.makeText(getBaseContext(), "Couldn't delete " + file.getName() + " at " + file.getPath(), Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void onItemClick(@Nullable AdapterView<?> parent, @NonNull View list, final int position, final long id) {
-        Future<Boolean> thread = EXECUTOR.submit(new Callable<Boolean>(){
-            @Override
-            public Boolean call(){
-                try{
-                    if(position < 0 || position >= _entries.size()) return false;
+    public void onItemClick(@Nullable final AdapterView<?> parent, @NonNull final View list, final int position, final long id) {
+        try{
+            if(position < 0 || position >= _entries.size()) return;
 
+            Triple<SmbFile, Boolean, String> triple = EXECUTOR.submit(new Callable<Triple<SmbFile, Boolean, String>>(){
+                @Override
+                public Triple<SmbFile, Boolean, String> call() throws MalformedURLException, SmbException{
                     SmbFile file = _entries.get(position);
                     if(file.getName().equals("../") || file.getName().equals("..")){
                         final String parentPath = _currentDir.getParent();
                         final SmbFile f = new SmbFile(parentPath, _auth);
                         if(_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
                         if(_folderNavUpCB.canUpTo(f)) {
+                            _currentDir = f;
                             _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
-                            return true;
-                        }
-                    } else{
-                        switch(_chooseMode){
-                            case CHOOSE_MODE_NORMAL:
-                                if (file.isDirectory()){
-                                    if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
-                                    if (_folderNavToCB.canNavigate(file)) {
-                                        _currentDir = file;
-                                        return true;
-                                    }
-                                } else if ((!_dirOnly) && _onChosenListener != null){
-                                    _onChosenListener.onChoosePath(file.getPath(), file);
-                                    if(_dismissOnButtonClick) _alertDialog.dismiss();
-                                }
-                                break;
-                            case CHOOSE_MODE_SELECT_MULTIPLE:
-                                if(file.isDirectory()){
-                                    if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
-                                    if (_folderNavToCB.canNavigate(file)) {
-                                        _currentDir = file;
-                                        return true;
-                                    }
-                                } else{
-                                    _adapter.selectItem(position);
-                                    if(!_adapter.isAnySelected()){
-                                        _chooseMode = CHOOSE_MODE_NORMAL;
-                                        if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
-                                    }
-                                }
-                                break;
-                            case CHOOSE_MODE_DELETE:
-                                deleteFile(file);
-                                _chooseMode = CHOOSE_MODE_NORMAL;
-                                break;
-                            default:
-                                // ERROR! It shouldn't get here...
-                                break;
+                            return new Triple<SmbFile, Boolean, String>(null, true, null);
                         }
                     }
-                } catch(MalformedURLException | SmbException e){
-                    e.printStackTrace();
+                    return new Triple<SmbFile, Boolean, String>(file, file.isDirectory(), file.getPath());
                 }
-                return false;
-            }
-        });
+            }).get();
 
-        try{
-            boolean scrollToTop = thread.get();
+            final SmbFile file = triple.getFirst();
+            final boolean isDirectory = triple.getSecond();
+            final String path = triple.getThird();
+            boolean scrollToTop = false;
+
+            if(file != null){
+                switch(_chooseMode){
+                    case CHOOSE_MODE_NORMAL:
+                        if (isDirectory){
+                            if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
+                            if (_folderNavToCB.canNavigate(file)) {
+                                _currentDir = file;
+                                scrollToTop = true;
+                            }
+                        } else if ((!_dirOnly) && _onChosenListener != null){
+                            _onChosenListener.onChoosePath(path, file);
+                            if(_dismissOnButtonClick) _alertDialog.dismiss();
+                        }
+                        break;
+                    case CHOOSE_MODE_SELECT_MULTIPLE:
+                        if(isDirectory){
+                            if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
+                            if (_folderNavToCB.canNavigate(file)) {
+                                _currentDir = file;
+                                scrollToTop = true;
+                            }
+                        } else{
+                            _adapter.selectItem(position);
+                            if(!_adapter.isAnySelected()){
+                                _chooseMode = CHOOSE_MODE_NORMAL;
+                                if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+                            }
+                        }
+                        break;
+                    case CHOOSE_MODE_DELETE:
+                        deleteFile(file);
+                        _chooseMode = CHOOSE_MODE_NORMAL;
+                        break;
+                    default:
+                        // ERROR! It shouldn't get here...
+                        break;
+                }
+            } else{
+                scrollToTop = isDirectory;
+            }
+
             refreshDirs();
             if(scrollToTop) _list.setSelection(0);
+
         } catch(InterruptedException | ExecutionException e){
             e.printStackTrace();
         }
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View list, int position, long id) {
+    public boolean onItemLongClick(@Nullable final AdapterView<?> parent, @NonNull final View list, final int position, final long id) {
         try{
-            SmbFile file = _entries.get(position);
-            if (file.getName().equals("..")) return true;
-            if(!_allowSelectDir && file.isDirectory()) return true;
-            _adapter.selectItem(position);
-            if(!_adapter.isAnySelected()){
-                _chooseMode = CHOOSE_MODE_NORMAL;
-                if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
-            } else{
-                _chooseMode = CHOOSE_MODE_SELECT_MULTIPLE;
-                if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
+            if(EXECUTOR.submit(new Callable<Boolean>(){
+                @Override
+                public Boolean call() throws SmbException{
+                    SmbFile file = _entries.get(position);
+                    return !file.getName().equals("../") && !file.getName().equals("..") && (_allowSelectDir || !file.isDirectory());
+                }
+            }).get()){
+                _adapter.selectItem(position);
+                if(!_adapter.isAnySelected()){
+                    _chooseMode = CHOOSE_MODE_NORMAL;
+                    if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+                } else{
+                    _chooseMode = CHOOSE_MODE_SELECT_MULTIPLE;
+                    if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
+                }
             }
             return true;
-        } catch(SmbException e){
+        } catch(InterruptedException | ExecutionException e){
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     @Override

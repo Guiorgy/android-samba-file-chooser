@@ -48,7 +48,7 @@
       android:textColor="@color/material_deep_teal_200"
       android:textSize="13sp"/>
 
-  <ImageView
+  <!--<ImageView
       android:id="@+id/icon"
       android:layout_width="48dp"
       android:layout_height="48dp"
@@ -59,6 +59,6 @@
       android:scaleType="fitCenter"
       android:src="@drawable/ic_folder"
       android:visibility="gone"
-      app:srcCompat="@drawable/ic_folder"/>
+      app:srcCompat="@drawable/ic_folder"/>-->
 
 </RelativeLayout>
