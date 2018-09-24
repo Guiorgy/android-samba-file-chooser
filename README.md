@@ -17,7 +17,7 @@ This (`android-smbfile-chooser`) is my take on it. I added the ability to use [j
 
 ### Snapshots
 
-<img src="captures/choose_file.png" width="360"/><img src="captures/smb.png" width="360"/><img src="captures/options.png" width="360"/><img src="captures/new_folder.png" width="360"/>
+<img src="captures/demo.gif" width="360"/><img src="captures/smb.png" width="360"/>
 
 ### Demo Application
 
@@ -27,8 +27,8 @@ A demo-app of the original can be installed from [Play Store](https://play.googl
 
 **NOTE**:
 
-I replaced all methods "with___()" with "set___()"! also, use static method "newDialog(context)" instead of a constuctor.
-Also, please don't forget to check the [**_original_**](https://github.com/hedzr/android-file-chooser) and *:star: star* it! 
+I replaced all methods "with___()" with "set___()"! And, use static method "newDialog(context)" instead of a constuctor.
+Also, please don't forget to check the [**_original_**](https://github.com/hedzr/android-file-chooser) and give it a :star:! 
 
 ## Usage
 
@@ -47,6 +47,12 @@ try{
                 e.printStackTrace();
             }
         })
+        /*
+        .enableOptions(true)
+        .setOptionResources("New folder", "Delete", "Cancel", "OK")
+        .setNewFolderFilter(new NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
+        .enableMultiple(true, true)
+        */
         .build()
         .show();
 } catch(MalformedURLException | InterruptedException | ExecutionException e){
@@ -89,9 +95,9 @@ try{
 })
 //.setOnBackPressedListener(...)
 ```
-- if you want to limit the naming of new folders use this. by default the max length is set to 255, and the regex is *\"\[\<\>\|\\\:\&\;\#\\n\\r\\t\?\*\~\\0\-\\37\]\"*.
+- if you want to limit the naming of new folders use this. by default the max length is set to 255, and the regex is *\"^\[^/\<\>\|\\\:\&\;\#\\n\\r\\t\?\*\~\\0\-\\37\]\*$\"*.
 ```
-.setNewFolderFilter(new FileUtil.NewFolderFilter(maxLength, regex))
+.setNewFolderFilter(new FileUtil.NewFolderFilter(maxLength, pattern))
 ```
 
 for more information please refere to the [original](https://github.com/hedzr/android-file-chooser).
