@@ -61,6 +61,7 @@ public class DirAdapter extends ArrayAdapter<File> {
     }
 
     // This function is called to show each view item
+    @SuppressWarnings("ConstantConditions")
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -71,40 +72,44 @@ public class DirAdapter extends ArrayAdapter<File> {
         TextView tvDate = rl.findViewById(R.id.txt_date);
         //ImageView ivIcon = (ImageView) rl.findViewById(R.id.icon);
 
-        tvDate.setVisibility(View.VISIBLE);
-
         File file = super.getItem(position);
-		if(file == null) return rl;
+        if(file == null) return rl;
+
         tvName.setText(file.getName());
-        if (file.isDirectory()) {
-            final Drawable folderIcon = _defaultFolderIcon;
-            tvName.setCompoundDrawablesWithIntrinsicBounds(folderIcon, null, null, null);
-            tvSize.setText("");
-            if (!file.getName().trim().equals("../") && !file.getName().trim().equals("..") && file.lastModified() != 0L) {
-                tvDate.setText(_formatter.format(new Date(file.lastModified())));
-            } else {
-                tvDate.setVisibility(View.GONE);
-            }
-        } else {
-            Drawable d = null;
+
+        long lastModified = file.isDirectory() || file.getName().trim().equals("..") ? 0L : file.lastModified();
+        if(lastModified != 0L){
+            tvDate.setText(_formatter.format(new Date(lastModified)));
+            tvDate.setVisibility(View.VISIBLE);
+        } else{
+            tvDate.setVisibility(View.GONE);
+        }
+
+        tvSize.setText(file.isDirectory() ? "" : FileUtil.getReadableFileSize(file.length()));
+
+        Drawable icon = file.isDirectory() ? _defaultFolderIcon : null;
+        if(icon == null){
             if (_resolveFileType) {
-                d = UiUtil.resolveFileTypeIcon(getContext(), Uri.fromFile(file));
-                if (d != null) {
-                    d = new WrappedDrawable(d, 24, 24);
+                icon = UiUtil.resolveFileTypeIcon(getContext(), Uri.fromFile(file));
+                if (icon != null) {
+                    icon = new WrappedDrawable(icon, 24, 24);
                 }
             }
-            if (d == null) {
-                d = _defaultFileIcon;
+            if (icon == null) {
+                icon = _defaultFileIcon;
             }
-            tvName.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
-            tvSize.setText(FileUtil.getReadableFileSize(file.length()));
-            if(file.lastModified() != 0L) tvDate.setText(_formatter.format(new Date(file.lastModified())));
-              else tvDate.setVisibility(View.GONE);
         }
+        if(file.isHidden() && !file.getName().trim().equals("..")){
+            final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
+            icon = icon.getConstantState().newDrawable().mutate();
+            icon.setColorFilter(filter);
+        }
+        tvName.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
         View root = rl.findViewById(R.id.root);
         if(_selected.get(file.hashCode(), null) == null) root.getBackground().clearColorFilter();
           else root.getBackground().setColorFilter(_colorFilter);
+
         return rl;
     }
 

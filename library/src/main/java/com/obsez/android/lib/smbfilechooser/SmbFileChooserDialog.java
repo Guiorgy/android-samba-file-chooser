@@ -41,9 +41,12 @@ import com.obsez.android.lib.smbfilechooser.internals.RegexSmbFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 import com.obsez.android.lib.smbfilechooser.tool.SmbDirAdapter;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.net.MalformedURLException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -166,7 +169,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
-    @NonNull public SmbFileChooserDialog setFilter(boolean dirOnly, boolean allowHidden, @NonNull SmbFileFilter sff) {
+    @NonNull public SmbFileChooserDialog setFilter(final boolean dirOnly, final boolean allowHidden, @NonNull final SmbFileFilter sff) {
         setFilter(dirOnly, allowHidden, (String[]) null);
         this._fileFilter = sff;
         return this;
@@ -176,10 +179,29 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return setFilter(false, allowHidden, suffixes);
     }
 
-    @NonNull public SmbFileChooserDialog setFilter(boolean dirOnly, boolean allowHidden, @Nullable String... suffixes) {
+    @NonNull public SmbFileChooserDialog setFilter(final boolean dirOnly, final boolean allowHidden, @Nullable final String... suffixes) {
         this._dirOnly = dirOnly;
-        if (suffixes == null) {
-            this._fileFilter = dirOnly ? filterDirectoriesOnly : filterFiles;
+        if (suffixes == null || suffixes.length == 0) {
+            this._fileFilter = dirOnly ?
+            new SmbFileFilter(){
+                @Override
+                public boolean accept(final SmbFile file){
+                    try{
+                        return file.isDirectory() && (!file.isHidden() || allowHidden);
+                    } catch(SmbException e){
+                        return false;
+                    }
+                }
+            } : new SmbFileFilter(){
+                @Override
+                public boolean accept(final SmbFile file){
+                    try{
+                        return !file.isHidden() || allowHidden;
+                    } catch(SmbException e){
+                        return false;
+                    }
+                }
+            };
         } else {
             this._fileFilter = new ExtSmbFileFilter(_dirOnly, allowHidden, suffixes);
         }
@@ -1045,12 +1067,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     List<SmbFile> fileList = new LinkedList<SmbFile>();
 
                     for(SmbFile f : files){
-                        if(!f.getName().startsWith(".")){
-                            if(f.isDirectory()){
-                                dirList.add(f);
-                            } else{
-                                fileList.add(f);
-                            }
+                        if(f.isDirectory()){
+                            dirList.add(f);
+                        } else{
+                            fileList.add(f);
                         }
                     }
 
@@ -1093,16 +1113,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     _entries.clear();
 
                     // Get files
-                    SmbFile[] files = _currentDir.listFiles();
+                    SmbFile[] files = _currentDir.listFiles(_fileFilter);
 
-                    if(files != null){
-                        for(SmbFile file : files){
-                            if(!file.isDirectory()){
-                                continue;
-                            }
-
-                            _entries.add(file);
-                        }
+                    if (files != null) {
+                        _entries.addAll(Arrays.asList(files));
                     }
 
                     sortByName(_entries);
@@ -1339,20 +1353,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     private AdapterSetter _adapterSetter = null;
-
-    private final static SmbFileFilter filterDirectoriesOnly = new SmbFileFilter(){
-        @Override
-        public boolean accept(final SmbFile smbFile) throws SmbException{
-            return smbFile.isDirectory();
-        }
-    };
-
-    private final static SmbFileFilter filterFiles = new SmbFileFilter(){
-        @Override
-        public boolean accept(final SmbFile file) throws SmbException{
-            return !file.isHidden();
-        }
-    };
 
     @FunctionalInterface
     public interface CanNavigateUp {

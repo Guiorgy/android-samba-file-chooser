@@ -95,18 +95,15 @@ public class FileUtil {
         private final Pattern pattern;
 
         public NewFolderFilter() {
-            this.maxLength = 255;
-            this.pattern = Pattern.compile("^[^/<>|\\\\:&;#\n\r\t?*~\0-\37]*$");
+            this(255, "^[^/<>|\\\\:&;#\n\r\t?*~\0-\37]*$");
         }
 
         public NewFolderFilter(int maxLength) {
-            this.maxLength = maxLength;
-            this.pattern = Pattern.compile("^[^/<>|\\\\:&;#\n\r\t?*~\0-\37]*$");
+            this(maxLength, "^[^/<>|\\\\:&;#\n\r\t?*~\0-\37]*$");
         }
 
         public NewFolderFilter(String pattern) {
-            this.maxLength = 255;
-            this.pattern = Pattern.compile(pattern);
+            this(255, pattern);
         }
 
         public NewFolderFilter(int maxLength, String pattern) {

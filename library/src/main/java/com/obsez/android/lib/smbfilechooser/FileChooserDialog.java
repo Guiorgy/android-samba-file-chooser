@@ -47,6 +47,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -111,8 +112,19 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     @NonNull public FileChooserDialog setFilter(final boolean dirOnly, final boolean allowHidden, @Nullable final String... suffixes) {
         this._dirOnly = dirOnly;
-        if (suffixes == null) {
-            this._fileFilter = dirOnly ? filterDirectoriesOnly : filterFiles;
+        if (suffixes == null || suffixes.length == 0) {
+            this._fileFilter = dirOnly ?
+            new FileFilter(){
+                @Override
+                public boolean accept(final File file){
+                    return file.isDirectory() && (!file.isHidden() || allowHidden);
+                }
+            } : new FileFilter(){
+                @Override
+                public boolean accept(final File file){
+                    return !file.isHidden() || allowHidden;
+                }
+            };
         } else {
             this._fileFilter = new ExtFileFilter(_dirOnly, allowHidden, suffixes);
         }
@@ -885,29 +897,23 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             _entries.add(new File(".."));
         }
 
-        if (files != null) {
-            List<File> dirList = new LinkedList<>();
-            for (File f : files) {
-                if (f.isDirectory()) {
-                    if (!f.getName().startsWith(".")) {
-                        dirList.add(f);
-                    }
-                }
-            }
-            sortByName(dirList);
-            _entries.addAll(dirList);
+        if (files == null) return;
 
-            List<File> fileList = new LinkedList<>();
-            for (File f : files) {
-                if (!f.isDirectory()) {
-                    if (!f.getName().startsWith(".")) {
-                        fileList.add(f);
-                    }
-                }
+        List<File> dirList = new LinkedList<>();
+        List<File> fileList = new LinkedList<>();
+
+        for (File f : files) {
+            if (f.isDirectory()) {
+                dirList.add(f);
+            } else{
+                fileList.add(f);
             }
-            sortByName(fileList);
-            _entries.addAll(fileList);
         }
+
+        sortByName(dirList);
+        sortByName(fileList);
+        _entries.addAll(dirList);
+        _entries.addAll(fileList);
     }
 
     void sortByName(@NonNull final List<File> list) {
@@ -927,24 +933,18 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         _entries.clear();
 
         // Get files
-        File[] files = _currentDir.listFiles();
-
-        // Add the ".." entry
-        if (_currentDir.getParent() != null) {
-            _entries.add(new File(".."));
-        }
+        File[] files = _currentDir.listFiles(_fileFilter);
 
         if (files != null) {
-            for (File file : files) {
-                if (!file.isDirectory()) {
-                    continue;
-                }
-
-                _entries.add(file);
-            }
+            _entries.addAll(Arrays.asList(files));
         }
 
         sortByName(_entries);
+
+        // Add the ".." entry
+        if (_currentDir.getParent() != null && !_currentDir.getParent().equals("/storage/emulated")) {
+            _entries.add(new File(".."));
+        }
     }
 
     private void createNewDirectory(@NonNull final String name){
@@ -1104,20 +1104,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     private AdapterSetter _adapterSetter = null;
-
-    private final static FileFilter filterDirectoriesOnly = new FileFilter(){
-        @Override
-        public boolean accept(final File file){
-            return file.isDirectory();
-        }
-    };
-
-    private final static FileFilter filterFiles = new FileFilter(){
-        @Override
-        public boolean accept(final File file){
-            return !file.isHidden();
-        }
-    };
 
     @FunctionalInterface
     public interface CanNavigateUp {

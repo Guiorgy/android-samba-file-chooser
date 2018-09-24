@@ -88,6 +88,7 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
         ViewGroup rl = (ViewGroup) super.getView(position, convertView, parent);
 
         Future<File> futureFile = getNetworkThread().submit(new Callable<File>(){
+            @SuppressWarnings("ConstantConditions")
             @Override
             public File call() throws SmbException{
                 SmbFile file = SmbDirAdapter.super.getItem(position);
@@ -96,7 +97,12 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
                 name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
                 boolean isDirectory = file.isDirectory();
                 Drawable icon = isDirectory ? _defaultFolderIcon : _defaultFileIcon;
-                long lastModified = isDirectory && (!file.getName().trim().equals("../") || !file.getName().trim().equals("..")) ? 0L : file.lastModified();
+                if(file.isHidden() && !name.equals("../") && !name.equals("..")){
+                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
+                    icon = icon.getConstantState().newDrawable().mutate();
+                    icon.setColorFilter(filter);
+                }
+                long lastModified = isDirectory && (!name.equals("../") || !name.equals("..")) ? 0L : file.lastModified();
                 String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLength());
                 return new File(name, icon, isDirectory, lastModified, fileSize, File.hashCode(file));
             }
