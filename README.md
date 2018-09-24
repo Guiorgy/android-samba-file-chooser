@@ -65,7 +65,7 @@ try{
 ```
 .enableOptions(true)
 ```
-- now you can also pass Strings instead of Resourse id. **if Resourse id was set, it will take priority over Strings!**
+- now you can also pass Strings instead of Resourse id. **if Resource id was set, it will take priority over Strings!**
 ```
 .setOptionResources(0, 0, 0, 0)
 .setOptionResources("new folder", "delete", "cancel", "ok")
