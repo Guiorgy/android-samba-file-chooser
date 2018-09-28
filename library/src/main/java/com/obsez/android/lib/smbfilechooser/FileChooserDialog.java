@@ -75,7 +75,7 @@ import static com.obsez.android.lib.smbfilechooser.internals.FileUtil.NewFolderF
  * Created by coco on 6/7/15. Edited by Guiorgy on 10/09/18.
  */
 @SuppressWarnings("SpellCheckingInspection")
-public class FileChooserDialog extends LightContextWrapper implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class FileChooserDialog extends LightContextWrapper implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
     @FunctionalInterface
     public interface OnChosenListener{
         void onChoosePath(@NonNull final String dir, @NonNull final File dirFile);
@@ -394,6 +394,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         return this;
     }
 
+    @NonNull public FileChooserDialog enableDpad(final boolean enableDpad){
+        this._enableDpad = enableDpad;
+        return this;
+    }
+
     @NonNull public FileChooserDialog build() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
 
@@ -528,13 +533,15 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 }
 
                 if(FileChooserDialog.this._enableOptions){
+                    final int color = UiUtil.getThemeAccentColor(getBaseContext());
+                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+
                     final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
                     options.setText("");
                     options.setVisibility(View.VISIBLE);
+                    options.setTextColor(color);
                     final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
                             FileChooserDialog.this._optionsIconRes != -1 ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
-                    final int color = UiUtil.getThemeAccentColor(getBaseContext());
-                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
                     if(drawable != null){
                         drawable.setColorFilter(filter);
                         options.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
@@ -542,7 +549,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         options.setCompoundDrawablesWithIntrinsicBounds(
                                 FileChooserDialog.this._optionsIconRes != -1 ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
                     }
-                    options.setTextColor(color);
 
                     final Runnable showOptions = new Runnable(){
                         @Override
@@ -562,15 +568,17 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 params.bottomMargin = _options.getHeight();
                                                 FileChooserDialog.this._list.setLayoutParams(params);
                                                 FileChooserDialog.this._options.setVisibility(View.VISIBLE);
+                                                FileChooserDialog.this._options.requestFocus();
                                             }
                                         }, 100); // Just to make sure that the View has been drawn, so the transition is smoother.
                                         return true;
                                     }
                                 });
                             } else{
-                                FileChooserDialog.this._options.setVisibility(View.VISIBLE);
                                 params.bottomMargin = FileChooserDialog.this._options.getHeight();
                                 FileChooserDialog.this._list.setLayoutParams(params);
+                                FileChooserDialog.this._options.setVisibility(View.VISIBLE);
+                                FileChooserDialog.this._options.requestFocus();
                             }
                         }
                     };
@@ -578,6 +586,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         @Override
                         public void run(){
                             FileChooserDialog.this._options.setVisibility(View.INVISIBLE);
+                            FileChooserDialog.this._options.clearFocus();
                             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) FileChooserDialog.this._list.getLayoutParams();
                             params.bottomMargin = 0;
                             FileChooserDialog.this._list.setLayoutParams(params);
@@ -609,7 +618,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if(FileChooserDialog.this._createDirRes == -1) createDir.setText(FileChooserDialog.this._createDir);
                                   else createDir.setText(FileChooserDialog.this._createDirRes);
-                                // Drawable for the button.
+                                createDir.setTextColor(color);
                                 final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
                                         FileChooserDialog.this._createDirIconRes != -1 ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
                                 if(plus != null){
@@ -619,7 +628,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(
                                             FileChooserDialog.this._createDirIconRes != -1 ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
                                 }
-								createDir.setTextColor(color);
+                                if(FileChooserDialog.this._enableDpad){
+                                    createDir.setBackgroundResource(R.drawable.listview_item_selector);
+                                }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
                                 params.leftMargin = 10;
                                 options.addView(createDir, params);
@@ -628,6 +639,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if(FileChooserDialog.this._deleteRes == -1) delete.setText(FileChooserDialog.this._delete);
                                   else delete.setText(FileChooserDialog.this._deleteRes);
+                                delete.setTextColor(color);
                                 final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
                                         FileChooserDialog.this._deleteIconRes != -1 ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
                                 if(bin != null){
@@ -637,7 +649,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     delete.setCompoundDrawablesWithIntrinsicBounds(
                                             FileChooserDialog.this._deleteIconRes != -1 ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
                                 }
-								delete.setTextColor(color);
+                                if(FileChooserDialog.this._enableDpad){
+                                    delete.setBackgroundResource(R.drawable.listview_item_selector);
+                                }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
                                 params.rightMargin = 10;
                                 options.addView(delete, params);
@@ -718,9 +732,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                             this.input = input;
 
-                                            // A horizontal LinearLayout to hold buttons
-                                            final LinearLayout buttons = new LinearLayout(getBaseContext());
-                                            buttons.setOrientation(LinearLayout.HORIZONTAL);
+                                            // A FrameLayout to hold buttons
+                                            final FrameLayout buttons = new FrameLayout(getBaseContext());
                                             params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                                             holder.addView(buttons, params);
 
@@ -729,8 +742,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             if(FileChooserDialog.this._newFolderCancelRes == -1) cancel.setText(FileChooserDialog.this._newFolderCancel);
                                               else cancel.setText(FileChooserDialog.this._newFolderCancelRes);
 											cancel.setTextColor(color);
-                                            cancel.setGravity(START);
-                                            params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+                                            if(FileChooserDialog.this._enableDpad){
+                                                cancel.setBackgroundResource(R.drawable.listview_item_selector);
+                                            }
+                                            params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START);
                                             buttons.addView(cancel, params);
 
                                             // The OK button.
@@ -738,8 +753,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             if(FileChooserDialog.this._newFolderOkRes == -1) ok.setText(FileChooserDialog.this._newFolderOk);
                                               else ok.setText(FileChooserDialog.this._newFolderOkRes);
 											ok.setTextColor(color);
-                                            ok.setGravity(END);
-                                            params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+                                            if(FileChooserDialog.this._enableDpad){
+                                                ok.setBackgroundResource(R.drawable.listview_item_selector);
+                                            }
+                                            params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
 
                                             // Event Listeners.
@@ -747,9 +764,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 @Override
                                                 public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event){
                                                     if(actionId == EditorInfo.IME_ACTION_DONE){
-                                                        FileChooserDialog.this.createNewDirectory(input.getText().toString());
                                                         UiUtil.hideKeyboardFrom(getBaseContext(), input);
-                                                        overlay.setVisibility(View.INVISIBLE);
+                                                        if(!FileChooserDialog.this._enableDpad){
+                                                            FileChooserDialog.this.createNewDirectory(input.getText().toString());
+                                                            overlay.setVisibility(View.INVISIBLE);
+                                                            overlay.clearFocus();
+                                                        } else{
+                                                            input.requestFocus();
+                                                        }
                                                         return true;
                                                     }
                                                     return false;
@@ -760,6 +782,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 public void onClick(final View v){
                                                     UiUtil.hideKeyboardFrom(getBaseContext(), input);
                                                     overlay.setVisibility(View.INVISIBLE);
+                                                    overlay.clearFocus();
+                                                    if(FileChooserDialog.this._enableDpad){
+                                                        FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                        FileChooserDialog.this._list.setFocusable(true);
+                                                    }
                                                 }
                                             });
                                             ok.setOnClickListener(new View.OnClickListener(){
@@ -768,6 +795,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                     FileChooserDialog.this.createNewDirectory(input.getText().toString());
                                                     UiUtil.hideKeyboardFrom(getBaseContext(), input);
                                                     overlay.setVisibility(View.INVISIBLE);
+                                                    overlay.clearFocus();
+                                                    if(FileChooserDialog.this._enableDpad){
+                                                        FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                        FileChooserDialog.this._list.setFocusable(true);
+                                                    }
                                                 }
                                             });
                                             // endregion
@@ -775,8 +807,18 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                         if(FileChooserDialog.this._newFolderView.getVisibility() == View.INVISIBLE){
                                             FileChooserDialog.this._newFolderView.setVisibility(View.VISIBLE);
+                                            if(FileChooserDialog.this._enableDpad){
+                                                FileChooserDialog.this._newFolderView.requestFocus();
+                                                FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(false);
+                                                FileChooserDialog.this._list.setFocusable(false);
+                                            }
                                         } else{
                                             FileChooserDialog.this._newFolderView.setVisibility(View.INVISIBLE);
+                                            if(FileChooserDialog.this._enableDpad){
+                                                FileChooserDialog.this._newFolderView.clearFocus();
+                                                FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                FileChooserDialog.this._list.setFocusable(true);
+                                            }
                                         }
                                     }
                                 });
@@ -850,6 +892,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (this._enableMultiple){
             this._list.setOnItemLongClickListener(this);
         }
+
+        if(_enableDpad){
+            this._list.setSelector(R.drawable.listview_item_selector);
+            this._list.setDrawSelectorOnTop(true);
+            this._list.setItemsCanFocus(true);
+            this._list.setOnItemSelectedListener(this);
+            this._alertDialog.setOnKeyListener(this);
+        }
         return this;
     }
 
@@ -882,6 +932,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         if(_enableMultiple && !_dirOnly){
             _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+        }
+
+        if(_enableDpad){
+            _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setBackgroundResource(R.drawable.listview_item_selector);
+            _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundResource(R.drawable.listview_item_selector);
+            _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.listview_item_selector);
         }
         return this;
     }
@@ -973,6 +1029,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     public void onItemClick(@Nullable final AdapterView<?> parent, @NonNull final View list, final int position, final long id) {
         if (position < 0 || position >= _entries.size()) return;
 
+        View focus = _list;
         boolean scrollToTop = false;
         File file = _entries.get(position);
         if (file.getName().equals("..")) {
@@ -1006,6 +1063,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                             scrollToTop = true;
                         }
                     } else{
+                        if(_enableDpad) focus = _alertDialog.getCurrentFocus();
                         _adapter.selectItem(position);
                         if(!_adapter.isAnySelected()){
                             _chooseMode = CHOOSE_MODE_NORMAL;
@@ -1029,6 +1087,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
         refreshDirs();
         if(scrollToTop) _list.setSelection(0);
+        if(_enableDpad){
+            if(focus == null) _list.requestFocus();
+              else focus.requestFocus();
+        }
     }
 
     @Override
@@ -1045,6 +1107,53 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
         }
         return true;
+    }
+
+    private boolean lastSelected = false;
+    @Override
+    public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id){
+        lastSelected = position == _entries.size() - 1;
+    }
+
+    @Override
+    public void onNothingSelected(final AdapterView<?> parent){
+        //
+    }
+
+    @Override
+    public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event){
+        if(event.getAction() != KeyEvent.ACTION_DOWN) return false;
+        if(lastSelected){
+            if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+                lastSelected = false;
+                if(_options != null && _options.getVisibility() == View.VISIBLE){
+                    _options.requestFocus();
+                } else{
+                    _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).requestFocus();
+                }
+                return true;
+            }
+        } else{
+            if(_options != null && keyCode == KeyEvent.KEYCODE_DPAD_UP){
+                if(_alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).hasFocus()
+                        || _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).hasFocus()
+                        || _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).hasFocus()){
+                    if(_options.getVisibility() == View.VISIBLE){
+                        _options.requestFocus();
+                        return true;
+                    } else if(_options.isFocusable()){
+                        _list.requestFocus();
+                        lastSelected = true;
+                        return true;
+                    }
+                } else if(_options.hasFocus()){
+                    _list.requestFocus();
+                    lastSelected = true;
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -1097,6 +1206,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private View _newFolderView;
     private boolean _enableMultiple;
     private boolean _allowSelectDir = false;
+    private boolean _enableDpad;
 
     @FunctionalInterface
     public interface AdapterSetter {
