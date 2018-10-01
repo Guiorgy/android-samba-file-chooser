@@ -1,5 +1,14 @@
 # RELEASES
 
+## 1.2.0s - 2018-10-1
+
+\* changed NewFolderFilter
+\+ added Delete mode indicator. When in Delete mode option button and Delete button become red
+\+ added the ability to select multiple files
+\+ added Dpad support for Android TVs
+\* bug fixes
+
+
 ## 1.1.11s - 2018-09-14
 
 \+ added **NtlmPasswordAuthentication** authentication to the *samba* client
