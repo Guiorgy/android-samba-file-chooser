@@ -12,7 +12,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.obsez.android.lib.smbfilechooser.R;
@@ -29,21 +28,11 @@ import java.util.List;
 /**
  * Created by coco on 6/7/15.
  */
-public class DirAdapter extends ArrayAdapter<File> {
-
-    public DirAdapter(Context cxt, List<File> entries, int resId) {
-        super(cxt, resId, R.id.text, entries);
-        this.init(null);
-    }
+public class DirAdapter extends MyAdapter<File>{
 
     public DirAdapter(Context cxt, List<File> entries, int resId, String dateFormat) {
-        super(cxt, resId, R.id.text, entries);
+        super(cxt, entries, resId);
         this.init(dateFormat);
-    }
-
-    public DirAdapter(Context cxt, List<File> entries, int resource, int textViewResourceId) {
-        super(cxt, resource, textViewResourceId, entries);
-        this.init(null);
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -107,7 +96,7 @@ public class DirAdapter extends ArrayAdapter<File> {
         tvName.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
         View root = rl.findViewById(R.id.root);
-        if(_selected.get(file.hashCode(), null) == null) root.getBackground().clearColorFilter();
+        if(getSelected(file.hashCode()) == null) root.getBackground().clearColorFilter();
           else root.getBackground().setColorFilter(_colorFilter);
 
         return rl;
@@ -137,54 +126,10 @@ public class DirAdapter extends ArrayAdapter<File> {
         this._resolveFileType = resolveFileType;
     }
 
-	public void setEntries(List<File> entries){
-		super.clear();
-        super.addAll(entries);
-        notifyDataSetChanged();
-	}
-
     @Override
     public long getItemId(int position) {
         //noinspection ConstantConditions
         return getItem(position).hashCode();
-    }
-
-    public void selectItem(int position){
-        int id = (int) getItemId(position);
-        if(_selected.get(id, null) == null){
-            _selected.append(id, getItem(position));
-        } else{
-            _selected.delete(id);
-        }
-        notifyDataSetChanged();
-    }
-
-    public boolean isSelected(int position){
-        return isSelectedById((int) getItemId(position));
-    }
-
-    public boolean isSelectedById(int id){
-        return _selected.get(id, null) != null;
-    }
-
-    public boolean isAnySelected(){
-        return _selected.size() > 0;
-    }
-
-    public boolean isOneSelected(){
-        return  _selected.size() == 1;
-    }
-
-    public List<File> getSelected(){
-        ArrayList<File> list = new ArrayList<File>();
-        for(int i = 0; i < _selected.size(); i++){
-            list.add(_selected.valueAt(i));
-        }
-        return list;
-    }
-
-    public void clearSelected(){
-        _selected.clear();
     }
 
     private static SimpleDateFormat _formatter;
@@ -192,6 +137,5 @@ public class DirAdapter extends ArrayAdapter<File> {
     private Drawable _defaultFileIcon = null;
     private boolean _resolveFileType = false;
     private PorterDuffColorFilter _colorFilter;
-    private SparseArray<File> _selected = new SparseArray<File>();
 }
 

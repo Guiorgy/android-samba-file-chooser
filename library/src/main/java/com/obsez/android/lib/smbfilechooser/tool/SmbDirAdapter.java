@@ -11,7 +11,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.obsez.android.lib.smbfilechooser.R;
@@ -34,13 +33,9 @@ import static com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog.getNetwo
 /**
  * Created by coco on 6/9/18. Edited by Guiorgy on 10/09/18.
  */
-public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
-    public SmbDirAdapter(Context cxt, List<SmbFile> entries, int resId) {
-        this(cxt, entries, resId, null);
-    }
-
+public class SmbDirAdapter extends MyAdapter<SmbFile>{
     public SmbDirAdapter(Context cxt, List<SmbFile> entries, int resId, String dateFormat) {
-        super(cxt, resId, R.id.text, entries);
+        super(cxt, entries, resId);
         this.init(dateFormat);
     }
 
@@ -132,7 +127,7 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
             tvDate.setVisibility(View.GONE);
         }
         tvSize.setText(file.fileSize);
-        if(_selected.get(file.hashCode, null) == null) root.getBackground().clearColorFilter();
+        if(getSelected(file.hashCode) == null) root.getBackground().clearColorFilter();
           else root.getBackground().setColorFilter(_colorFilter);
 
         return rl;
@@ -172,11 +167,6 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
         this._resolveFileType = resolveFileType;
     }
 
-    public void setEntries(@NonNull final List<SmbFile> entries){
-        super.clear();
-        super.addAll(entries);
-    }
-
     @Override
     public long getItemId(final int position) {
         Future<Long> ret = getNetworkThread().submit(new Callable<Long>(){
@@ -196,44 +186,6 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
         return position;
     }
 
-    public void selectItem(int position){
-        int id = (int) getItemId(position);
-        if(_selected.get(id, null) == null){
-            _selected.append(id, getItem(position));
-        } else{
-            _selected.delete(id);
-        }
-        notifyDataSetChanged();
-    }
-
-    public boolean isSelected(int position){
-        return isSelectedById((int) getItemId(position));
-    }
-
-    public boolean isSelectedById(int id){
-        return _selected.get(id, null) != null;
-    }
-
-    public boolean isAnySelected(){
-        return _selected.size() > 0;
-    }
-
-    public boolean isOneSelected(){
-        return  _selected.size() == 1;
-    }
-
-    public List<SmbFile> getSelected(){
-        ArrayList<SmbFile> list = new ArrayList<SmbFile>();
-        for(int i = 0; i < _selected.size(); i++){
-            list.add(_selected.valueAt(i));
-        }
-        return list;
-    }
-
-    public void clearSelected(){
-        _selected.clear();
-    }
-
     private static SimpleDateFormat _formatter;
     private Drawable _defaultFolderIcon = null;
     private Drawable _defaultFileIcon = null;
@@ -243,6 +195,5 @@ public class SmbDirAdapter extends ArrayAdapter<SmbFile>{
     @Deprecated
     private boolean _resolveFileType = false;
     private PorterDuffColorFilter _colorFilter;
-    private SparseArray<SmbFile> _selected = new SparseArray<SmbFile>();
 }
 
