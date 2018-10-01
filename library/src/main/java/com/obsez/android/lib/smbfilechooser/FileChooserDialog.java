@@ -867,10 +867,32 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                             refreshDirs();
                                             FileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
+                                            FileChooserDialog.this._deleteMode.run();
                                             return;
                                         }
 
                                         FileChooserDialog.this._chooseMode = FileChooserDialog.this._chooseMode != CHOOSE_MODE_DELETE ? CHOOSE_MODE_DELETE : CHOOSE_MODE_NORMAL;
+                                        if(FileChooserDialog.this._deleteMode == null){
+                                            FileChooserDialog.this._deleteMode = new Runnable(){
+                                                @Override
+                                                public void run(){
+                                                    if(FileChooserDialog.this._chooseMode == CHOOSE_MODE_DELETE){
+                                                        final int color = 0x80ff0000;
+                                                        final PorterDuffColorFilter red = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].setColorFilter(red);
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color);
+                                                        delete.getCompoundDrawables()[0].setColorFilter(red);
+                                                        delete.setTextColor(color);
+                                                    } else{
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].clearColorFilter();
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color);
+                                                        delete.getCompoundDrawables()[0].clearColorFilter();
+                                                        delete.setTextColor(color);
+                                                    }
+                                                }
+                                            };
+                                        }
+                                        FileChooserDialog.this._deleteMode.run();
                                     }
                                 });
                                 // endregion
@@ -1015,6 +1037,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     // todo: ask for confirmation! (inside an AlertDialog.. Ironical, I know)
+    private Runnable _deleteMode;
     private void deleteFile(@NonNull final File file) throws IOException{
         if(file.isDirectory()){
             final File[] entries = file.listFiles();
@@ -1038,6 +1061,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             if (_folderNavUpCB.canUpTo(f)) {
                 _currentDir = f;
                 _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
+                if (_deleteMode != null) _deleteMode.run();
                 scrollToTop = true;
             }
         } else {
@@ -1079,6 +1103,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                     _chooseMode = CHOOSE_MODE_NORMAL;
+                    if (_deleteMode != null) _deleteMode.run();
                     break;
                 default:
                     // ERROR! It shouldn't get here...

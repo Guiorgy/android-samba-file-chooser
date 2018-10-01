@@ -1028,10 +1028,32 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             }
 
                                             SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
+                                            SmbFileChooserDialog.this._deleteMode.run();
                                             return;
                                         }
 
                                         SmbFileChooserDialog.this._chooseMode = SmbFileChooserDialog.this._chooseMode != CHOOSE_MODE_DELETE ? CHOOSE_MODE_DELETE : CHOOSE_MODE_NORMAL;
+                                        if(SmbFileChooserDialog.this._deleteMode == null){
+                                            SmbFileChooserDialog.this._deleteMode = new Runnable(){
+                                                @Override
+                                                public void run(){
+                                                    if(SmbFileChooserDialog.this._chooseMode == CHOOSE_MODE_DELETE){
+                                                        final int color = 0x80ff0000;
+                                                        final PorterDuffColorFilter red = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].setColorFilter(red);
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color);
+                                                        delete.getCompoundDrawables()[0].setColorFilter(red);
+                                                        delete.setTextColor(color);
+                                                    } else{
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].clearColorFilter();
+                                                        _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color);
+                                                        delete.getCompoundDrawables()[0].clearColorFilter();
+                                                        delete.setTextColor(color);
+                                                    }
+                                                }
+                                            };
+                                        }
+                                        SmbFileChooserDialog.this._deleteMode.run();
                                     }
                                 });
                                 // endregion
@@ -1223,6 +1245,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     // todo: ask for confirmation! (inside an AlertDialog.. Ironical, I know)
+    private Runnable _deleteMode;
     private void deleteFile(@NonNull final SmbFile file){
         try{
             this._chooseMode = CHOOSE_MODE_NORMAL;
@@ -1261,6 +1284,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         if(_folderNavUpCB.canUpTo(f)) {
                             _currentDir = f;
                             _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
+                            if (_deleteMode != null) _deleteMode.run();
                             return new Triple<SmbFile, Boolean, String>(null, true, null);
                         }
                     }
@@ -1306,6 +1330,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     case CHOOSE_MODE_DELETE:
                         deleteFile(file);
                         _chooseMode = CHOOSE_MODE_NORMAL;
+                        if (_deleteMode != null) _deleteMode.run();
                         break;
                     default:
                         // ERROR! It shouldn't get here...
