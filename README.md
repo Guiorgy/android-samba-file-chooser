@@ -13,7 +13,7 @@
 [![Relese](https://jitpack.io/v/Guiorgy/android-smbfile-chooser.svg)](https://jitpack.io/#Guiorgy/android-smbfile-chooser/)
 
 `android-file-library` is a lightweight file/folder chooser.
-This (`android-smbfile-chooser`) is my take on it. I added the ability to use [jcifs.smb.SmbFile](https://jcifs.samba.org/) to browse a Windows shared directory. I also added some small functionality like the ability to add new folders on the go, or delete files, as well as some event listeners like OnBackPressed and OnDismissed (works only on API >= 17).
+This (`android-smbfile-chooser`) is my attempt to add the ability to use [jcifs.smb.SmbFile](https://jcifs.samba.org/) to browse a Windows shared directory.
 
 ### Snapshots
 
