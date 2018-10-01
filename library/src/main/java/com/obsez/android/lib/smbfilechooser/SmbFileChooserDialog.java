@@ -312,15 +312,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     @NonNull public SmbFileChooserDialog setResources(@Nullable String title, @Nullable String ok, @Nullable String cancel) {
         if(title != null){
             this._title = title;
-            this._titleRes = 0;
+            this._titleRes = -1;
         }
         if(ok != null){
             this._ok = ok;
-            this._okRes = 0;
+            this._okRes = -1;
         }
         if(cancel != null){
             this._negative = cancel;
-            this._negativeRes = 0;
+            this._negativeRes = -1;
         }
         return this;
     }
@@ -529,7 +529,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         this.refreshDirs();
 
         if(!this._disableTitle){
-            if(this._titleRes == 0) builder.setTitle(this._title);
+            if(this._titleRes == -1) builder.setTitle(this._title);
             else builder.setTitle(this._titleRes);
         }
 
@@ -555,7 +555,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 }
             };
 
-            if(this._okRes == 0) builder.setPositiveButton(this._ok, listener);
+            if(this._okRes == -1) builder.setPositiveButton(this._ok, listener);
               else builder.setPositiveButton(this._okRes, listener);
         }
 
@@ -595,7 +595,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             }
         };
 
-        if(this._negativeRes == 0) builder.setNegativeButton(this._negative, listener);
+        if(this._negativeRes == -1) builder.setNegativeButton(this._negative, listener);
           else builder.setNegativeButton(this._negativeRes, listener);
 
         if(this._onCancelListener != null){
@@ -1482,7 +1482,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private OnSelectedListener _onSelectedListener = null;
     private boolean _dirOnly;
     private SmbFileFilter _fileFilter;
-    private @StringRes int _titleRes = 0, _okRes = 0, _negativeRes = 0;
+    private @StringRes int _titleRes = -1, _okRes = -1, _negativeRes = -1;
     private @NonNull String _title = "Select a file", _ok = "Choose", _negative = "Cancel";
     private @DrawableRes int _iconRes = -1;
     //private Drawable _icon = null;
