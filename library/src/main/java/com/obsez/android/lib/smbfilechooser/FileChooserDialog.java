@@ -1062,6 +1062,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 _currentDir = f;
                 _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
                 if (_deleteMode != null) _deleteMode.run();
+                lastSelected = false;
                 scrollToTop = true;
             }
         } else {
@@ -1076,8 +1077,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     } else if ((!_dirOnly) && _onChosenListener != null){
                         _onChosenListener.onChoosePath(file.getAbsolutePath(), file);
                         if(_dismissOnButtonClick) _alertDialog.dismiss();
-                        return;
                     }
+                    lastSelected = false;
                     break;
                 case CHOOSE_MODE_SELECT_MULTIPLE:
                     if(file.isDirectory()){
@@ -1142,14 +1143,15 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     @Override
     public void onNothingSelected(final AdapterView<?> parent){
-        //
+        lastSelected = false;
     }
 
     @Override
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event){
         if(event.getAction() != KeyEvent.ACTION_DOWN) return false;
-        if(lastSelected){
-            if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+
+        if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+            if(lastSelected && _list.hasFocus()){
                 lastSelected = false;
                 if(_options != null && _options.getVisibility() == View.VISIBLE){
                     _options.requestFocus();
@@ -1158,31 +1160,47 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 }
                 return true;
             }
-        } else if(_options != null && keyCode == KeyEvent.KEYCODE_DPAD_UP){
-            if(_alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).hasFocus()
-                || _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).hasFocus()
+
+        }
+
+        if(keyCode == KeyEvent.KEYCODE_DPAD_UP){
+            if(_alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).hasFocus()){
+                if(_options != null && _options.getVisibility() == View.VISIBLE){
+                    _options.requestFocus(View.FOCUS_RIGHT);
+                } else{
+                    _list.requestFocus();
+                    lastSelected = true;
+                }
+                return true;
+            } else if(_alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).hasFocus()
                 || _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).hasFocus()){
-                if(_options.getVisibility() == View.VISIBLE){
-                    _options.requestFocus();
+                if(_options != null && _options.getVisibility() == View.VISIBLE){
+                    _options.requestFocus(View.FOCUS_LEFT);
                     return true;
-                } else if(_options.isFocusable()){
+                } else{
                     _list.requestFocus();
                     lastSelected = true;
                     return true;
                 }
-            } else if(_options.hasFocus()){
+            }
+
+            if(_options != null && _options.hasFocus()){
                 _list.requestFocus();
                 lastSelected = true;
                 return true;
             }
         }
 
-        if(_alertDialog.getCurrentFocus() == _list) {
+        if(_list.hasFocus()) {
             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                 _onBackPressed.onBackPressed(_alertDialog);
+                lastSelected = false;
+                return true;
             }
             if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
+                lastSelected = false;
+                return true;
             }
         }
         return false;
