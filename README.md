@@ -48,26 +48,28 @@ try{
                 e.printStackTrace();
             }
         })
-        /*
-        .enableOptions(/*enables 'New folder' and 'Delete'*/ true)
-        .setOptionResources("New folder", "Delete", "Cancel", "OK")
-        .setNewFolderFilter(new NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
-        .enableMultiple(/*enables the ability to select multiple*/ true, /*allows selecting folders along with files*/ true)
-		.setOnSelectedListener((files) -> {
-			ArrayList<String> paths = new ArrayList<String>();
-			for (SmbFile file : files) paths.add(file.getPath());
-			AlertDialog.Builder dialog = new AlertDialog.Builder(ctx);
-			dialog.setTitle("Selected files:");
-			dialog.setAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_expandable_list_item_1, paths) , null);
-			dialog.show();
-		})
-		.enableDpad(/*enables Dpad controls (mainly fot Android TVs)*/ true)
-        */
         .build()
         .show();
 } catch(MalformedURLException | InterruptedException | ExecutionException e){
     e.printStackTrace();
 }
+```
+
+#### Additional options
+```java
+.enableOptions(/*enables 'New folder' and 'Delete'*/ true)
+.setOptionResources("New folder", "Delete", "Cancel", "OK")
+.setNewFolderFilter(new NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
+.enableMultiple(/*enables the ability to select multiple*/ true, /*allows selecting folders along with files*/ true)
+.setOnSelectedListener((files) -> {
+	ArrayList<String> paths = new ArrayList<String>();
+	for (SmbFile file : files) paths.add(file.getPath());
+	AlertDialog.Builder dialog = new AlertDialog.Builder(ctx);
+	dialog.setTitle("Selected files:");
+	dialog.setAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_expandable_list_item_1, paths) , null);
+	dialog.show();
+})
+.enableDpad(/*enables Dpad controls (mainly fot Android TVs)*/ true)
 ```
 
 ## What's Different?
