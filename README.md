@@ -50,7 +50,7 @@ try{
         })
         .build()
         .show();
-} catch(MalformedURLException | InterruptedException | ExecutionException e){
+} catch(MalformedURLException e){
     e.printStackTrace();
 }
 ```
@@ -64,7 +64,7 @@ try{
 .setOnSelectedListener((files) -> {
 	ArrayList<String> paths = new ArrayList<String>();
 	for (SmbFile file : files) paths.add(file.getPath());
-	AlertDialog.Builder dialog = new AlertDialog.Builder(ctx);
+	AlertDialog.Builder dialog = new AlertDialog.Builder(context);
 	dialog.setTitle("Selected files:");
 	dialog.setAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_expandable_list_item_1, paths) , null);
 	dialog.show();
