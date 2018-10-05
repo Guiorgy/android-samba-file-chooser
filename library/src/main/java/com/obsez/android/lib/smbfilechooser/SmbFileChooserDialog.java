@@ -1054,7 +1054,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             }
 
                                             SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
-                                            SmbFileChooserDialog.this._deleteMode.run();
                                             return;
                                         }
 
@@ -1397,6 +1396,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     _chooseMode = CHOOSE_MODE_SELECT_MULTIPLE;
                     if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
                 }
+                SmbFileChooserDialog.this._deleteMode.run();
             }
             return true;
         } catch(InterruptedException | ExecutionException e){

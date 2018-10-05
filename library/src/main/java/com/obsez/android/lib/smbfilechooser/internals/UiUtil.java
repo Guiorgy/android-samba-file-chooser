@@ -92,4 +92,14 @@ public final class UiUtil {
         View child = list.getChildAt(0);
         return list.getFirstVisiblePosition() * child.getHeight() - child.getTop() + list.getPaddingTop();
     }
+
+    public static int getListYScrollDeep(@NonNull final ListView list){
+        final int padding = list.getChildAt(0).getTop() - list.getPaddingTop();
+        final int visible = list.getFirstVisiblePosition();
+        int scroll = 0;
+        for(int i = 0; i < visible; i++){
+            scroll += list.getChildAt(i).getHeight();
+        }
+        return scroll - padding;
+    }
 }

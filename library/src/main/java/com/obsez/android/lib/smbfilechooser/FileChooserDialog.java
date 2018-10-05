@@ -893,7 +893,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                             refreshDirs();
                                             FileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
-                                            FileChooserDialog.this._deleteMode.run();
                                             return;
                                         }
 
@@ -1158,6 +1157,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             _chooseMode = CHOOSE_MODE_SELECT_MULTIPLE;
             if(!_dirOnly) _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
         }
+        FileChooserDialog.this._deleteMode.run();
         return true;
     }
 
