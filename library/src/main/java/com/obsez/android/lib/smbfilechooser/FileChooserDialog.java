@@ -68,6 +68,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
 import static com.obsez.android.lib.smbfilechooser.internals.FileUtil.LightContextWrapper;
 import static com.obsez.android.lib.smbfilechooser.internals.FileUtil.NewFolderFilter;
+import static com.obsez.android.lib.smbfilechooser.internals.UiUtil.getListYScroll;
 
 //import android.support.v7.app.AlertDialog;
 
@@ -550,6 +551,28 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 FileChooserDialog.this._optionsIconRes != -1 ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
                     }
 
+                    final class Integer{
+                        int Int = 0;
+                    }
+                    final Integer scroll = new Integer();
+
+                    FileChooserDialog.this._list.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){
+                        @Override
+                        public void onLayoutChange(final View v, final int left, final int top, final int right, final int bottom, final int oldLeft, final int oldTop, final int oldRight, final int oldBottom){
+                            int oldHeight = oldBottom - oldTop;
+                            if(v.getHeight() != oldHeight){
+                                int offset = oldHeight - v.getHeight();
+                                int newScroll = getListYScroll(_list);
+                                if(scroll.Int != newScroll) offset += scroll.Int - newScroll;
+                                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+                                    FileChooserDialog.this._list.scrollListBy(offset);
+                                } else{
+                                    FileChooserDialog.this._list.scrollBy(0, offset);
+                                }
+                            }
+                        }
+                    });
+
                     final Runnable showOptions = new Runnable(){
                         @Override
                         public void run(){
@@ -565,6 +588,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                         handler.postDelayed(new Runnable(){
                                             @Override
                                             public void run(){
+                                                scroll.Int = getListYScroll(FileChooserDialog.this._list);
                                                 params.bottomMargin = _options.getHeight();
                                                 FileChooserDialog.this._list.setLayoutParams(params);
                                                 FileChooserDialog.this._options.setVisibility(View.VISIBLE);
@@ -575,6 +599,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     }
                                 });
                             } else{
+                                scroll.Int = getListYScroll(FileChooserDialog.this._list);
                                 params.bottomMargin = FileChooserDialog.this._options.getHeight();
                                 FileChooserDialog.this._list.setLayoutParams(params);
                                 FileChooserDialog.this._options.setVisibility(View.VISIBLE);
@@ -585,6 +610,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     final Runnable hideOptions = new Runnable(){
                         @Override
                         public void run(){
+                            scroll.Int = getListYScroll(FileChooserDialog.this._list);
                             FileChooserDialog.this._options.setVisibility(View.INVISIBLE);
                             FileChooserDialog.this._options.clearFocus();
                             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) FileChooserDialog.this._list.getLayoutParams();
@@ -607,7 +633,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 // Create options view.
                                 final FrameLayout options = new FrameLayout(getBaseContext());
                                 //options.setBackgroundColor(0x60000000);
-                                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, 60, BOTTOM);
+                                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
                                 root.addView(options, params);
 
                                 options.setOnClickListener(null);
@@ -706,9 +732,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             holder.setOrientation(LinearLayout.VERTICAL);
                                             holder.setBackgroundColor(0xffffffff);
                                             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-                                                holder.setElevation(20f);
+                                                holder.setElevation(25f);
                                             } else{
-                                                ViewCompat.setElevation(holder, 20);
+                                                ViewCompat.setElevation(holder, 25);
                                             }
                                             params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 5);
                                             linearLayout.addView(holder, params);

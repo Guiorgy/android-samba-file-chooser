@@ -16,6 +16,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
+import android.widget.ListView;
 
 import java.util.List;
 
@@ -84,5 +85,11 @@ public final class UiUtil {
     public static void hideKeyboardFrom(@NonNull final Context context, @NonNull final View view) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (imm != null) imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    // This only works assuming that all list items have the same height!
+    public static int getListYScroll(@NonNull final ListView list){
+        View child = list.getChildAt(0);
+        return list.getFirstVisiblePosition() * child.getHeight() - child.getTop() + list.getPaddingTop();
     }
 }
