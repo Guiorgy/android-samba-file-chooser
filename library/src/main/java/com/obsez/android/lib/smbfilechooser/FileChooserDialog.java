@@ -959,12 +959,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (Build.VERSION.SDK_INT >= 23) {
             final int PERMISSION_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 0;
 
-            final int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-            final int writePermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-
             final int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
 
-            //if = permission granted
+            final int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            final int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
+
             if (readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED) {
                 _alertDialog.show();
             } else {

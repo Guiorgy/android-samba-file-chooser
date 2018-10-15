@@ -23,3 +23,7 @@ gradle.tasks.txt
 
 .gradle.tasks.txt
 projectFilesBackup/
+.idea/inspectionProfiles/Project_Default.xml
+.idea/encodings.xml
+.idea/codeStyles/Project.xml
+.idea/caches/build_file_checksums.ser

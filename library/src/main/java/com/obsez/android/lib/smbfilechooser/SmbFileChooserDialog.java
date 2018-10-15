@@ -1118,21 +1118,23 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
         // Check for permissions if SDK version is >= 23
         if(Build.VERSION.SDK_INT >= 23){
-            final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 0;
-            int permissionCheck = ContextCompat.checkSelfPermission(getBaseContext(),
-                    Manifest.permission.READ_EXTERNAL_STORAGE);
+            final int PERMISSION_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 0;
 
-            //if = permission granted
-            if(permissionCheck == PackageManager.PERMISSION_GRANTED){
+            final int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
+
+            final int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            final int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
+
+            if (readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED) {
                 _alertDialog.show();
-            } else{
+            } else {
                 ActivityCompat.requestPermissions((Activity) getBaseContext(),
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+                    new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                    PERMISSION_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
+                return this;
             }
         } else{
             _alertDialog.show();
-
         }
 
         if(_enableMultiple && !_dirOnly){
