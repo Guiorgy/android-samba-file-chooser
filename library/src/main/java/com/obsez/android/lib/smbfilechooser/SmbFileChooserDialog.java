@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.obsez.android.lib.smbfilechooser.internals.ExtSmbFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.RegexSmbFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
+import com.obsez.android.lib.smbfilechooser.tool.IExceptionHandler;
 import com.obsez.android.lib.smbfilechooser.tool.SmbDirAdapter;
 
 import java.net.MalformedURLException;
@@ -88,7 +89,7 @@ import static com.obsez.android.lib.smbfilechooser.internals.UiUtil.getListYScro
  * Created by coco on 6/7/15. Edited by Guiorgy on 10/09/18.
  */
 @SuppressWarnings("SpellCheckingInspection")
-public class SmbFileChooserDialog extends LightContextWrapper implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
+public class SmbFileChooserDialog extends LightContextWrapper implements IExceptionHandler, DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactory(){
         @Override
         public Thread newThread(@NonNull final Runnable runnable){
@@ -102,6 +103,24 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     public static ExecutorService getNetworkThread(){
         return  EXECUTOR;
+    }
+
+    private ExceptionHandler _handler;
+    private boolean _terminate;
+
+    public SmbFileChooserDialog setExceptionHandler(@NonNull final ExceptionHandler handler){
+        this._handler = handler;
+        return this;
+    }
+
+    @Override
+    public boolean handleException(@NonNull final Throwable exception){
+        return _handler != null && _handler.handle(exception, ExceptionId.UNDEFINED);
+    }
+
+    @Override
+    public boolean handleException(@NonNull final Throwable exception, final int id){
+        return _handler != null && _handler.handle(exception, id);
     }
 
     @FunctionalInterface
@@ -226,24 +245,34 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     @NonNull public SmbFileChooserDialog setStartFile(@Nullable final String startFile) throws ExecutionException, InterruptedException{
         final Future<SmbFileChooserDialog> ret = EXECUTOR.submit(new Callable<SmbFileChooserDialog>(){
             @Override
-            public SmbFileChooserDialog call() throws Exception{
-                if(startFile != null){
-                    _currentDir = new SmbFile(startFile, _auth);
-                } else{
-                    _currentDir = _rootDir;
-                }
-
-                if(!_currentDir.isDirectory()){
-                    String parent = _currentDir.getParent();
-                    if(parent == null){
-                        throw new MalformedURLException(startFile + " has no parent directory");
+            public SmbFileChooserDialog call(){
+                try{
+                    if(startFile != null){
+                        _currentDir = new SmbFile(startFile, _auth);
+                    } else{
+                        _currentDir = _rootDir;
                     }
-                    _currentDir = new SmbFile(parent, _auth);
+
+                    if(!_currentDir.isDirectory()){
+                        String parent = _currentDir.getParent();
+                        if(parent == null){
+                            throw new MalformedURLException(startFile + " has no parent directory");
+                        }
+                        _currentDir = new SmbFile(parent, _auth);
+                    }
+
+                    if(_currentDir == null){
+                        _currentDir = _rootDir;
+                    }
+
+                    if(!_currentDir.exists()){
+                        throw new MalformedURLException("Can't connect to " + _currentDir.getPath());
+                    }
+                } catch(MalformedURLException | SmbException e){
+                    e.printStackTrace();
+                    handleException(e);
                 }
 
-                if(_currentDir == null){
-                    _currentDir = _rootDir;
-                }
                 return SmbFileChooserDialog.this;
             }
         });
@@ -675,15 +704,26 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
                 View v = root.getChildAt(0);
                 root.removeView(v);
-                SwipeRefreshLayout swipeRefreshLayout = new SwipeRefreshLayout(getBaseContext());
+                final SwipeRefreshLayout swipeRefreshLayout = new SwipeRefreshLayout(getBaseContext());
                 swipeRefreshLayout.addView(v, params);
                 root.addView(swipeRefreshLayout, params);
 
-                ProgressBar progressBar = new ProgressBar(getBaseContext(), null, android.R.attr.progressBarStyleLarge);
+                final ProgressBar progressBar = new ProgressBar(getBaseContext(), null, android.R.attr.progressBarStyleLarge);
                 progressBar.setIndeterminate(true);
+                progressBar.setBackgroundColor(0xfffbfbfb);
                 root.addView(progressBar, params);
                 progressBar.bringToFront();
                 SmbFileChooserDialog.this.progressBar = progressBar;
+
+                swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+                    @Override
+                    public void onRefresh(){
+                        if(progressBar.getVisibility() != VISIBLE){
+                            refreshDirs();
+                        }
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
 
                 if(SmbFileChooserDialog.this._enableOptions){
                     final int color = UiUtil.getThemeAccentColor(getBaseContext());
@@ -846,6 +886,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                     return newFolder.getName();
                                                 } catch(MalformedURLException | SmbException e){
                                                     e.printStackTrace();
+                                                    handleException(e);
                                                     return "";
                                                 }
                                             }
@@ -860,6 +901,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 ((AlertDialog) dialog).getWindow().setSoftInputMode(SOFT_INPUT_STATE_VISIBLE);
                                             } catch(NullPointerException e){
                                                 e.printStackTrace();
+                                                handleException(e);
                                             }
 
                                             // A semitransparent background overlay.
@@ -998,6 +1040,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                     this.input.setText(futureNewFile.get());
                                                 } catch(InterruptedException | ExecutionException e){
                                                     e.printStackTrace();
+                                                    handleException(e);
                                                     this.input.setText("");
                                                 }
                                             }
@@ -1066,6 +1109,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 if(scrollTop) SmbFileChooserDialog.this._list.setSelection(0);
                                             } catch(InterruptedException | ExecutionException e){
                                                 e.printStackTrace();
+                                                handleException(e);
                                             }
 
                                             SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
@@ -1216,6 +1260,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     });
                 } catch(SmbException | MalformedURLException e){
                     e.printStackTrace();
+                    handleException(e);
                     if(progressBar != null) runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
@@ -1261,7 +1306,14 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     // Add the ".." entry
                     final String parent = _currentDir.getParent();
                     if(parent != null && !parent.equalsIgnoreCase("smb://")){
-                        _entries.add(0, new SmbFile(".."));
+                        _entries.add(0, new SmbFile(".."){
+                            @Override public boolean isDirectory(){
+                                return true;
+                            }
+                            @Override public boolean isHidden(){
+                                return false;
+                            }
+                        });
                     }
 
                     runOnUiThread(new Runnable(){
@@ -1273,6 +1325,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     });
                 } catch(MalformedURLException | SmbException e){
                     e.printStackTrace();
+                    handleException(e);
                     if(progressBar != null) runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
@@ -1303,6 +1356,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     }
                 } catch(MalformedURLException | SmbException e){
                     e.printStackTrace();
+                    handleException(e);
                 }
                 runOnUiThread(new Runnable(){
                     @Override
@@ -1314,7 +1368,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         });
     }
 
-    // todo: ask for confirmation! (inside an AlertDialog.. Ironical, I know)
+    // todo: ask for confirmation! (inside an AlertDialog.. Ironic, I know)
     private Runnable _deleteMode;
     private void deleteFile(@NonNull final SmbFile file){
         progressBar.setVisibility(VISIBLE);
@@ -1325,6 +1379,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     file.delete();
                 } catch(SmbException e){
                     e.printStackTrace();
+                    handleException(e);
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
@@ -1425,6 +1480,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             }
         } catch(InterruptedException | ExecutionException e){
             e.printStackTrace();
+            handleException(e);
         }
     }
 
@@ -1451,6 +1507,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             return true;
         } catch(InterruptedException | ExecutionException e){
             e.printStackTrace();
+            handleException(e);
         }
         return false;
     }
