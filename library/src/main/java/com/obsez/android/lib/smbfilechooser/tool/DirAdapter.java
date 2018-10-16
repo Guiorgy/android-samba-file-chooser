@@ -64,7 +64,7 @@ public class DirAdapter extends MyAdapter<File>{
 
         tvName.setText(file.getName());
 
-        long lastModified = file.isDirectory() || file.getName().trim().equals("..") ? 0L : file.lastModified();
+        long lastModified = file.isDirectory() ? 0L : file.lastModified();
         if(lastModified != 0L){
             tvDate.setText(_formatter.format(new Date(lastModified)));
             tvDate.setVisibility(View.VISIBLE);
@@ -86,7 +86,7 @@ public class DirAdapter extends MyAdapter<File>{
                 icon = _defaultFileIcon;
             }
         }
-        if(file.isHidden() && !file.getName().trim().equals("..")){
+        if(file.isHidden()){
             final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
             icon = icon.getConstantState().newDrawable().mutate();
             icon.setColorFilter(filter);

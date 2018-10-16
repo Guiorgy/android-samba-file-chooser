@@ -996,7 +996,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         // Add the ".." entry
         if (_currentDir.getParentFile() != null && !_currentDir.getParent().equals("/storage/emulated")) {
-            _entries.add(new File(".."));
+            _entries.add(new File(".."){
+                @Override public boolean isDirectory(){
+                    return true;
+                }
+                @Override public boolean isHidden(){
+                    return false;
+                }
+            });
         }
 
         if (files == null) return;
