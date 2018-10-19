@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -55,6 +54,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.regex.Pattern;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
@@ -496,6 +496,16 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         this._alertDialog.setOnShowListener(new DialogInterface.OnShowListener(){
             @Override
             public void onShow(final DialogInterface dialog){
+                if(_enableMultiple && !_dirOnly){
+                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+                }
+
+                if(_enableDpad){
+                    _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setBackgroundResource(R.drawable.listview_item_selector);
+                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundResource(R.drawable.listview_item_selector);
+                    _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.listview_item_selector);
+                }
+
                 if(!FileChooserDialog.this._dismissOnButtonClick){
                     Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
                     negative.setOnClickListener(new View.OnClickListener(){
@@ -957,33 +967,36 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         // Check for permissions if SDK version is >= 23
         if (Build.VERSION.SDK_INT >= 23) {
-            final int PERMISSION_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 0;
+            int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
 
-            final int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
+            if (readPermissionCheck != PERMISSION_GRANTED && writePermissionCheck != PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions((Activity) getBaseContext(),
+                    new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                    111);
+            } else if (readPermissionCheck != PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions((Activity) getBaseContext(),
+                    new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
+                    222);
+            } else if (writePermissionCheck != PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions((Activity) getBaseContext(),
+                    new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                    333);
+            } else{
+                _alertDialog.show();
+                return this;
+            }
 
-            final int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-            final int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
+            readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
 
             if (readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED) {
                 _alertDialog.show();
-            } else {
-                ActivityCompat.requestPermissions((Activity) getBaseContext(),
-                        new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE },
-                        PERMISSION_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
-                return this;
             }
+
+            return this;
         } else {
             _alertDialog.show();
-        }
-
-        if(_enableMultiple && !_dirOnly){
-            _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
-        }
-
-        if(_enableDpad){
-            _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setBackgroundResource(R.drawable.listview_item_selector);
-            _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundResource(R.drawable.listview_item_selector);
-            _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.listview_item_selector);
         }
         return this;
     }
