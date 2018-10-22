@@ -73,11 +73,10 @@ try{
 ```
 
 ## What's Different?
-- now you can also pass Strings instead of Resource id. **if Resource id was set, it will take priority over Strings!**
+- you can also pass Strings instead of Resource id. **if Resource id was set, it will take priority over Strings!**
 ```java
 .setOptionResources(0, 0, 0, 0)
 .setOptionResources("new folder", "delete", "cancel", "ok")
-.setOptionsIcons(R.drawable.ic_menu_24dp, R.drawable.ic_add_24dp, R.drawable.ic_delete_24dp)
 ```
 
 for more information please refere to the [upstream](https://github.com/hedzr/android-file-chooser).

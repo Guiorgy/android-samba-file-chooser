@@ -1,6 +1,6 @@
 # RELEASES
 
-## 1.2.0s - 2018-10-1
+## 1.2.0s - 2018-10-22
 
 \* changed NewFolderFilter
 \+ added Delete mode indicator. When in Delete mode option button and Delete button become red
