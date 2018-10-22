@@ -14,16 +14,22 @@ abstract class MyAdapter<T> extends BaseAdapter{
     private Context context;
     Context getContext(){return context;}
 
-    private List<T> _entries;
+    private List<T> _entries = new ArrayList<T>();
+    private SparseArray<T> _selected = new SparseArray<T>();
     private LayoutInflater _inflater;
     private int _resource;
-    private SparseArray<T> _selected = new SparseArray<T>();
+
+    MyAdapter(Context context, int resId){
+        this.context = context;
+        this._inflater = LayoutInflater.from(context);
+        this._resource = resId;
+    }
 
     MyAdapter(Context context, List<T> entries, int resId){
         this.context = context;
         this._inflater = LayoutInflater.from(context);
-        this._entries = entries;
         this._resource = resId;
+        addAll(entries);
     }
 
     @Override
@@ -59,7 +65,8 @@ abstract class MyAdapter<T> extends BaseAdapter{
     }
 
     public void setEntries(List<T> entries){
-        this._entries = entries;
+        clear();
+        addAll(entries);
         notifyDataSetChanged();
     }
 

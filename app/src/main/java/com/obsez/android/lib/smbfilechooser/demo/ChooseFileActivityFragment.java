@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +20,7 @@ import com.obsez.android.lib.smbfilechooser.FileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 import com.obsez.android.lib.smbfilechooser.tool.DirAdapter;
+import com.obsez.android.lib.smbfilechooser.tool.IExceptionHandler;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -32,7 +32,6 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
 //import android.support.v7.app.AlertDialog;
-
 
 /**
  * A placeholder fragment containing a simple view.
@@ -204,6 +203,13 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                                             _tv.setText(_path);
                                         }
                                     });
+                                }
+                            })
+                            .setExceptionHandler(new IExceptionHandler.ExceptionHandler(){
+                                @Override
+                                public boolean handle(@NonNull final Throwable exception, final int id){
+                                    Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                                    return true;
                                 }
                             })
                             .build()
