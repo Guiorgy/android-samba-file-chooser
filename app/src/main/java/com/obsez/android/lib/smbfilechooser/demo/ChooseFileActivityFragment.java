@@ -205,13 +205,13 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                                     });
                                 }
                             })
-                        .setExceptionHandler(new IExceptionHandler.ExceptionHandler(){
-                            @Override
-                            public boolean handle(@NonNull final Throwable exception, final int id){
-                                Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
-                                return false;
-                            }
-                        })
+                            .setExceptionHandler(new IExceptionHandler.ExceptionHandler(){
+                                @Override
+                                public boolean handle(@NonNull final Throwable exception, final int id){
+                                    Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                                    return true;
+                                }
+                            })
                             .build()
                             .show();
                 } catch(MalformedURLException | InterruptedException | ExecutionException e){

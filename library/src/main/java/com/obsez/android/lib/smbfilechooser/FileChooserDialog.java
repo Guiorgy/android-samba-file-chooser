@@ -698,11 +698,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                     @Override
                                     public void onClick(final View v1){
-                                        //Toast.makeText(getBaseContext(), "new folder clicked", Toast.LENGTH_SHORT).show();
                                         hideOptions.run();
                                         File newFolder = new File(FileChooserDialog.this._currentDir, "New folder");
                                         for(int i = 1; newFolder.exists(); i++)
-                                            newFolder = new File(FileChooserDialog.this._currentDir, "New Folder (" + i + ')');
+                                            newFolder = new File(FileChooserDialog.this._currentDir, "New folder (" + i + ')');
                                         if(this.input != null) this.input.setText(newFolder.getName());
 
                                         if(FileChooserDialog.this._newFolderView == null){
