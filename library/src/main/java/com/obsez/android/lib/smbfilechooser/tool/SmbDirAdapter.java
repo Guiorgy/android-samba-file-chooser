@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -18,13 +19,13 @@ import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
+import kotlin.Triple;
 
 import static com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog.getNetworkThread;
 
@@ -32,8 +33,8 @@ import static com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog.getNetwo
  * Created by coco on 6/9/18. Edited by Guiorgy on 10/09/18.
  */
 public class SmbDirAdapter extends MyAdapter<SmbFile>{
-    public SmbDirAdapter(Context cxt, List<SmbFile> entries, int resId, String dateFormat) {
-        super(cxt, entries, resId);
+    public SmbDirAdapter(Context cxt, int resId, String dateFormat) {
+        super(cxt, resId);
         this.init(dateFormat);
     }
 
@@ -80,55 +81,64 @@ public class SmbDirAdapter extends MyAdapter<SmbFile>{
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
         ViewGroup rl = (ViewGroup) super.getView(position, convertView, parent);
 
-        Future<File> futureFile = getNetworkThread().submit(new Callable<File>(){
-            @SuppressWarnings("ConstantConditions")
-            @Override
-            public File call() throws SmbException{
-                SmbFile file = SmbDirAdapter.super.getItem(position);
+        new GetViewAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this, getItem(position), rl);
+
+        return rl;
+    }
+    private static class GetViewAsync extends AsyncTask<Object, Void, Triple<SmbDirAdapter, View, File>>{
+        @Override
+        protected Triple<SmbDirAdapter, View, File> doInBackground(final Object... Objects){
+            try{
+                SmbDirAdapter adapter = (SmbDirAdapter) Objects[0];
+                SmbFile file = (SmbFile) Objects[1];
                 if(file == null) return null;
                 String name = file.getName();
                 name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
                 boolean isDirectory = file.isDirectory();
-                Drawable icon = isDirectory ? _defaultFolderIcon : _defaultFileIcon;
-                if(file.isHidden() && !name.equals("../") && !name.equals("..")){
+                Drawable icon = isDirectory ? adapter._defaultFolderIcon : adapter._defaultFileIcon;
+                if(file.isHidden()){
                     final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
                     icon = icon.getConstantState().newDrawable().mutate();
                     icon.setColorFilter(filter);
                 }
-                long lastModified = isDirectory && (!name.equals("../") || !name.equals("..")) ? 0L : file.lastModified();
+                long lastModified = isDirectory ? 0L : file.lastModified();
                 String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLength());
-                return new File(name, icon, isDirectory, lastModified, fileSize, File.hashCode(file));
+                return new Triple<SmbDirAdapter, View, File>(adapter, (View) Objects[2], new File(name, icon, isDirectory, lastModified, fileSize, File.hashCode(file)));
+            } catch(SmbException e){
+                e.printStackTrace();
+                return null;
             }
-        });
-
-        final View root = rl.findViewById(R.id.root);
-        final TextView tvName = rl.findViewById(R.id.text);
-        final TextView tvSize = rl.findViewById(R.id.txt_size);
-        final TextView tvDate = rl.findViewById(R.id.txt_date);
-        //ImageView ivIcon = (ImageView) rl.findViewById(R.id.icon);
-
-        File file;
-        try{
-            file = futureFile.get();
-            if(file == null) return rl;
-        } catch(InterruptedException | ExecutionException e){
-            e.printStackTrace();
-            return rl;
         }
 
-        tvName.setText(file.name);
-        tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
-        if(file.lastModified != 0L){
-            tvDate.setText(_formatter.format(new Date(file.lastModified)));
-            tvDate.setVisibility(View.VISIBLE);
-        } else{
-            tvDate.setVisibility(View.GONE);
-        }
-        tvSize.setText(file.fileSize);
-        if(getSelected(file.hashCode) == null) root.getBackground().clearColorFilter();
-          else root.getBackground().setColorFilter(_colorFilter);
+        @Override
+        protected void onPostExecute(final Triple<SmbDirAdapter, View, File> triple){
+            if(triple == null) return;
+            final SmbDirAdapter adapter = triple.getFirst();
+            final View rl = triple.getSecond();
+            final File file = triple.getThird();
+            if(adapter == null || rl == null || file == null){
+                cancel(true);
+                return;
+            }
 
-        return rl;
+            final View root = rl.findViewById(R.id.root);
+            final TextView tvName = rl.findViewById(R.id.text);
+            final TextView tvSize = rl.findViewById(R.id.txt_size);
+            final TextView tvDate = rl.findViewById(R.id.txt_date);
+            //ImageView ivIcon = (ImageView) rl.findViewById(R.id.icon);
+
+            tvName.setText(file.name);
+            tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
+            if(file.lastModified != 0L){
+                tvDate.setText(_formatter.format(new Date(file.lastModified)));
+                tvDate.setVisibility(View.VISIBLE);
+            } else{
+                tvDate.setVisibility(View.GONE);
+            }
+            tvSize.setText(file.fileSize);
+            if(adapter.getSelected(file.hashCode) == null) root.getBackground().clearColorFilter();
+              else root.getBackground().setColorFilter(adapter._colorFilter);
+        }
     }
 
     public Drawable getDefaultFolderIcon() {
