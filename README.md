@@ -29,7 +29,14 @@ A demo-app of the original can be installed from [Play Store](https://play.googl
 **NOTE**:
 
 I replaced all methods "with___()" with "set___()"! And, use static method "newDialog(context)" instead of a constuctor.
-Also, please don't forget to check the [**_upstream_**](https://github.com/hedzr/android-file-chooser) and give it a :star:! 
+Also, please don't forget to check the [**_upstream_**](https://github.com/hedzr/android-file-chooser) and give it a :star:!
+
+If you are using Support libraries other then 28.0.0, then use:
+```
+configurations.all {
+	resolutionStrategy.force 'com.android.support:appcompat-v7:x.y.z'
+}
+```
 
 ## Usage
 
