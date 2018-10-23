@@ -45,7 +45,6 @@ android {
     lintOptions {
         abortOnError false
     }
-
 }
 
 dependencies {
@@ -67,4 +66,3 @@ dependencies {
 repositories {
     mavenCentral()
 }
-
