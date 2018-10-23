@@ -735,7 +735,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                 final ProgressBar progressBar = new ProgressBar(getBaseContext(), null, android.R.attr.progressBarStyleLarge);
                 progressBar.setIndeterminate(true);
-                progressBar.setBackgroundColor(0xfffbfbfb);
+                progressBar.setBackgroundColor(0x00000000);
                 root.addView(progressBar, params);
                 progressBar.bringToFront();
                 SmbFileChooserDialog.this.progressBar = progressBar;
@@ -776,6 +776,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     SmbFileChooserDialog.this._list.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){
                         @Override
                         public void onLayoutChange(final View v, final int left, final int top, final int right, final int bottom, final int oldLeft, final int oldTop, final int oldRight, final int oldBottom){
+                            if(_list.getChildAt(0) == null) return;
                             int oldHeight = oldBottom - oldTop;
                             if(v.getHeight() != oldHeight){
                                 int offset = oldHeight - v.getHeight();
