@@ -10,22 +10,25 @@ import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class MyAdapter<T> extends BaseAdapter{
+abstract class MyAdapter<T> extends BaseAdapter {
     private Context context;
-    Context getContext(){return context;}
+
+    Context getContext() {
+        return context;
+    }
 
     private List<T> _entries = new ArrayList<T>();
     private SparseArray<T> _selected = new SparseArray<T>();
     private LayoutInflater _inflater;
     private int _resource;
 
-    MyAdapter(Context context, int resId){
+    MyAdapter(Context context, int resId) {
         this.context = context;
         this._inflater = LayoutInflater.from(context);
         this._resource = resId;
     }
 
-    MyAdapter(Context context, List<T> entries, int resId){
+    MyAdapter(Context context, List<T> entries, int resId) {
         this.context = context;
         this._inflater = LayoutInflater.from(context);
         this._resource = resId;
@@ -33,78 +36,78 @@ abstract class MyAdapter<T> extends BaseAdapter{
     }
 
     @Override
-    public int getCount(){
+    public int getCount() {
         return _entries.size();
     }
 
     @Override
-    public T getItem(final int position){
+    public T getItem(final int position) {
         return _entries.get(position);
     }
 
     @Override
-    public long getItemId(final int position){
+    public long getItemId(final int position) {
         return getItem(position).hashCode();
     }
 
-    public T getSelected(int id){
+    public T getSelected(int id) {
         return _selected.get(id, null);
     }
 
     @Override
-    public View getView(final int position, final View convertView, final ViewGroup parent){
+    public View getView(final int position, final View convertView, final ViewGroup parent) {
         return convertView != null ? convertView : _inflater.inflate(_resource, parent, false);
     }
 
-    void clear(){
+    void clear() {
         this._entries.clear();
     }
 
-    void addAll(List<T> entries){
+    void addAll(List<T> entries) {
         this._entries.addAll(entries);
     }
 
-    public void setEntries(List<T> entries){
+    public void setEntries(List<T> entries) {
         clear();
         addAll(entries);
         notifyDataSetChanged();
     }
 
-    public void selectItem(int position){
+    public void selectItem(int position) {
         int id = (int) getItemId(position);
-        if(_selected.get(id, null) == null){
+        if (_selected.get(id, null) == null) {
             _selected.append(id, getItem(position));
-        } else{
+        } else {
             _selected.delete(id);
         }
         notifyDataSetChanged();
     }
 
-    public boolean isSelected(int position){
+    public boolean isSelected(int position) {
         return isSelectedById((int) getItemId(position));
     }
 
-    public boolean isSelectedById(int id){
+    public boolean isSelectedById(int id) {
         return _selected.get(id, null) != null;
     }
 
-    public boolean isAnySelected(){
+    public boolean isAnySelected() {
         return _selected.size() > 0;
     }
 
-    public boolean isOneSelected(){
-        return  _selected.size() == 1;
+    public boolean isOneSelected() {
+        return _selected.size() == 1;
     }
 
-    public List<T> getSelected(){
+    public List<T> getSelected() {
         ArrayList<T> list = new ArrayList<T>();
-        for(int i = 0; i < _selected.size(); i++){
+        for (int i = 0; i < _selected.size(); i++) {
             list.add(_selected.valueAt(i));
         }
         return list;
     }
 
-    public void clearSelected(){
+    public void clearSelected() {
         _selected.clear();
     }
 }

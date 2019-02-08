@@ -9,7 +9,7 @@ import jcifs.smb.SmbFileFilter;
 /**
  * Created by coco on 6/7/15. Edited by Guiorgy on 10/09/18.
  */
-public class RegexSmbFileFilter implements SmbFileFilter{
+public class RegexSmbFileFilter implements SmbFileFilter {
     boolean m_allowHidden;
     boolean m_onlyDirectory;
     Pattern m_pattern;
@@ -41,7 +41,7 @@ public class RegexSmbFileFilter implements SmbFileFilter{
     }
 
     @Override
-    public boolean accept(SmbFile pathname) throws SmbException{
+    public boolean accept(SmbFile pathname) throws SmbException {
         if (!m_allowHidden) {
             if (pathname.isHidden()) {
                 return false;

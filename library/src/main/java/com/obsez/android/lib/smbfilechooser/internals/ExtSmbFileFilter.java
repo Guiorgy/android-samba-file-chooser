@@ -7,7 +7,7 @@ import jcifs.smb.SmbFileFilter;
 /**
  * Created by coco on 6/7/15. Edited by Guiorgy on 10/09/18.
  */
-public class ExtSmbFileFilter implements SmbFileFilter{
+public class ExtSmbFileFilter implements SmbFileFilter {
     boolean m_allowHidden;
     boolean m_onlyDirectory;
     String[] m_ext;
@@ -27,7 +27,7 @@ public class ExtSmbFileFilter implements SmbFileFilter{
     }
 
     @Override
-    public boolean accept(SmbFile pathname) throws SmbException{
+    public boolean accept(SmbFile pathname) throws SmbException {
         if (!m_allowHidden) {
             if (pathname.isHidden()) {
                 return false;
