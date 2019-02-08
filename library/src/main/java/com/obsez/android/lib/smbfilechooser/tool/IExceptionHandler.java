@@ -9,6 +9,7 @@ public interface IExceptionHandler{
 
     static final class ExceptionId{
         public static final int UNDEFINED = -1;
+        public static final int FAILED_TO_LOAD_FILES = 1;
     }
 
     @FunctionalInterface

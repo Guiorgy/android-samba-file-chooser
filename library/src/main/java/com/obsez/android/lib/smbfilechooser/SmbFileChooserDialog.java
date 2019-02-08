@@ -1313,11 +1313,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
-                            handleException(e);
-                            if(progressBar != null){
-                                Toast.makeText(getBaseContext(), "Failed to load files!", Toast.LENGTH_LONG).show();
-                                if(progressBar != null) progressBar.setVisibility(GONE);
-                            }
+                            handleException(e, ExceptionId.FAILED_TO_LOAD_FILES);
+                            if(progressBar != null) progressBar.setVisibility(GONE);
                         }
                     });
                 }
