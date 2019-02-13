@@ -1,6 +1,6 @@
 package com.obsez.android.lib.smbfilechooser.tool;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public interface IExceptionHandler {
     void handleException(@NonNull final Throwable exception);
