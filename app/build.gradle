@@ -55,9 +55,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     /** LeakCanary - https://github.com/square/leakcanary */
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
-    // debugImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.2'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.3'
 
     // implementation 'com.obsez.android.lib.filechooser:filechooser:1.1.6'
     // implementation 'com.github.hedzr:android-file-chooser:master-SNAPSHOT'

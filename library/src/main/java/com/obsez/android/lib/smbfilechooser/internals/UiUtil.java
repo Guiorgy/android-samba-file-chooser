@@ -10,8 +10,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -19,6 +17,9 @@ import android.webkit.MimeTypeMap;
 import android.widget.ListView;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public final class UiUtil {
 
@@ -32,7 +33,8 @@ public final class UiUtil {
         return (int) (pxValue / scale + 0.5f);
     }
 
-    @Nullable public static Drawable resolveFileTypeIcon(@NonNull final Context ctx, @NonNull final Uri fileUri) {
+    @Nullable
+    public static Drawable resolveFileTypeIcon(@NonNull final Context ctx, @NonNull final Uri fileUri) {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(fileUri);
         intent.setType(getMimeType(ctx, fileUri));
@@ -47,7 +49,8 @@ public final class UiUtil {
         return null; //ContextCompat.getDrawable(ctx, R.drawable.ic_file);
     }
 
-    @Nullable public static String getMimeType(@NonNull final Context ctx, @NonNull final Uri uri) {
+    @Nullable
+    public static String getMimeType(@NonNull final Context ctx, @NonNull final Uri uri) {
         String mimeType;
         if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
             ContentResolver cr = ctx.getApplicationContext().getContentResolver();
@@ -55,7 +58,7 @@ public final class UiUtil {
         } else {
             String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    fileExtension.toLowerCase());
+                fileExtension.toLowerCase());
         }
         return mimeType;
     }
@@ -88,16 +91,16 @@ public final class UiUtil {
     }
 
     // This only works assuming that all list items have the same height!
-    public static int getListYScroll(@NonNull final ListView list){
+    public static int getListYScroll(@NonNull final ListView list) {
         View child = list.getChildAt(0);
         return list.getFirstVisiblePosition() * child.getHeight() - child.getTop() + list.getPaddingTop();
     }
 
-    public static int getListYScrollDeep(@NonNull final ListView list){
+    public static int getListYScrollDeep(@NonNull final ListView list) {
         final int padding = list.getChildAt(0).getTop() - list.getPaddingTop();
         final int visible = list.getFirstVisiblePosition();
         int scroll = 0;
-        for(int i = 0; i < visible; i++){
+        for (int i = 0; i < visible; i++) {
             scroll += list.getChildAt(i).getHeight();
         }
         return scroll - padding;

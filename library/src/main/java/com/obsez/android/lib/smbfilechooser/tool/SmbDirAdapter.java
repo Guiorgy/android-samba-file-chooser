@@ -7,8 +7,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -23,6 +21,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import kotlin.Triple;

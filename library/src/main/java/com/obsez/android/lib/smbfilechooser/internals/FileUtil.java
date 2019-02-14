@@ -3,8 +3,6 @@ package com.obsez.android.lib.smbfilechooser.internals;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -14,6 +12,8 @@ import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import jcifs.smb.SmbFile;
 
 /**
@@ -21,7 +21,8 @@ import jcifs.smb.SmbFile;
  */
 public class FileUtil {
 
-    @NonNull public static String getExtension(@Nullable final File file) {
+    @NonNull
+    public static String getExtension(@Nullable final File file) {
         if (file == null) {
             return "";
         }
@@ -35,7 +36,8 @@ public class FileUtil {
         }
     }
 
-    @NonNull public static String getExtension(@Nullable final SmbFile file) {
+    @NonNull
+    public static String getExtension(@Nullable final SmbFile file) {
         if (file == null) {
             return "";
         }
@@ -49,7 +51,8 @@ public class FileUtil {
         }
     }
 
-    @NonNull public static String getExtensionWithoutDot(@NonNull final File file) {
+    @NonNull
+    public static String getExtensionWithoutDot(@NonNull final File file) {
         String ext = getExtension(file);
         if (ext.length() == 0) {
             return ext;
@@ -57,7 +60,8 @@ public class FileUtil {
         return ext.substring(1);
     }
 
-    @NonNull public static String getExtensionWithoutDot(@NonNull final SmbFile file) {
+    @NonNull
+    public static String getExtensionWithoutDot(@NonNull final SmbFile file) {
         String ext = getExtension(file);
         if (ext.length() == 0) {
             return ext;
@@ -65,7 +69,8 @@ public class FileUtil {
         return ext.substring(1);
     }
 
-    @NonNull public static String getReadableFileSize(final long size) {
+    @NonNull
+    public static String getReadableFileSize(final long size) {
         final int BYTES_IN_KILOBYTES = 1024;
         final DecimalFormat dec = new DecimalFormat("###.#");
         final String KILOBYTES = " KB";
@@ -90,7 +95,7 @@ public class FileUtil {
     }
 
 
-    public static class NewFolderFilter implements InputFilter{
+    public static class NewFolderFilter implements InputFilter {
         private final int maxLength;
         private final Pattern pattern;
 
@@ -112,7 +117,7 @@ public class FileUtil {
         }
 
         @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend){
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
             Matcher matcher = pattern.matcher(source);
             if (!matcher.matches()) {
                 return source instanceof SpannableStringBuilder ? dest.subSequence(dstart, dend) : "";
@@ -120,7 +125,7 @@ public class FileUtil {
 
             int keep = maxLength - (dest.length() - (dend - dstart));
             if (keep <= 0) {
-                return  "";
+                return "";
             } else if (keep >= end - start) {
                 return null; // keep original
             } else {
@@ -136,22 +141,24 @@ public class FileUtil {
         }
     }
 
-    public static abstract class LightContextWrapper{
+    public static abstract class LightContextWrapper {
         final private Context context;
 
-        public LightContextWrapper(@NonNull final Context context){
+        public LightContextWrapper(@NonNull final Context context) {
             this.context = context;
         }
 
-        @NonNull public Context getBaseContext() {
+        @NonNull
+        public Context getBaseContext() {
             return context;
         }
 
-        @NonNull public Resources getResources() {
+        @NonNull
+        public Resources getResources() {
             return context.getResources();
         }
 
-        public  void runOnUiThread(Runnable runnable){
+        public void runOnUiThread(Runnable runnable) {
             ((Activity) context).runOnUiThread(runnable);
         }
     }
