@@ -7,6 +7,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbFile;
 
 //import android.support.v7.app.AlertDialog;
@@ -177,9 +180,9 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 if(name.isEmpty()) name = null;
                 String password = mEditPassword.getText().toString();
                 if(password.isEmpty()) password = null;
-                NtlmPasswordAuthentication auth;
+                NtlmPasswordAuthenticator auth;
                 if(name == null && password == null) auth = null;
-                    else auth = new NtlmPasswordAuthentication(domain, name, password);
+                    else auth = new NtlmPasswordAuthenticator(domain, name, password);
                 try{
                     SmbFileChooserDialog.newDialog(ctx, domain, auth)
                             .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
@@ -195,9 +198,10 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                             .setOnChosenListener(new SmbFileChooserDialog.OnChosenListener(){
                                 @Override
                                 public void onChoosePath(@NonNull final String path, @NonNull final SmbFile file){
-                                    ((Activity) ctx).runOnUiThread(new Runnable(){
+                                    Handler mainHandler = new Handler(ctx.getMainLooper());
+                                    mainHandler.post(new Runnable() {
                                         @Override
-                                        public void run(){
+                                        public void run() {
                                             Toast.makeText(ctx, "FOLDER: " + path, Toast.LENGTH_SHORT).show();
                                             _path = path;
                                             _tv.setText(_path);
