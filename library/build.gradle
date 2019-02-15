@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven' // ADD THIS
 
+
 //apply plugin: 'maven'
 //version = "1.1.3"
 //group = "com.obsez.android.lib.filechooser"
@@ -53,3 +54,22 @@ dependencies {
 //apply from: '_mavenlocal.gradle'
 // gradle bintrayUpload
 //apply from: '_bintray.gradle'
+
+task createPom << {
+    pom {
+        project {
+            groupId 'com.github.Guiorgy'
+            artifactId 'android-smbfile-chooser'
+            version 'v1.2.0s'
+
+            inceptionYear '2018'
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+        }
+    }.writeTo("pom.xml")
+}
