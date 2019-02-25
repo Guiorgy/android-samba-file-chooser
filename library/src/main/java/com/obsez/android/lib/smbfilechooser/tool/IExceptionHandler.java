@@ -11,7 +11,7 @@ public interface IExceptionHandler {
         public static final int UNDEFINED = -1;
         public static final int FAILED_TO_LOAD_FILES = 1;
         public static final int FAILED_TO_FIND_ROOT_DIR = 2;
-        public static final int EXECUTOR_INTERUPTED = 3;
+        public static final int EXECUTOR_INTERRUPTED = 3;
     }
 
     @FunctionalInterface

@@ -332,7 +332,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         try {
             return ret.get();
         } catch (ExecutionException | InterruptedException e) {
-            handleException(e, ExceptionId.EXECUTOR_INTERUPTED);
+            handleException(e, ExceptionId.EXECUTOR_INTERRUPTED);
             return this;
         }
     }
