@@ -17,14 +17,14 @@ import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import jcifs.smb.NtlmPasswordAuthenticator;
+
+import static com.obsez.android.lib.smbfilechooser.tool.IExceptionHandler.ExceptionId.FAILED_TO_LOAD_FILES;
 
 //import android.support.v7.app.AlertDialog;
 
@@ -153,31 +153,27 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             NtlmPasswordAuthenticator auth;
             if (name == null && password == null) auth = null;
             else auth = new NtlmPasswordAuthenticator(domain, name, password);
-            try {
-                SmbFileChooserDialog.newDialog(ctx, domain, auth)
-                    .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
-                    .setFilter(true, false)
-                    .setStartFile(null) // same as "smb://{domain}/
-                    .setOnLastBackPressedListener(dialog -> Toast.makeText(ctx, "This dialog won't close by pressing back!", Toast.LENGTH_SHORT).show())
-                    .setNewFolderFilter(new FileUtil.NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
-                    .setOnChosenListener((path, file) -> {
-                        Handler mainHandler = new Handler(ctx.getMainLooper());
-                        mainHandler.post(() -> {
-                            Toast.makeText(ctx, "FOLDER: " + path, Toast.LENGTH_SHORT).show();
-                            _path = path;
-                            _tv.setText(_path);
-                        });
-                    })
-                    .setExceptionHandler((exception, id) -> {
+            SmbFileChooserDialog.newDialog(ctx, domain, auth)
+                .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
+                .setFilter(true, false)
+                .setStartFile(null) // same as "smb://{domain}/
+                .setOnLastBackPressedListener(dialog -> Toast.makeText(ctx, "This dialog won't close by pressing back!", Toast.LENGTH_SHORT).show())
+                .setNewFolderFilter(new FileUtil.NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
+                .setOnChosenListener((path, file) -> {
+                    Handler mainHandler = new Handler(ctx.getMainLooper());
+                    mainHandler.post(() -> {
+                        Toast.makeText(ctx, "FOLDER: " + path, Toast.LENGTH_SHORT).show();
+                        _path = path;
+                        _tv.setText(_path);
+                    });
+                })
+                .setExceptionHandler((exception, id) -> {
+                    if (id == FAILED_TO_LOAD_FILES)
                         Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
-                        return true;
-                    })
-                    .build()
-                    .show();
-            } catch (MalformedURLException | InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                Toast.makeText(ctx, "Failed! try again", Toast.LENGTH_SHORT).show();
-            }
+                    return true;
+                })
+                .build()
+                .show();
         });
         return root;
     }
