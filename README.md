@@ -100,7 +100,7 @@ for more information please refere to the [upstream](https://github.com/hedzr/an
 ## License
 
 Copyright 2015-2019 Hedzr Yeh
-Modified 2018 Guiorgy
+Modified 2018-2019 Guiorgy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
