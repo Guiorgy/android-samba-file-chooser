@@ -3,6 +3,8 @@ package com.obsez.android.lib.smbfilechooser.internals;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -159,7 +161,12 @@ public class FileUtil {
         }
 
         public void runOnUiThread(Runnable runnable) {
-            ((Activity) context).runOnUiThread(runnable);
+            if (!Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
+                Handler mainHandler = new Handler(context.getMainLooper());
+                mainHandler.post(runnable);
+            } else {
+                runnable.run();
+            }
         }
     }
 }
