@@ -156,7 +156,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             SmbFileChooserDialog.newDialog(ctx, domain, auth)
                 .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
                 .setFilter(true, false)
-                .setStartFile(null) // same as "smb://{domain}/
+                //.setStartFile(null) // same as "smb://{domain}/
                 .setOnLastBackPressedListener(dialog -> Toast.makeText(ctx, "This dialog won't close by pressing back!", Toast.LENGTH_SHORT).show())
                 .setNewFolderFilter(new FileUtil.NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
                 .setOnChosenListener((path, file) -> {
