@@ -1287,6 +1287,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
     private void listDirs() {
         if (progressBar != null) progressBar.setVisibility(VISIBLE);
+        _adapter.setScrollEnabled(false);
         EXECUTOR.execute(() -> {
             try {
                 _entries.clear();
@@ -1330,12 +1331,14 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                 runOnUiThread(() -> {
                     _adapter.setEntries(_entries);
+                    _adapter.setScrollEnabled(true);
                     if (progressBar != null) progressBar.setVisibility(GONE);
                 });
             } catch (SmbException | MalformedURLException e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
                     handleException(e, ExceptionId.FAILED_TO_LOAD_FILES);
+                    _adapter.setScrollEnabled(true);
                     if (progressBar != null) progressBar.setVisibility(GONE);
                 });
             }
@@ -1383,6 +1386,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                 runOnUiThread(() -> {
                     _adapter.setEntries(_entries);
+                    _adapter.setScrollEnabled(true);
                     if (progressBar != null) progressBar.setVisibility(GONE);
                 });
             } catch (MalformedURLException | SmbException e) {
@@ -1390,6 +1394,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 if (progressBar != null) runOnUiThread(() -> {
                     handleException(e);
                     Toast.makeText(getBaseContext(), "Failed to load files!", Toast.LENGTH_LONG).show();
+                    _adapter.setScrollEnabled(true);
                     if (progressBar != null) progressBar.setVisibility(GONE);
                 });
             }
