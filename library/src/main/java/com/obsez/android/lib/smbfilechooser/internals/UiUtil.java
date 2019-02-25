@@ -36,8 +36,7 @@ public final class UiUtil {
     @Nullable
     public static Drawable resolveFileTypeIcon(@NonNull final Context ctx, @NonNull final Uri fileUri) {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(fileUri);
-        intent.setType(getMimeType(ctx, fileUri));
+        intent.setDataAndType(fileUri, getMimeType(ctx, fileUri));
 
         final PackageManager pm = ctx.getPackageManager();
         final List<ResolveInfo> matches = pm.queryIntentActivities(intent, 0);

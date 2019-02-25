@@ -10,9 +10,9 @@ import jcifs.smb.SmbFileFilter;
  * Created by coco on 6/7/15. Edited by Guiorgy on 10/09/18.
  */
 public class RegexSmbFileFilter implements SmbFileFilter {
-    boolean m_allowHidden;
-    boolean m_onlyDirectory;
-    Pattern m_pattern;
+    private boolean m_allowHidden;
+    private boolean m_onlyDirectory;
+    private Pattern m_pattern;
 
     public RegexSmbFileFilter() {
         this(null);
@@ -65,5 +65,4 @@ public class RegexSmbFileFilter implements SmbFileFilter {
         String name = pathname.getName();
         return m_pattern.matcher(name).matches();
     }
-
 }

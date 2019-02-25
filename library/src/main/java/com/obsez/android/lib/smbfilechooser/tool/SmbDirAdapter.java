@@ -17,7 +17,6 @@ import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -98,13 +97,18 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 boolean isDirectory = file.isDirectory();
                 Drawable icon = isDirectory ? adapter._defaultFolderIcon : adapter._defaultFileIcon;
                 if (file.isHidden()) {
-                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
-                    icon = icon.getConstantState().newDrawable().mutate();
-                    icon.setColorFilter(filter);
+                    try{
+                        final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
+                        //noinspection ConstantConditions
+                        icon = icon.getConstantState().newDrawable().mutate();
+                        icon.setColorFilter(filter);
+                    } catch (NullPointerException ignore){
+                        // ignore
+                    }
                 }
                 long lastModified = isDirectory ? 0L : file.lastModified();
-                String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLength());
-                return new Triple<SmbDirAdapter, View, File>(adapter, (View) Objects[2], new File(name, icon, isDirectory, lastModified, fileSize, File.hashCode(file)));
+                String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLengthLong());
+                return new Triple<>(adapter, (View) Objects[2], new File(name, icon, isDirectory, lastModified, fileSize, File.hashCode(file)));
             } catch (SmbException e) {
                 e.printStackTrace();
                 return null;
@@ -159,7 +163,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
     }
 
     /**
-     * @deprecated no pint. can't get file icons on a samba server
+     * @deprecated no point. can't get file icons on a samba server
      */
     @Deprecated
     public boolean isResolveFileType() {
@@ -168,7 +172,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
     }
 
     /**
-     * @deprecated no pint. can't get file icons on a samba server
+     * @deprecated no point. can't get file icons on a samba server
      */
     @Deprecated
     public void setResolveFileType(boolean resolveFileType) {
@@ -178,12 +182,9 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
     @Override
     public long getItemId(final int position) {
-        Future<Long> ret = getNetworkThread().submit(new Callable<Long>() {
-            @Override
-            public Long call() {
-                //noinspection ConstantConditions
-                return (long) File.hashCode(getItem(position));
-            }
+        Future<Long> ret = getNetworkThread().submit(() -> {
+            //noinspection ConstantConditions
+            return (long) File.hashCode(getItem(position));
         });
 
         try {

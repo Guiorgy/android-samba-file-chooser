@@ -97,10 +97,10 @@ for more information please refere to the [upstream](https://github.com/hedzr/an
 - codes and reports: [**bostrot**](https://github.com/bostrot), [**SeppPenner**](https://github.com/SeppPenner), [**lucian-cm**](https://github.com/lucian-cm), [**ghost**](https://github.com/ghost), [**UmeshBaldaniya46**](https://github.com/UmeshBaldaniya46) ...
 
 
-
 ## License
 
-Copyright 2015-2018 Hedzr Yeh
+Copyright 2015-2019 Hedzr Yeh
+Modified 2018 Guiorgy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

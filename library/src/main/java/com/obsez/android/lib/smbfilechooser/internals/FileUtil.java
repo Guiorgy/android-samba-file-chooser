@@ -76,11 +76,11 @@ public class FileUtil {
         final String KILOBYTES = " KB";
         final String MEGABYTES = " MB";
         final String GIGABYTES = " GB";
-        float fileSize = 0;
+        double fileSize = 0;
         String suffix = KILOBYTES;
 
         if (size > BYTES_IN_KILOBYTES) {
-            fileSize = size / BYTES_IN_KILOBYTES;
+            fileSize = (double)size / BYTES_IN_KILOBYTES;
             if (fileSize > BYTES_IN_KILOBYTES) {
                 fileSize = fileSize / BYTES_IN_KILOBYTES;
                 if (fileSize > BYTES_IN_KILOBYTES) {

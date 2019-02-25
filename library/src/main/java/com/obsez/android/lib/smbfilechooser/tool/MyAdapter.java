@@ -17,8 +17,8 @@ abstract class MyAdapter<T> extends BaseAdapter {
         return context;
     }
 
-    private List<T> _entries = new ArrayList<T>();
-    private SparseArray<T> _selected = new SparseArray<T>();
+    private List<T> _entries = new ArrayList<>();
+    private SparseArray<T> _selected = new SparseArray<>();
     private LayoutInflater _inflater;
     private int _resource;
 
@@ -100,7 +100,7 @@ abstract class MyAdapter<T> extends BaseAdapter {
     }
 
     public List<T> getSelected() {
-        ArrayList<T> list = new ArrayList<T>();
+        ArrayList<T> list = new ArrayList<>();
         for (int i = 0; i < _selected.size(); i++) {
             list.add(_selected.valueAt(i));
         }
