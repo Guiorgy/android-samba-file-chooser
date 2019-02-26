@@ -4,8 +4,9 @@ import android.app.Application;
 
 import com.squareup.leakcanary.LeakCanary;
 
-public final class App extends Application{
-    @Override public void onCreate() {
+public final class App extends Application {
+    @Override
+    public void onCreate() {
         super.onCreate();
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.

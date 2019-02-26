@@ -14,7 +14,7 @@
 [![API](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14)
 
 `android-file-library` is a lightweight file/folder chooser.
-This (`android-smbfile-chooser`) is my attempt to add the ability to use [jcifs.smb.SmbFile](https://jcifs.samba.org/) to browse a Windows shared directory.
+This (`android-smbfile-chooser`) is my attempt to add the ability to use [jcifs.smb.SmbFile](https://github.com/AgNO3/jcifs-ng) to browse a Windows shared directory.
 
 ### Snapshots
 
@@ -71,6 +71,7 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 
 #### Additional options
 ```java
+.displayPath(/*displays the current path in the title (title must be enabled)*/ true)
 .enableOptions(/*enables 'New folder' and 'Delete'*/ true)
 .setOptionResources("New folder", "Delete", "Cancel", "OK")
 .setNewFolderFilter(new NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))

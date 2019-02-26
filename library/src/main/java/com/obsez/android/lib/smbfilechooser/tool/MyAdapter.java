@@ -8,7 +8,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,12 +119,12 @@ abstract class MyAdapter<T> extends BaseAdapter {
     private boolean _isScrollEnabled = true;
 
     @SuppressLint("ClickableViewAccessibility")
-    private void setScrollListener(final ViewGroup parent){
+    private void setScrollListener(final ViewGroup parent) {
         if (_isDone.get()) return;
         parent.setOnTouchListener((v, event) -> !_isScrollEnabled && event.getAction() == MotionEvent.ACTION_MOVE);
     }
 
-    public void setScrollEnabled(final boolean isEnable){
+    public void setScrollEnabled(final boolean isEnable) {
         _isScrollEnabled = isEnable;
     }
 }

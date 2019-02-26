@@ -334,7 +334,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     @NonNull
     public FileChooserDialog setFileIcons(final boolean tryResolveFileTypeAndIcon, @Nullable final Drawable fileIcon, @Nullable final Drawable folderIcon) {
-        _adapterSetter = adapter -> {
+        this._adapterSetter = adapter -> {
             if (fileIcon != null)
                 adapter.setDefaultFileIcon(fileIcon);
             if (folderIcon != null)
@@ -346,7 +346,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     @NonNull
     public FileChooserDialog setFileIconsRes(final boolean tryResolveFileTypeAndIcon, final int fileIcon, final int folderIcon) {
-        _adapterSetter = adapter -> {
+        this._adapterSetter = adapter -> {
             if (fileIcon != -1) {
                 adapter.setDefaultFileIcon(ContextCompat.getDrawable(FileChooserDialog.this.getBaseContext(), fileIcon));
             }
@@ -365,7 +365,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
      */
     @NonNull
     public FileChooserDialog setAdapterSetter(@NonNull final AdapterSetter setter) {
-        _adapterSetter = setter;
+        this._adapterSetter = setter;
         return this;
     }
 
@@ -375,7 +375,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
      */
     @NonNull
     public FileChooserDialog setNavigateUpTo(@NonNull final CanNavigateUp cb) {
-        _folderNavUpCB = cb;
+        this._folderNavUpCB = cb;
         return this;
     }
 
@@ -385,13 +385,19 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
      */
     @NonNull
     public FileChooserDialog setNavigateTo(@NonNull final CanNavigateTo cb) {
-        _folderNavToCB = cb;
+        this._folderNavToCB = cb;
         return this;
     }
 
     @NonNull
-    public FileChooserDialog disableTitle(final boolean b) {
-        _disableTitle = b;
+    public FileChooserDialog disableTitle(final boolean disable) {
+        this._disableTitle = disable;
+        return this;
+    }
+
+    @NonNull
+    public FileChooserDialog displayPath(final boolean display) {
+        this._displayPath = display;
         return this;
     }
 
@@ -647,9 +653,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 final FrameLayout options = new FrameLayout(getBaseContext());
                                 //options.setBackgroundColor(0x60000000);
                                 ViewGroup.MarginLayoutParams params;
-                                if (root instanceof LinearLayout){
-                                    params = new LinearLayout.LayoutParams(MATCH_PARENT, (int)UiUtil.dip2px(48));
-                                } else{
+                                if (root instanceof LinearLayout) {
+                                    params = new LinearLayout.LayoutParams(MATCH_PARENT, (int) UiUtil.dip2px(48));
+                                } else {
                                     params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
                                 }
                                 root.addView(options, params);
@@ -1019,6 +1025,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     return false;
                 }
             });
+
+            if (_alertDialog != null && !_disableTitle) {
+                _alertDialog.setTitle(_titleRes);
+            }
+        } else if (_alertDialog != null && !_disableTitle && _displayPath) {
+            _alertDialog.setTitle(_currentDir.getName());
         }
 
         if (files == null) return;
@@ -1063,6 +1075,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         // Add the ".." entry
         if (_currentDir.getParent() != null && !_currentDir.getParent().equals("/storage/emulated")) {
             _entries.add(new File(".."));
+
+            if (_alertDialog != null && !_disableTitle) {
+                _alertDialog.setTitle(_titleRes);
+            }
+        } else if (_alertDialog != null && !_disableTitle && _displayPath) {
+            _alertDialog.setTitle(_currentDir.getName());
         }
     }
 
@@ -1297,6 +1315,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private DialogInterface.OnClickListener _negativeListener;
     private DialogInterface.OnCancelListener _onCancelListener;
     private boolean _disableTitle;
+    private boolean _displayPath;
     private boolean _cancelable = true;
     private boolean _cancelOnTouchOutside;
     private boolean _dismissOnButtonClick = true;

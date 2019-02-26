@@ -97,12 +97,12 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 boolean isDirectory = file.isDirectory();
                 Drawable icon = isDirectory ? adapter._defaultFolderIcon : adapter._defaultFileIcon;
                 if (file.isHidden()) {
-                    try{
+                    try {
                         final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
                         //noinspection ConstantConditions
                         icon = icon.getConstantState().newDrawable().mutate();
                         icon.setColorFilter(filter);
-                    } catch (NullPointerException ignore){
+                    } catch (NullPointerException ignore) {
                         // ignore
                     }
                 }

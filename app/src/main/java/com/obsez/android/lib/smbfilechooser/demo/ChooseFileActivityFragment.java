@@ -148,7 +148,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             NtlmPasswordAuthenticator auth;
             if (name == null && password == null) auth = null;
             else auth = new NtlmPasswordAuthenticator(domain, name, password);
-            if(domain.isEmpty()){
+            if (domain.isEmpty()) {
                 mEditDomain.setError("Required!");
                 mEditDomain.requestFocus();
                 return;
@@ -169,7 +169,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 })
                 .setExceptionHandler((exception, id) -> {
                     if (id == FAILED_TO_LOAD_FILES)
-                        Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(ctx, exception.getMessage(), Toast.LENGTH_LONG).show();
                     return true;
                 })
                 .build()

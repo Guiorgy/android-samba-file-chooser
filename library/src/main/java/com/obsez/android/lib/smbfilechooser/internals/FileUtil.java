@@ -1,6 +1,5 @@
 package com.obsez.android.lib.smbfilechooser.internals;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
@@ -82,7 +81,7 @@ public class FileUtil {
         String suffix = KILOBYTES;
 
         if (size > BYTES_IN_KILOBYTES) {
-            fileSize = (double)size / BYTES_IN_KILOBYTES;
+            fileSize = (double) size / BYTES_IN_KILOBYTES;
             if (fileSize > BYTES_IN_KILOBYTES) {
                 fileSize = fileSize / BYTES_IN_KILOBYTES;
                 if (fileSize > BYTES_IN_KILOBYTES) {
