@@ -1,0 +1,23 @@
+version: 1
+update_configs:
+  - package_manager: "java:gradle"
+    directory: "/app"
+    update_schedule: "weekly"
+    target_branch: "devel"
+    default_reviewers:
+    - "Guiorgy"
+    default_assignees:
+    - "Guiorgy"
+    default_labels:
+    - "dependabot"
+  - package_manager: "java:gradle"
+    directory: "/library"
+    update_schedule: "weekly"
+    target_branch: "devel"
+    default_reviewers:
+    - "Guiorgy"
+    default_assignees:
+    - "Guiorgy"
+    default_labels:
+    - "dependabot"
+    
