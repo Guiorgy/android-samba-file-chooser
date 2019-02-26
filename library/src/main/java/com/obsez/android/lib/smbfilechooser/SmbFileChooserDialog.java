@@ -158,7 +158,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 try {
                     SingletonContext.init(properties);
                 } catch (CIFSException ignore) {
-                    // ignore (alteady initialized)
+                    // ignore (already initialized)
                 } finally {
                     _smbContext = SingletonContext.getInstance();
                     if (_smbContext != null) {
@@ -232,7 +232,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 try {
                     SingletonContext.init(properties);
                 } catch (CIFSException ignore) {
-                    // ignore (alteady initialized)
+                    // ignore (already initialized)
                 } finally {
                     _smbContext = SingletonContext.getInstance();
                     if (_smbContext != null) {
