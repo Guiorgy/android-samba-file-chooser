@@ -779,11 +779,17 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                 // Root view (FrameLayout) of the ListView in the AlertDialog.
                 final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
-                final FrameLayout root = ((AlertDialog) dialog).findViewById(rootId);
-                // In case the was changed or not found.
+                final ViewGroup root = ((AlertDialog) dialog).findViewById(rootId);
+                // In case the id was changed or not found.
                 if (root == null) return;
 
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
+                ViewGroup.MarginLayoutParams params;
+                if (root instanceof LinearLayout){
+                    params = new LinearLayout.LayoutParams(MATCH_PARENT, (int)UiUtil.dip2px(48));
+                } else{
+                    params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
+                }
+
                 View v = root.getChildAt(0);
                 root.removeView(v);
                 final SwipeRefreshLayout swipeRefreshLayout = new SwipeRefreshLayout(getBaseContext());
@@ -858,7 +864,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                         Handler handler = new Handler();
                                         handler.postDelayed(() -> {
                                             scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
-                                            params.bottomMargin = _options.getHeight();
+                                            if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
+                                                params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight() - SmbFileChooserDialog.this._options.getHeight();
+                                            } else {
+                                                params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
+                                            }
                                             SmbFileChooserDialog.this._list.setLayoutParams(params);
                                             SmbFileChooserDialog.this._options.setVisibility(VISIBLE);
                                             SmbFileChooserDialog.this._options.requestFocus();
@@ -868,7 +878,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                 });
                             } else {
                                 scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
-                                params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
+                                if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
+                                    params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight() - SmbFileChooserDialog.this._options.getHeight();
+                                } else {
+                                    params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
+                                }
                                 SmbFileChooserDialog.this._list.setLayoutParams(params);
                                 SmbFileChooserDialog.this._options.setVisibility(VISIBLE);
                                 SmbFileChooserDialog.this._options.requestFocus();
@@ -880,7 +894,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                         SmbFileChooserDialog.this._options.setVisibility(View.INVISIBLE);
                         SmbFileChooserDialog.this._options.clearFocus();
                         ViewGroup.MarginLayoutParams params1 = (ViewGroup.MarginLayoutParams) SmbFileChooserDialog.this._list.getLayoutParams();
-                        params1.bottomMargin = 0;
+                        if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
+                            params1.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight();
+                        } else {
+                            params1.bottomMargin = 0;
+                        }
                         SmbFileChooserDialog.this._list.setLayoutParams(params1);
                     };
 
