@@ -1363,9 +1363,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                     if (_alertDialog != null && !_disableTitle) {
                         if (isRoot.get()) {
-                            _alertDialog.setTitle(_titleRes);
-                        } else if (_displayPath) {
                             _alertDialog.setTitle(_currentDir.getName());
+                        } else if (_displayPath) {
+                            _alertDialog.setTitle(_titleRes);
                         }
                     }
                 });
@@ -1378,9 +1378,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                     if (_alertDialog != null && !_disableTitle) {
                         if (isRoot.get()) {
-                            _alertDialog.setTitle(_titleRes);
-                        } else if (_displayPath) {
                             _alertDialog.setTitle(_currentDir.getName());
+                        } else if (_displayPath) {
+                            _alertDialog.setTitle(_titleRes);
                         }
                     }
                 });

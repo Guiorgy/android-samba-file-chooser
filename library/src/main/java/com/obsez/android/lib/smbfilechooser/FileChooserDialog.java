@@ -1040,11 +1040,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 }
             });
 
-            if (_alertDialog != null && !_disableTitle) {
-                _alertDialog.setTitle(_titleRes);
+            if (_alertDialog != null && !_disableTitle && _displayPath) {
+                _alertDialog.setTitle(_currentDir.getName());
             }
-        } else if (_alertDialog != null && !_disableTitle && _displayPath) {
-            _alertDialog.setTitle(_currentDir.getName());
+        } else if (_alertDialog != null && !_disableTitle) {
+            _alertDialog.setTitle(_titleRes);
         }
 
         if (files == null) return;
@@ -1090,11 +1090,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (_currentDir.getParent() != null && !_currentDir.getParent().equals("/storage/emulated")) {
             _entries.add(new File(".."));
 
-            if (_alertDialog != null && !_disableTitle) {
-                _alertDialog.setTitle(_titleRes);
+            if (_alertDialog != null && !_disableTitle && _displayPath) {
+                _alertDialog.setTitle(_currentDir.getName());
             }
-        } else if (_alertDialog != null && !_disableTitle && _displayPath) {
-            _alertDialog.setTitle(_currentDir.getName());
+        } else if (_alertDialog != null && !_disableTitle) {
+            _alertDialog.setTitle(_titleRes);
         }
     }
 

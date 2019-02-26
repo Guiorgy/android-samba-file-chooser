@@ -108,6 +108,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 })
                 .cancelOnTouchOutside(true)
                 .enableOptions(true)
+                .displayPath(true)
                 .setOnLastBackPressedListener(dialog -> Toast.makeText(ctx, "there is no parent directory", Toast.LENGTH_SHORT).show())
                 .build()
                 .show();
@@ -154,6 +155,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 return;
             }
             SmbFileChooserDialog.newDialog(ctx, domain, auth)
+                .displayPath(true)
                 .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
                 .setFilter(true, false)
                 //.setStartFile(null) // same as "smb://{domain}/
