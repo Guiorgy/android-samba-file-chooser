@@ -1044,7 +1044,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 _alertDialog.setTitle(_currentDir.getName());
             }
         } else if (_alertDialog != null && !_disableTitle) {
-            _alertDialog.setTitle(_titleRes);
+            if (this._titleRes == -1) _alertDialog.setTitle(this._title);
+            else _alertDialog.setTitle(this._titleRes);
         }
 
         if (files == null) return;
@@ -1094,7 +1095,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 _alertDialog.setTitle(_currentDir.getName());
             }
         } else if (_alertDialog != null && !_disableTitle) {
-            _alertDialog.setTitle(_titleRes);
+            if (this._titleRes == -1) _alertDialog.setTitle(this._title);
+            else _alertDialog.setTitle(this._titleRes);
         }
     }
 
