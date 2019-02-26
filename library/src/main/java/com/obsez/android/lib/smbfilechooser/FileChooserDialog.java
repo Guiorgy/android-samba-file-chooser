@@ -594,7 +594,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                         Handler handler = new Handler();
                                         handler.postDelayed(() -> {
                                             scroll.Int = getListYScroll(FileChooserDialog.this._list);
-                                            params.bottomMargin = _options.getHeight();
+                                            if (FileChooserDialog.this._options.getParent() instanceof LinearLayout) {
+                                                params.height = ((LinearLayout) FileChooserDialog.this._options.getParent()).getHeight() - FileChooserDialog.this._options.getHeight();
+                                            } else {
+                                                params.bottomMargin = FileChooserDialog.this._options.getHeight();
+                                            }
                                             FileChooserDialog.this._list.setLayoutParams(params);
                                             FileChooserDialog.this._options.setVisibility(View.VISIBLE);
                                             FileChooserDialog.this._options.requestFocus();
@@ -604,7 +608,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 });
                             } else {
                                 scroll.Int = getListYScroll(FileChooserDialog.this._list);
-                                params.bottomMargin = FileChooserDialog.this._options.getHeight();
+                                if (FileChooserDialog.this._options.getParent() instanceof LinearLayout) {
+                                    params.height = ((LinearLayout) FileChooserDialog.this._options.getParent()).getHeight() - FileChooserDialog.this._options.getHeight();
+                                } else {
+                                    params.bottomMargin = FileChooserDialog.this._options.getHeight();
+                                }
                                 FileChooserDialog.this._list.setLayoutParams(params);
                                 FileChooserDialog.this._options.setVisibility(View.VISIBLE);
                                 FileChooserDialog.this._options.requestFocus();
@@ -616,7 +624,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         FileChooserDialog.this._options.setVisibility(View.INVISIBLE);
                         FileChooserDialog.this._options.clearFocus();
                         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) FileChooserDialog.this._list.getLayoutParams();
-                        params.bottomMargin = 0;
+                        if (FileChooserDialog.this._options.getParent() instanceof LinearLayout) {
+                            params.height = ((LinearLayout) FileChooserDialog.this._options.getParent()).getHeight();
+                        } else {
+                            params.bottomMargin = 0;
+                        }
                         FileChooserDialog.this._list.setLayoutParams(params);
                     };
 
@@ -627,14 +639,19 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 // region Draw options view. (this only happens the first time one clicks on options)
                                 // Root view (FrameLayout) of the ListView in the AlertDialog.
                                 final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
-                                final FrameLayout root = ((AlertDialog) dialog).findViewById(rootId);
-                                // In case the was changed or not found.
+                                final ViewGroup root = ((AlertDialog) dialog).findViewById(rootId);
+                                // In case the id was changed or not found.
                                 if (root == null) return;
 
                                 // Create options view.
                                 final FrameLayout options = new FrameLayout(getBaseContext());
                                 //options.setBackgroundColor(0x60000000);
-                                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
+                                ViewGroup.MarginLayoutParams params;
+                                if (root instanceof LinearLayout){
+                                    params = new LinearLayout.LayoutParams(MATCH_PARENT, (int)UiUtil.dip2px(48));
+                                } else{
+                                    params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
+                                }
                                 root.addView(options, params);
 
                                 options.setOnClickListener(null);
