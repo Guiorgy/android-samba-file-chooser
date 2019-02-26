@@ -39,6 +39,10 @@ configurations.all {
 }
 ```
 
+1.2.0 used jcifs 1.3.17
+
+1.3.0 switched to the newer, and maintained jcifs-ng 2.1.1 which is a breaking change!
+
 ## Usage
 
 ```java
