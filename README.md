@@ -39,8 +39,7 @@ configurations.all {
 }
 ```
 
-1.2.0 used jcifs 1.3.17
-
+1.2.0 used jcifs 1.3.17\
 1.3.0 switched to the newer, and maintained jcifs-ng 2.1.1 which is a breaking change!
 
 ## Usage
@@ -110,7 +109,7 @@ for more information please refere to the [upstream](https://github.com/hedzr/an
 
 ## License
 
-Copyright 2015-2019 Hedzr Yeh
+Copyright 2015-2019 Hedzr Yeh\
 Modified 2018-2019 Guiorgy
 
 Licensed under the Apache License, Version 2.0 (the "License");
