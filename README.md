@@ -11,9 +11,10 @@
 [![Release](https://jitpack.io/v/hedzr/android-file-chooser.svg)](https://jitpack.io/#hedzr/android-file-chooser)
 ### android-smbfile-chooser
 [![Relese](https://jitpack.io/v/Guiorgy/android-smbfile-chooser.svg)](https://jitpack.io/#Guiorgy/android-smbfile-chooser/)
+[![API](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14)
 
 `android-file-library` is a lightweight file/folder chooser.
-This (`android-smbfile-chooser`) is my attempt to add the ability to use [jcifs.smb.SmbFile](https://jcifs.samba.org/) to browse a Windows shared directory.
+This (`android-smbfile-chooser`) is my attempt to add the ability to use [jcifs.smb.SmbFile](https://github.com/AgNO3/jcifs-ng) to browse a Windows shared directory.
 
 ### Snapshots
 
@@ -28,7 +29,7 @@ A demo-app of the original can be installed from [Play Store](https://play.googl
 
 **NOTE**:
 
-I replaced all methods "with___()" with "set___()"! And, use static method "newDialog(context)" instead of a constuctor.
+I replaced all methods "with___()" with "set___()"! And, use static method "newDialog(context)" instead of a constructor.
 Also, please don't forget to check the [**_upstream_**](https://github.com/hedzr/android-file-chooser) and give it a :star:!
 
 If you are using Support libraries other then 28.0.0, then use:
@@ -41,29 +42,36 @@ configurations.all {
 ## Usage
 
 ```java
-try{
-    SmbFileChooserDialog dialog = SmbFileChooserDialog.newDialog(context, "**.***.*.**")
-        .setResources("select a directory", "choose", "cancel")
-        .setFilter(/*only directories (no files)*/ true, /*don't show hidden files/folders*/ false)
-        .setOnChosenListener((path, file) -> {
-            try{
-                Toast.makeText(context,
-                    file.isDirectory() ? "directory" : "file" + " selected: " + path,
-                    Toast.LENGTH_SHORT)
-                .show();
-            } catch(SmbException e){
-                e.printStackTrace();
-            }
-        })
-        .build()
-        .show();
-} catch(MalformedURLException e){
-    e.printStackTrace();
-}
+SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
+    .setResources("select a directory", "choose", "cancel")
+    .setFilter(/*only directories (no files)*/ true, /*don't show hidden files/folders*/ false)
+    .setOnChosenListener((path, file) -> {
+        String msg = "error";
+        try{
+            msg = file.isDirectory() ? "directory" : "file" + " selected: " + path
+        } catch(SmbException e){
+            e.printStackTrace();
+        }
+        // This is NOT main UI thread. you can NOT access SmbFiles on UI thread.
+        Handler mainHandler = new Handler(ctx.getMainLooper());
+        mainHandler.post(() -> {
+            Toast.makeText(context,
+                msg,
+                Toast.LENGTH_SHORT)
+            .show();
+        });
+    })
+    .setExceptionHandler((exception, id) -> {
+        Toast.makeText(context, exception.getMessage(), Toast.LENGTH_LONG).show();
+        return true;
+    })
+    .build()
+    .show();
 ```
 
 #### Additional options
 ```java
+.displayPath(/*displays the current path in the title (title must be enabled)*/ true)
 .enableOptions(/*enables 'New folder' and 'Delete'*/ true)
 .setOptionResources("New folder", "Delete", "Cancel", "OK")
 .setNewFolderFilter(new NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
@@ -96,11 +104,10 @@ for more information please refere to the [upstream](https://github.com/hedzr/an
 - codes and reports: [**bostrot**](https://github.com/bostrot), [**SeppPenner**](https://github.com/SeppPenner), [**lucian-cm**](https://github.com/lucian-cm), [**ghost**](https://github.com/ghost), [**UmeshBaldaniya46**](https://github.com/UmeshBaldaniya46) ...
 
 
-
 ## License
 
-Copyright 2015-2018 Hedzr Yeh
-Modified 2018 Guiorgy
+Copyright 2015-2019 Hedzr Yeh
+Modified 2018-2019 Guiorgy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

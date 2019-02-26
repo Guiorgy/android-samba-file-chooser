@@ -21,9 +21,9 @@ import java.io.FileFilter;
  * limitations under the License.
  */
 public class ExtFileFilter implements FileFilter {
-    boolean m_allowHidden;
-    boolean m_onlyDirectory;
-    String[] m_ext;
+    private boolean m_allowHidden;
+    private boolean m_onlyDirectory;
+    private String[] m_ext;
 
     public ExtFileFilter() {
         this(false, false);

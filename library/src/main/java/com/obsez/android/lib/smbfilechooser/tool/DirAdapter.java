@@ -7,8 +7,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,6 +20,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 /**
  * Created by coco on 6/7/15.
@@ -40,7 +41,7 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class DirAdapter extends MyAdapter<File>{
+public class DirAdapter extends MyAdapter<File> {
 
     public DirAdapter(Context cxt, List<File> entries, int resId, String dateFormat) {
         super(cxt, entries, resId);
@@ -74,22 +75,22 @@ public class DirAdapter extends MyAdapter<File>{
         //ImageView ivIcon = (ImageView) rl.findViewById(R.id.icon);
 
         File file = super.getItem(position);
-        if(file == null) return rl;
+        if (file == null) return rl;
 
         tvName.setText(file.getName());
 
         long lastModified = file.isDirectory() ? 0L : file.lastModified();
-        if(lastModified != 0L){
+        if (lastModified != 0L) {
             tvDate.setText(_formatter.format(new Date(lastModified)));
             tvDate.setVisibility(View.VISIBLE);
-        } else{
+        } else {
             tvDate.setVisibility(View.GONE);
         }
 
         tvSize.setText(file.isDirectory() ? "" : FileUtil.getReadableFileSize(file.length()));
 
         Drawable icon = file.isDirectory() ? _defaultFolderIcon : null;
-        if(icon == null){
+        if (icon == null) {
             if (_resolveFileType) {
                 icon = UiUtil.resolveFileTypeIcon(getContext(), Uri.fromFile(file));
                 if (icon != null) {
@@ -100,7 +101,7 @@ public class DirAdapter extends MyAdapter<File>{
                 icon = _defaultFileIcon;
             }
         }
-        if(file.isHidden()){
+        if (file.isHidden()) {
             final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
             icon = icon.getConstantState().newDrawable().mutate();
             icon.setColorFilter(filter);
@@ -108,8 +109,8 @@ public class DirAdapter extends MyAdapter<File>{
         tvName.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
         View root = rl.findViewById(R.id.root);
-        if(getSelected(file.hashCode()) == null) root.getBackground().clearColorFilter();
-          else root.getBackground().setColorFilter(_colorFilter);
+        if (getSelected(file.hashCode()) == null) root.getBackground().clearColorFilter();
+        else root.getBackground().setColorFilter(_colorFilter);
 
         return rl;
     }

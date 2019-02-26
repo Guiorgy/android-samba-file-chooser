@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
  * limitations under the License.
  */
 public class RegexFileFilter implements FileFilter {
-    boolean m_allowHidden;
-    boolean m_onlyDirectory;
-    Pattern m_pattern;
+    private boolean m_allowHidden;
+    private boolean m_onlyDirectory;
+    private Pattern m_pattern;
 
     public RegexFileFilter() {
         this(null);
