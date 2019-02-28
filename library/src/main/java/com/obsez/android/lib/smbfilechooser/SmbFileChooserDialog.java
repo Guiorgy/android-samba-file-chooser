@@ -637,7 +637,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             this.setStartFile(null);
         }
 
-        this.refreshDirs();
+        this.refreshDirs(true);
 
         if (!this._disableTitle) {
             if (this._titleRes == -1) builder.setTitle(this._title);
@@ -793,7 +793,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                 swipeRefreshLayout.setOnRefreshListener(() -> {
                     if (progressBar.getVisibility() != VISIBLE) {
-                        refreshDirs();
+                        refreshDirs(false);
                     }
                     swipeRefreshLayout.setRefreshing(false);
                 });
@@ -1189,9 +1189,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                             boolean scrollTop = !SmbFileChooserDialog.this._currentDir.equals(currentDir);
                                             SmbFileChooserDialog.this._currentDir = currentDir;
 
-                                            refreshDirs();
-                                            if (scrollTop)
-                                                SmbFileChooserDialog.this._list.setSelection(0);
+                                            refreshDirs(scrollTop);
                                         } catch (InterruptedException | ExecutionException e) {
                                             e.printStackTrace();
                                             handleException(e);
@@ -1385,7 +1383,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         }
     }
 
-    private void listDirs() {
+    private void listDirs(final boolean scrollToTop) {
         if (progressBar != null) progressBar.setVisibility(VISIBLE);
         _isScrollable = false;
         AtomicBoolean isRoot = new AtomicBoolean(false);
@@ -1452,6 +1450,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 runOnUiThread(() -> {
                     _adapter.setEntries(_entries);
                     _isScrollable = true;
+                    if (scrollToTop) SmbFileChooserDialog.this._list.setSelection(0);
                     if (progressBar != null) progressBar.setVisibility(GONE);
                     if (_alertDialog != null && _displayPath) {
                         if (isRoot.get()) {
@@ -1473,7 +1472,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
      * @deprecated better use listDirs as it sorts directories and files separately
      */
     @Deprecated
-    private void listDirsUncategorised() {
+    private void listDirsUncategorised(final boolean scrollToTop) {
         if (progressBar != null) progressBar.setVisibility(VISIBLE);
         _isScrollable = false;
         AtomicBoolean isRoot = new AtomicBoolean(false);
@@ -1516,6 +1515,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 runOnUiThread(() -> {
                     _adapter.setEntries(_entries);
                     _isScrollable = true;
+                    if (scrollToTop) SmbFileChooserDialog.this._list.setSelection(0);
                     if (progressBar != null) progressBar.setVisibility(GONE);
                     if (_alertDialog != null && _displayPath) {
                         if (isRoot.get()) {
@@ -1535,7 +1535,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 final SmbFile newDir = new SmbFile(SmbFileChooserDialog.this._currentDir.getPath() + "/" + name, SmbFileChooserDialog.this._smbContext);
                 if (!newDir.exists()) {
                     newDir.mkdirs();
-                    runOnUiThread(this::refreshDirs);
+                    runOnUiThread(() -> refreshDirs(false));
                 }
             } catch (MalformedURLException | SmbException e) {
                 e.printStackTrace();
@@ -1639,8 +1639,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 scrollToTop = isDirectory;
             }
 
-            refreshDirs();
-            if (scrollToTop) _list.setSelection(0);
+            refreshDirs(scrollToTop);
             if (_enableDpad) {
                 if (focus == null) _list.requestFocus();
                 else focus.requestFocus();
@@ -1755,8 +1754,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         //
     }
 
-    private void refreshDirs() {
-        listDirs();
+    private void refreshDirs(final boolean scrollToTop) {
+        listDirs(scrollToTop);
         //_adapter.setEntries(_entries);
     }
 
