@@ -1345,8 +1345,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
             while (_path.getLineCount() > 1) {
                 int i = path.indexOf("/");
-                if (i == -1) break;
                 i = path.indexOf("/", i + 1);
+                if (i == -1) break;
                 path = "..." + path.substring(i);
                 _path.setText(path);
             }
