@@ -1336,7 +1336,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             if (_path.getParent() instanceof LinearLayout) {
                 param.height = ((LinearLayout) _path.getParent()).getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
             } else {
-                param.topMargin = _path.getHeight();
+                param.topMargin = 0;
             }
             _list.setLayoutParams(param);
         } else {
