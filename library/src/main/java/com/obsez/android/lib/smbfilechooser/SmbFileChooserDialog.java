@@ -60,8 +60,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import jcifs.CIFSContext;
 import jcifs.CIFSException;
-import jcifs.context.SingletonContext;
+import jcifs.Configuration;
+import jcifs.config.PropertyConfiguration;
+import jcifs.context.BaseContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
@@ -91,15 +94,16 @@ import static com.obsez.android.lib.smbfilechooser.internals.UiUtil.getListYScro
  */
 @SuppressWarnings({"SpellCheckingInspection", "unused", "WeakerAccess"})
 public class SmbFileChooserDialog extends LightContextWrapper implements IExceptionHandler, DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
-        Thread thread = new Thread(runnable);
+    private Thread thread;
+    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
+        thread = new Thread(runnable);
         thread.setDaemon(true);
         thread.setName("SmbFileChooserDialog EXECUTOR - network Thread");
         thread.setPriority(Thread.NORM_PRIORITY);
         return thread;
     });
 
-    public static ExecutorService getNetworkThread() {
+    public ExecutorService getNetworkThread() {
         return EXECUTOR;
     }
 
@@ -133,80 +137,29 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         void onSelectFiles(@NonNull final List<SmbFile> files);
     }
 
-    private SmbFileChooserDialog(@NonNull final Context context) {
-        super(context);
-    }
-
     private SmbFileChooserDialog(@NonNull final Context context, @NonNull final String serverIP) {
-        this(context, serverIP, null);
+        this(context, null, serverIP, null);
     }
 
-    private SmbFileChooserDialog(@NonNull final Context context, @Nullable final NtlmPasswordAuthenticator auth) {
-        super(context);
-        this._auth = auth;
+    private SmbFileChooserDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP) {
+        this(context, properties, serverIP, null);
     }
 
     private SmbFileChooserDialog(@NonNull final Context context, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
+        this(context, null, serverIP, auth);
+    }
+
+    private SmbFileChooserDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
         super(context);
-        this._auth = auth;
-        Properties properties = new Properties();
-        properties.setProperty("jcifs.netbios.wins", serverIP);
-        properties.setProperty("jcifs.smb.client.responseTimeout", "5000");
-        properties.setProperty("jcifs.smb.client.soTimeout", "5000");
+
+        if (properties == null) init(serverIP);
+        else init(serverIP, properties);
+
         try {
             EXECUTOR.submit(() -> {
-                try {
-                    SingletonContext.init(properties);
-                } catch (CIFSException ignore) {
-                    // ignore (already initialized)
-                } finally {
-                    _smbContext = SingletonContext.getInstance();
-                    if (_smbContext != null) {
-                        _smbContext.setUncaughtExceptionHandler((t, e) -> handleException(e));
-                        _smbContext.withCredentials(auth);
-                        this._rootDirPath = "smb://" + serverIP + '/';
-                        try {
-                            this._rootDir = new SmbFile(this._rootDirPath, _smbContext);
-                        } catch (MalformedURLException e) {
-                            handleException(e, ExceptionId.FAILED_TO_FIND_ROOT_DIR);
-                            this._rootDir = null;
-                        }
-                    }
-                }
-            }).get();
-        } catch (ExecutionException | InterruptedException e) {
-            handleException(e, ExceptionId.EXECUTOR_INTERRUPTED);
-        }
-    }
-
-    @NonNull
-    public static SmbFileChooserDialog newDialog(@NonNull final Context context) {
-        return new SmbFileChooserDialog(context);
-    }
-
-    @NonNull
-    public static SmbFileChooserDialog newDialog(@NonNull final Context context, @NonNull final String serverIP) {
-        return new SmbFileChooserDialog(context, serverIP);
-    }
-
-    @NonNull
-    public static SmbFileChooserDialog newDialog(@NonNull final Context context, @Nullable final NtlmPasswordAuthenticator auth) {
-        return new SmbFileChooserDialog(context, auth);
-    }
-
-    @NonNull
-    public static SmbFileChooserDialog newDialog(@NonNull final Context context, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
-        return new SmbFileChooserDialog(context, serverIP, auth);
-    }
-
-    @NonNull
-    public SmbFileChooserDialog setAuthenticator(@NonNull final NtlmPasswordAuthenticator auth) {
-        this._auth = auth;
-        try {
-            EXECUTOR.submit(() -> {
-                _smbContext = SingletonContext.getInstance();
-                _smbContext.withCredentials(_auth);
-                if (this._rootDirPath != null) {
+                if (_smbContext != null) {
+                    _smbContext.withCredentials(auth);
+                    this._rootDirPath = "smb://" + serverIP + '/';
                     try {
                         this._rootDir = new SmbFile(this._rootDirPath, _smbContext);
                     } catch (MalformedURLException e) {
@@ -218,40 +171,72 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         } catch (ExecutionException | InterruptedException e) {
             handleException(e, ExceptionId.EXECUTOR_INTERRUPTED);
         }
-        return this;
     }
 
-    @NonNull
-    public SmbFileChooserDialog setServer(@NonNull final String serverIP) {
+    private void init(@NonNull final String serverIP) {
         Properties properties = new Properties();
-        properties.setProperty("jcifs.netbios.wins", serverIP);
         properties.setProperty("jcifs.smb.client.responseTimeout", "5000");
-        properties.setProperty("jcifs.smb.client.soTimeout", "5000");
+        properties.setProperty("jcifs.smb.client.soTimeout", "15000");
+        properties.setProperty("jcifs.smb.client.connTimeout", "5000");
+        properties.setProperty("jcifs.smb.client.sessionTimeout", "15000");
+        properties.setProperty("jcifs.netbios.soTimeout", "15000");
+        properties.setProperty("jcifs.netbios.retryCount", "1");
+        properties.setProperty("jcifs.netbios.retryTimeout", "2000");
+        properties.setProperty("jcifs.smb.client.minVersion", "SMB1");
+        properties.setProperty("jcifs.smb.client.maxVersion", "SMB311");
+        this.init(serverIP, properties);
+    }
+
+    /**
+     *  Temporary solution
+     */
+    private long _timeout = 5000;
+
+    private void init(@NonNull final String serverIP, @NonNull final Properties properties) {
+        try{
+            String s = properties.getProperty("jcifs.smb.client.connTimeout", null);
+            if (s == null) s = properties.getProperty("jcifs.smb.client.responseTimeout", null);
+            if (s != null){
+                _timeout = Long.parseLong(s);
+            }
+        } catch (NumberFormatException ignore){
+            _timeout = 5000;
+        }
+
         try {
             EXECUTOR.submit(() -> {
                 try {
-                    SingletonContext.init(properties);
-                } catch (CIFSException ignore) {
-                    // ignore (already initialized)
-                } finally {
-                    _smbContext = SingletonContext.getInstance();
-                    if (_smbContext != null) {
-                        _smbContext.setUncaughtExceptionHandler((t, e) -> handleException(e));
-                        _smbContext.withCredentials(_auth);
-                        this._rootDirPath = "smb://" + serverIP + '/';
-                        try {
-                            this._rootDir = new SmbFile(this._rootDirPath, _smbContext);
-                        } catch (MalformedURLException e) {
-                            handleException(e, ExceptionId.FAILED_TO_FIND_ROOT_DIR);
-                            this._rootDir = null;
-                        }
-                    }
+                    properties.setProperty("jcifs.smb.client.domain", serverIP);
+                    properties.setProperty("jcifs.netbios.wins", serverIP);
+                    Configuration configuration = new PropertyConfiguration(properties);
+                    _smbContext = new BaseContext(configuration);
+                } catch (CIFSException e) {
+                    runOnUiThread(() -> handleException(e, ExceptionId.FAILED_TO_INITIALIZE));
                 }
             }).get();
         } catch (ExecutionException | InterruptedException e) {
             handleException(e, ExceptionId.EXECUTOR_INTERRUPTED);
         }
-        return this;
+    }
+
+    @NonNull
+    public static SmbFileChooserDialog newDialog(@NonNull final Context context, @NonNull final String serverIP) {
+        return new SmbFileChooserDialog(context, serverIP);
+    }
+
+    @NonNull
+    public static SmbFileChooserDialog newDialog(@NonNull final Context context, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
+        return new SmbFileChooserDialog(context, serverIP, auth);
+    }
+
+    @NonNull
+    public static SmbFileChooserDialog newDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP) {
+        return new SmbFileChooserDialog(context, properties, serverIP);
+    }
+
+    @NonNull
+    public static SmbFileChooserDialog newDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
+        return new SmbFileChooserDialog(context, properties, serverIP, auth);
     }
 
     @NonNull
@@ -512,20 +497,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         return this;
     }
 
-    /**
-     * it's NOT recommended to use the `setOnCancelListener`, replace with `setNegativeButtonListener` pls.
-     *
-     * @deprecated will be removed at v1.2
-     */
     @NonNull
     public SmbFileChooserDialog setOnCancelListener(@NonNull final DialogInterface.OnCancelListener listener) {
         this._onCancelListener = listener;
         return this;
     }
 
-    /**
-     * @deprecated need to find a way to actually get the icons.
-     */
     @Deprecated
     @NonNull
     public SmbFileChooserDialog setFileIcons(final boolean tryResolveFileTypeAndIcon, @Nullable final Drawable fileIcon, @Nullable final Drawable folderIcon) {
@@ -551,9 +528,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         return this;
     }
 
-    /**
-     * @deprecated need to find a way to actually get the icons.
-     */
     @Deprecated
     @NonNull
     public SmbFileChooserDialog setFileIcons(final boolean tryResolveFileTypeAndIcon, final int fileIconResId, final int folderIconResId) {
@@ -648,7 +622,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
 
-        this._adapter = new SmbDirAdapter(getBaseContext(), this._rowLayoutRes != -1 ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
+        this._adapter = new SmbDirAdapter(getBaseContext(), EXECUTOR, this._rowLayoutRes != -1 ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
         if (this._adapterSetter != null) {
             this._adapterSetter.apply(this._adapter);
         }
@@ -739,6 +713,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
         this._alertDialog = builder.create();
 
+        this._alertDialog.setOnDismissListener(dialog -> EXECUTOR.shutdownNow());
+
         this._alertDialog.setCanceledOnTouchOutside(this._cancelOnTouchOutside);
         this._alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -794,7 +770,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 if (root instanceof LinearLayout) {
                     params = new LinearLayout.LayoutParams(MATCH_PARENT, (int) UiUtil.dip2px(48));
                 } else {
-                    params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
+                    params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
                 }
 
                 View v = root.getChildAt(0);
@@ -1292,7 +1268,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     333);
             } else {
-                _alertDialog.show();
+                if (!_terminate) _alertDialog.show();
                 return this;
             }
 
@@ -1300,7 +1276,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
 
             if (readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED) {
-                _alertDialog.show();
+                if (!_terminate) _alertDialog.show();
             }
 
             return this;
@@ -1335,8 +1311,22 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     isRoot.set(true);
                 }
 
+                final AtomicBoolean connected = new AtomicBoolean(false);
+                runOnUiThread(() -> {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(() -> {
+                        if (!connected.get()){
+                            _terminate = true;
+                            handleException(new SmbException("Timed out!"), ExceptionId.TIMED_OUT);
+                            thread.interrupt();
+                            _alertDialog.dismiss();
+                        }
+                    }, _timeout);
+                });
+
                 // Get files
                 SmbFile[] files = _currentDir.listFiles(_fileFilter);
+                connected.set(true);
 
                 if (files == null) return;
 
@@ -1689,11 +1679,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
     private List<SmbFile> _entries = new ArrayList<>();
     private SmbDirAdapter _adapter;
-    private SingletonContext _smbContext;
+    private CIFSContext _smbContext;
     private SmbFile _currentDir;
     private String _rootDirPath;
     private SmbFile _rootDir;
-    private NtlmPasswordAuthenticator _auth = null;
     private AlertDialog _alertDialog;
     private ListView _list;
     private OnChosenListener _onChosenListener = null;

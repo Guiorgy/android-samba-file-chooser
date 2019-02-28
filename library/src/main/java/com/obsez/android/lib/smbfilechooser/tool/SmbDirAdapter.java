@@ -18,6 +18,7 @@ import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import androidx.annotation.NonNull;
@@ -26,14 +27,15 @@ import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import kotlin.Triple;
 
-import static com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog.getNetworkThread;
-
 /**
  * Created by coco on 6/9/18. Edited by Guiorgy on 10/09/18.
  */
 public class SmbDirAdapter extends MyAdapter<SmbFile> {
-    public SmbDirAdapter(Context cxt, int resId, String dateFormat) {
+    private final ExecutorService EXECUTOR;
+
+    public SmbDirAdapter(Context cxt, ExecutorService EXECUTOR, int resId, String dateFormat) {
         super(cxt, resId);
+        this.EXECUTOR = EXECUTOR;
         this.init(dateFormat);
     }
 
@@ -182,7 +184,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
     @Override
     public long getItemId(final int position) {
-        Future<Long> ret = getNetworkThread().submit(() -> {
+        Future<Long> ret = EXECUTOR.submit(() -> {
             //noinspection ConstantConditions
             return (long) File.hashCode(getItem(position));
         });
