@@ -1074,13 +1074,16 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             }
             _list.setLayoutParams(param);
         } else {
-            if (path.contains("/storage/emulated/0/")) path = path.substring(19);
+            String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
+            String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
+            if (path.contains(removableRoot)) path = path.substring(removableRoot.length() - 1);
+            if (path.contains(primaryRoot)) path = path.substring(primaryRoot.length() - 1);
             _path.setText(path);
 
             while (_path.getLineCount() > 1) {
                 int i = path.indexOf("/");
-                if (i == -1) break;
                 i = path.indexOf("/", i + 1);
+                if (i == -1) break;
                 path = "..." + path.substring(i);
                 _path.setText(path);
             }
@@ -1124,7 +1127,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         File[] files = _currentDir.listFiles(_fileFilter);
 
         // Add the ".." entry
-        if (_currentDir.getParentFile() != null && !_currentDir.getParent().equals("/storage/emulated")) {
+        String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
+        String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
+        if (_currentDir.getParentFile() != null
+            && (!_currentDir.getParent().equals(removableRoot) || !_currentDir.getParent().equals(primaryRoot))) {
             _entries.add(new File("..") {
                 @Override
                 public boolean isDirectory() {
