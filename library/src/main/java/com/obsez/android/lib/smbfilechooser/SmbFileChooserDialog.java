@@ -1,6 +1,7 @@
 package com.obsez.android.lib.smbfilechooser;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,6 +15,7 @@ import android.os.Handler;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -26,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Space;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.obsez.android.lib.smbfilechooser.internals.ExtSmbFileFilter;
@@ -78,6 +81,7 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.END;
 import static android.view.Gravity.START;
+import static android.view.Gravity.TOP;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -614,6 +618,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         return this;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @NonNull
     public SmbFileChooserDialog build() {
         if (_terminate) {
@@ -848,7 +853,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                         handler.postDelayed(() -> {
                                             scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
                                             if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
-                                                params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight() - SmbFileChooserDialog.this._options.getHeight();
+                                                params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight()
+                                                    - SmbFileChooserDialog.this._options.getHeight()
+                                                    - (SmbFileChooserDialog.this._path != null && SmbFileChooserDialog.this._path.getVisibility()
+                                                    == VISIBLE ? SmbFileChooserDialog.this._path.getHeight() : 0);
                                             } else {
                                                 params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
                                             }
@@ -862,7 +870,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                             } else {
                                 scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
                                 if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
-                                    params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight() - SmbFileChooserDialog.this._options.getHeight();
+                                    params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight()
+                                        - SmbFileChooserDialog.this._options.getHeight()
+                                        - (SmbFileChooserDialog.this._path != null && SmbFileChooserDialog.this._path.getVisibility()
+                                        == VISIBLE ? SmbFileChooserDialog.this._path.getHeight() : 0);
                                 } else {
                                     params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
                                 }
@@ -878,7 +889,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                         SmbFileChooserDialog.this._options.clearFocus();
                         ViewGroup.MarginLayoutParams params1 = (ViewGroup.MarginLayoutParams) SmbFileChooserDialog.this._list.getLayoutParams();
                         if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
-                            params1.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight();
+                            params1.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight()
+                                - (SmbFileChooserDialog.this._path != null && SmbFileChooserDialog.this._path.getVisibility()
+                                == VISIBLE ? SmbFileChooserDialog.this._path.getHeight() : 0);
                         } else {
                             params1.bottomMargin = 0;
                         }
@@ -1228,6 +1241,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             this._list.setOnItemLongClickListener(this);
         }
 
+        _list.setOnTouchListener((v, event) -> !_isScrollable && event.getAction() == MotionEvent.ACTION_MOVE);
+
         if (this._enableDpad) {
             this._list.setSelector(R.drawable.listview_item_selector);
             this._list.setDrawSelectorOnTop(true);
@@ -1286,9 +1301,93 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         return this;
     }
 
+    private void displayPath(@Nullable String path) {
+        if (_path == null) {
+            final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
+            final ViewGroup root = ((AlertDialog) _alertDialog).findViewById(rootId);
+            // In case the id was changed or not found.
+            if (root == null) return;
+
+            ViewGroup.MarginLayoutParams params;
+            if (root instanceof LinearLayout) {
+                params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            } else {
+                params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, TOP);
+            }
+
+            _path = new TextView(getBaseContext());
+            _path.setTextSize(12);
+            _path.setLines(1);
+            _path.setTextColor(0x40000000);
+            _path.setPadding(5, 7, 5, 2);
+            _path.setBackgroundColor(0xffffffff);
+            root.addView(_path, 0, params);
+
+            _path.bringToFront();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                _path.setElevation(2f);
+            } else {
+                ViewCompat.setElevation(_path, 2);
+            }
+        }
+
+        if (path == null) {
+            _path.setVisibility(GONE);
+
+            ViewGroup.MarginLayoutParams param = ((ViewGroup.MarginLayoutParams) _list.getLayoutParams());
+            if (_path.getParent() instanceof LinearLayout) {
+                param.height = ((LinearLayout) _path.getParent()).getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
+            } else {
+                param.topMargin = _path.getHeight();
+            }
+            _list.setLayoutParams(param);
+        } else {
+            if (path.contains("/storage/emulated/0/")) path = path.substring(19);
+            _path.setText(path);
+
+            while (_path.getLineCount() > 1) {
+                int i = path.indexOf("/");
+                if (i == -1) break;
+                i = path.indexOf("/", i + 1);
+                path = "..." + path.substring(i);
+                _path.setText(path);
+            }
+
+            _path.setVisibility(VISIBLE);
+
+            ViewGroup.MarginLayoutParams param = ((ViewGroup.MarginLayoutParams) _list.getLayoutParams());
+            if (_path.getHeight() == 0) {
+                ViewTreeObserver viewTreeObserver = _path.getViewTreeObserver();
+                viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        if (_path.getHeight() <= 0) {
+                            return false;
+                        }
+                        _path.getViewTreeObserver().removeOnPreDrawListener(this);
+                        if (_path.getParent() instanceof LinearLayout) {
+                            param.height = ((LinearLayout) _path.getParent()).getHeight() - _path.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
+                        } else {
+                            param.topMargin = _path.getHeight();
+                        }
+                        _list.setLayoutParams(param);
+                        return true;
+                    }
+                });
+            } else {
+                if (_path.getParent() instanceof LinearLayout) {
+                    param.height = ((LinearLayout) _path.getParent()).getHeight() - _path.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
+                } else {
+                    param.topMargin = _path.getHeight();
+                }
+                _list.setLayoutParams(param);
+            }
+        }
+    }
+
     private void listDirs() {
         if (progressBar != null) progressBar.setVisibility(VISIBLE);
-        _adapter.setScrollEnabled(false);
+        _isScrollable = false;
         AtomicBoolean isRoot = new AtomicBoolean(false);
         EXECUTOR.execute(() -> {
             try {
@@ -1343,36 +1442,22 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                 SmbFileChooserDialog.this.sortByName(dirList);
                 SmbFileChooserDialog.this.sortByName(fileList);
+
                 _entries.addAll(dirList);
                 _entries.addAll(fileList);
-
-                runOnUiThread(() -> {
-                    _adapter.setEntries(_entries);
-                    _adapter.setScrollEnabled(true);
-                    if (progressBar != null) progressBar.setVisibility(GONE);
-
-                    if (_alertDialog != null && !_disableTitle) {
-                        if (isRoot.get()) {
-                            _alertDialog.setTitle(_currentDir.getName());
-                        } else if (_displayPath) {
-                            if (this._titleRes == -1) _alertDialog.setTitle(this._title);
-                            else _alertDialog.setTitle(this._titleRes);
-                        }
-                    }
-                });
             } catch (SmbException | MalformedURLException e) {
                 e.printStackTrace();
+                runOnUiThread(() -> handleException(e, ExceptionId.FAILED_TO_LOAD_FILES));
+            } finally {
                 runOnUiThread(() -> {
-                    handleException(e, ExceptionId.FAILED_TO_LOAD_FILES);
-                    _adapter.setScrollEnabled(true);
+                    _adapter.setEntries(_entries);
+                    _isScrollable = true;
                     if (progressBar != null) progressBar.setVisibility(GONE);
-
-                    if (_alertDialog != null && !_disableTitle) {
+                    if (_alertDialog != null && _displayPath) {
                         if (isRoot.get()) {
-                            _alertDialog.setTitle(_currentDir.getName());
-                        } else if (_displayPath) {
-                            if (this._titleRes == -1) _alertDialog.setTitle(this._title);
-                            else _alertDialog.setTitle(this._titleRes);
+                            displayPath(_currentDir.getPath());
+                        } else {
+                            displayPath(null);
                         }
                     }
                 });
@@ -1390,6 +1475,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     @Deprecated
     private void listDirsUncategorised() {
         if (progressBar != null) progressBar.setVisibility(VISIBLE);
+        _isScrollable = false;
+        AtomicBoolean isRoot = new AtomicBoolean(false);
         EXECUTOR.execute(() -> {
             try {
                 _entries.clear();
@@ -1417,20 +1504,26 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                             return false;
                         }
                     });
+                    isRoot.set(true);
                 }
-
-                runOnUiThread(() -> {
-                    _adapter.setEntries(_entries);
-                    _adapter.setScrollEnabled(true);
-                    if (progressBar != null) progressBar.setVisibility(GONE);
-                });
             } catch (MalformedURLException | SmbException e) {
                 e.printStackTrace();
                 if (progressBar != null) runOnUiThread(() -> {
                     handleException(e);
                     Toast.makeText(getBaseContext(), "Failed to load files!", Toast.LENGTH_LONG).show();
-                    _adapter.setScrollEnabled(true);
+                });
+            } finally {
+                runOnUiThread(() -> {
+                    _adapter.setEntries(_entries);
+                    _isScrollable = true;
                     if (progressBar != null) progressBar.setVisibility(GONE);
+                    if (_alertDialog != null && _displayPath) {
+                        if (isRoot.get()) {
+                            displayPath(_currentDir.getPath());
+                        } else {
+                            displayPath(null);
+                        }
+                    }
                 });
             }
         });
@@ -1685,6 +1778,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private SmbFile _rootDir;
     private AlertDialog _alertDialog;
     private ListView _list;
+    private boolean _isScrollable = true;
     private OnChosenListener _onChosenListener = null;
     private OnSelectedListener _onSelectedListener = null;
     private boolean _dirOnly;
@@ -1705,6 +1799,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private DialogInterface.OnCancelListener _onCancelListener;
     private boolean _disableTitle;
     private boolean _displayPath;
+    private TextView _path;
     private boolean _cancelable = true;
     private boolean _cancelOnTouchOutside;
     private boolean _dismissOnButtonClick = true;

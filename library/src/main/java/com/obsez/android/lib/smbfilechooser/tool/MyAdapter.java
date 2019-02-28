@@ -1,17 +1,14 @@
 package com.obsez.android.lib.smbfilechooser.tool;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Copyright 2015-2019 Hedzr Yeh
@@ -76,7 +73,6 @@ abstract class MyAdapter<T> extends BaseAdapter {
 
     @Override
     public View getView(final int position, final View convertView, final ViewGroup parent) {
-        this.setScrollListener(parent);
         return convertView != null ? convertView : _inflater.inflate(_resource, parent, false);
     }
 
@@ -130,18 +126,5 @@ abstract class MyAdapter<T> extends BaseAdapter {
 
     public void clearSelected() {
         _selected.clear();
-    }
-
-    private AtomicBoolean _isDone = new AtomicBoolean(false);
-    private boolean _isScrollEnabled = true;
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void setScrollListener(final ViewGroup parent) {
-        if (_isDone.get()) return;
-        parent.setOnTouchListener((v, event) -> !_isScrollEnabled && event.getAction() == MotionEvent.ACTION_MOVE);
-    }
-
-    public void setScrollEnabled(final boolean isEnable) {
-        _isScrollEnabled = isEnable;
     }
 }

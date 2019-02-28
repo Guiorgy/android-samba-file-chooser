@@ -58,6 +58,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             final Context ctx = getActivity();
             assert ctx != null;
             FileChooserDialog.newDialog(ctx)
+                .displayPath(true)
                 .setIcon(R.mipmap.ic_launcher)
                 .setFilter(true, false)
                 .setStartFile(_path)
@@ -117,6 +118,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             final Context ctx = getActivity();
             assert ctx != null;
             FileChooserDialog.newDialog(ctx)
+                .displayPath(true)
                 .disableTitle(true)
                 .setStartFile(_path)
                 .setResources(R.string.title_choose_any_file, R.string.title_choose,
@@ -186,6 +188,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         final Context ctx = this.getActivity();
         assert ctx != null;
         FileChooserDialog.newDialog(ctx)
+            .displayPath(true)
             .setFilterRegex(false, true, ".*\\.(jpe?g|png)")
             .setStartFile(_path)
             .setResources(R.string.title_choose_multiple_files, R.string.title_choose, R.string.dialog_cancel)
