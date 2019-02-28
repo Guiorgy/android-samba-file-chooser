@@ -1340,7 +1340,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             }
             _list.setLayoutParams(param);
         } else {
-            if (path.contains("/storage/emulated/0/")) path = path.substring(19);
+            if (path.contains("smb://")) path = path.substring(5);
             _path.setText(path);
 
             while (_path.getLineCount() > 1) {
