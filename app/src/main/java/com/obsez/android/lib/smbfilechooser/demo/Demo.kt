@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.obsez.android.lib.smbfilechooser.demo
 
 import android.content.Context
