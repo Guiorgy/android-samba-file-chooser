@@ -192,18 +192,18 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     }
 
     /**
-     *  Temporary solution
+     * Temporary solution
      */
     private long _timeout = 5000;
 
     private void init(@NonNull final String serverIP, @NonNull final Properties properties) {
-        try{
+        try {
             String s = properties.getProperty("jcifs.smb.client.connTimeout", null);
             if (s == null) s = properties.getProperty("jcifs.smb.client.responseTimeout", null);
-            if (s != null){
+            if (s != null) {
                 _timeout = Long.parseLong(s);
             }
-        } catch (NumberFormatException ignore){
+        } catch (NumberFormatException ignore) {
             _timeout = 5000;
         }
 
@@ -600,6 +600,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     }
 
     @NonNull
+    public SmbFileChooserDialog customizePathView(CustomizePathView callback) {
+        _pathViewCallback = callback;
+        return this;
+    }
+
+    @NonNull
     public SmbFileChooserDialog enableMultiple(final boolean enableMultiple, final boolean allowSelectMultipleFolders) {
         this._enableMultiple = enableMultiple;
         this._allowSelectDir = allowSelectMultipleFolders;
@@ -855,8 +861,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                             if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
                                                 params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight()
                                                     - SmbFileChooserDialog.this._options.getHeight()
-                                                    - (SmbFileChooserDialog.this._path != null && SmbFileChooserDialog.this._path.getVisibility()
-                                                    == VISIBLE ? SmbFileChooserDialog.this._path.getHeight() : 0);
+                                                    - (SmbFileChooserDialog.this._pathView != null && SmbFileChooserDialog.this._pathView.getVisibility()
+                                                    == VISIBLE ? SmbFileChooserDialog.this._pathView.getHeight() : 0);
                                             } else {
                                                 params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
                                             }
@@ -872,8 +878,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                 if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
                                     params.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight()
                                         - SmbFileChooserDialog.this._options.getHeight()
-                                        - (SmbFileChooserDialog.this._path != null && SmbFileChooserDialog.this._path.getVisibility()
-                                        == VISIBLE ? SmbFileChooserDialog.this._path.getHeight() : 0);
+                                        - (SmbFileChooserDialog.this._pathView != null && SmbFileChooserDialog.this._pathView.getVisibility()
+                                        == VISIBLE ? SmbFileChooserDialog.this._pathView.getHeight() : 0);
                                 } else {
                                     params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
                                 }
@@ -890,8 +896,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                         ViewGroup.MarginLayoutParams params1 = (ViewGroup.MarginLayoutParams) SmbFileChooserDialog.this._list.getLayoutParams();
                         if (SmbFileChooserDialog.this._options.getParent() instanceof LinearLayout) {
                             params1.height = ((LinearLayout) SmbFileChooserDialog.this._options.getParent()).getHeight()
-                                - (SmbFileChooserDialog.this._path != null && SmbFileChooserDialog.this._path.getVisibility()
-                                == VISIBLE ? SmbFileChooserDialog.this._path.getHeight() : 0);
+                                - (SmbFileChooserDialog.this._pathView != null && SmbFileChooserDialog.this._pathView.getVisibility()
+                                == VISIBLE ? SmbFileChooserDialog.this._pathView.getHeight() : 0);
                         } else {
                             params1.bottomMargin = 0;
                         }
@@ -1300,7 +1306,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     }
 
     private void displayPath(@Nullable String path) {
-        if (_path == null) {
+        if (_pathView == null) {
             final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
             final ViewGroup root = ((AlertDialog) _alertDialog).findViewById(rootId);
             // In case the id was changed or not found.
@@ -1313,74 +1319,78 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, TOP);
             }
 
-            _path = new TextView(getBaseContext());
-            _path.setTextSize(12);
-            _path.setLines(1);
-            _path.setTextColor(0x40000000);
-            _path.setPadding(
-                (int)UiUtil.dip2px(2),
-                (int)UiUtil.dip2px(5),
-                (int)UiUtil.dip2px(2),
-                (int)UiUtil.dip2px(2));
-            _path.setBackgroundColor(0xffffffff);
-            root.addView(_path, 0, params);
+            _pathView = new TextView(getBaseContext());
+            _pathView.setTextSize(12);
+            _pathView.setLines(1);
+            _pathView.setTextColor(0x40000000);
+            _pathView.setPadding(
+                (int) UiUtil.dip2px(2),
+                (int) UiUtil.dip2px(5),
+                (int) UiUtil.dip2px(2),
+                (int) UiUtil.dip2px(2));
+            _pathView.setBackgroundColor(0xffffffff);
+            root.addView(_pathView, 0, params);
 
-            _path.bringToFront();
+            _pathView.bringToFront();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                _path.setElevation(2f);
+                _pathView.setElevation(2f);
             } else {
-                ViewCompat.setElevation(_path, 2);
+                ViewCompat.setElevation(_pathView, 2);
+            }
+
+            if (_pathViewCallback != null) {
+                _pathViewCallback.customize(_pathView);
             }
         }
 
         if (path == null) {
-            _path.setVisibility(GONE);
+            _pathView.setVisibility(GONE);
 
             ViewGroup.MarginLayoutParams param = ((ViewGroup.MarginLayoutParams) _list.getLayoutParams());
-            if (_path.getParent() instanceof LinearLayout) {
-                param.height = ((LinearLayout) _path.getParent()).getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
+            if (_pathView.getParent() instanceof LinearLayout) {
+                param.height = ((LinearLayout) _pathView.getParent()).getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
             } else {
                 param.topMargin = 0;
             }
             _list.setLayoutParams(param);
         } else {
             if (path.contains("smb://")) path = path.substring(5);
-            _path.setText(path);
+            _pathView.setText(path);
 
-            while (_path.getLineCount() > 1) {
+            while (_pathView.getLineCount() > 1) {
                 int i = path.indexOf("/");
                 i = path.indexOf("/", i + 1);
                 if (i == -1) break;
                 path = "..." + path.substring(i);
-                _path.setText(path);
+                _pathView.setText(path);
             }
 
-            _path.setVisibility(VISIBLE);
+            _pathView.setVisibility(VISIBLE);
 
             ViewGroup.MarginLayoutParams param = ((ViewGroup.MarginLayoutParams) _list.getLayoutParams());
-            if (_path.getHeight() == 0) {
-                ViewTreeObserver viewTreeObserver = _path.getViewTreeObserver();
+            if (_pathView.getHeight() == 0) {
+                ViewTreeObserver viewTreeObserver = _pathView.getViewTreeObserver();
                 viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                     @Override
                     public boolean onPreDraw() {
-                        if (_path.getHeight() <= 0) {
+                        if (_pathView.getHeight() <= 0) {
                             return false;
                         }
-                        _path.getViewTreeObserver().removeOnPreDrawListener(this);
-                        if (_path.getParent() instanceof LinearLayout) {
-                            param.height = ((LinearLayout) _path.getParent()).getHeight() - _path.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
+                        _pathView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        if (_pathView.getParent() instanceof LinearLayout) {
+                            param.height = ((LinearLayout) _pathView.getParent()).getHeight() - _pathView.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
                         } else {
-                            param.topMargin = _path.getHeight();
+                            param.topMargin = _pathView.getHeight();
                         }
                         _list.setLayoutParams(param);
                         return true;
                     }
                 });
             } else {
-                if (_path.getParent() instanceof LinearLayout) {
-                    param.height = ((LinearLayout) _path.getParent()).getHeight() - _path.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
+                if (_pathView.getParent() instanceof LinearLayout) {
+                    param.height = ((LinearLayout) _pathView.getParent()).getHeight() - _pathView.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
                 } else {
-                    param.topMargin = _path.getHeight();
+                    param.topMargin = _pathView.getHeight();
                 }
                 _list.setLayoutParams(param);
             }
@@ -1416,7 +1426,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 runOnUiThread(() -> {
                     final Handler handler = new Handler();
                     handler.postDelayed(() -> {
-                        if (!connected.get()){
+                        if (!connected.get()) {
                             _terminate = true;
                             handleException(new SmbException("Timed out!"), ExceptionId.TIMED_OUT);
                             thread.interrupt();
@@ -1802,7 +1812,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private DialogInterface.OnCancelListener _onCancelListener;
     private boolean _disableTitle;
     private boolean _displayPath;
-    private TextView _path;
+    private TextView _pathView;
+    private CustomizePathView _pathViewCallback;
     private boolean _cancelable = true;
     private boolean _cancelOnTouchOutside;
     private boolean _dismissOnButtonClick = true;
@@ -1873,4 +1884,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private NewFolderFilter _newFolderFilter;
 
     private ProgressBar progressBar;
+
+    @FunctionalInterface
+    public interface CustomizePathView {
+        void customize(TextView pathView);
+    }
 }
