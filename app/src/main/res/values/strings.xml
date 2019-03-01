@@ -1,18 +1,25 @@
-<resources>
-  <string name="app_name">android-smbfile-chooser demo</string>
-  <string name="hello_world">Hello world!</string>
-  <string name="action_settings">Settings</string>
-  <string name="title_nothing"></string>
-  <string name="title_choose_file">Choose a file</string>
-  <string name="btn_choose_a_folder">Choose a folder</string>
-  <string name="title_choose_folder">Choose a folder</string>
-  <string name="btn_choose_any_file">Choose any file</string>
-  <string name="title_choose_any_file">Choose any file</string>
-  <string name="btn_choose_multiple_files">Choose multiple files</string>
-  <string name="title_choose_multiple_files">Choose multiple files</string>
-  <string name="btn_choose_a_folder_smb">Choose a folder (smb)</string>
-  <string name="title_choose_folder_smb">Choose a folder</string>
-  <string name="hint_domain">domain</string>
-  <string name="hint_name">name</string>
-  <string name="hint_password">password</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" tools:ignore="MissingTranslation">android-file-chooser demo</string>
+    <string name="hello_world" tools:ignore="MissingTranslation">Hello world!</string>
+    <string name="action_settings" tools:ignore="MissingTranslation">Settings</string>
+    <string name="title_choose_file" tools:ignore="MissingTranslation">Choose a file</string>
+    <string name="title_choose_folder" tools:ignore="MissingTranslation">Choose a folder</string>
+
+    <string name="option_create_folder" tools:ignore="MissingTranslation">New folder</string>
+    <string name="options_delete" tools:ignore="MissingTranslation">Delete</string>
+    <string name="new_folder_cancel" tools:ignore="MissingTranslation">Cancel</string>
+    <string name="new_folder_ok" tools:ignore="MissingTranslation">OK</string>
+
+    <string name="show_dialog" tools:ignore="MissingTranslation">Show dialog</string>
+    <string name="enable_samba" tools:ignore="MissingTranslation">Enable Samba</string>
+    <string name="enable_options" tools:ignore="MissingTranslation">Enable options</string>
+    <string name="disable_title" tools:ignore="MissingTranslation">Disable title</string>
+    <string name="select_multiple" tools:ignore="MissingTranslation">Select multiple files</string>
+    <string name="display_path" tools:ignore="MissingTranslation">Display path</string>
+    <string name="dir_only" tools:ignore="MissingTranslation">Only show directories</string>
+    <string name="allow_hidden" tools:ignore="MissingTranslation">Show hidden files</string>
+    <string name="continue_from_last" tools:ignore="MissingTranslation">Continue from last directory</string>
+    <string name="filter_images" tools:ignore="MissingTranslation">Filter images only</string>
+    <string name="display_icon" tools:ignore="MissingTranslation">Display an icon</string>
+    <string name="display_long_dates" tools:ignore="MissingTranslation">Display long dates</string>
 </resources>

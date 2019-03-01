@@ -57,6 +57,7 @@ dependencies {
     implementation 'eu.agno3.jcifs:jcifs-ng:2.1.1'
     implementation project(':library')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
 
     /** LeakCanary - https://github.com/square/leakcanary */
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'

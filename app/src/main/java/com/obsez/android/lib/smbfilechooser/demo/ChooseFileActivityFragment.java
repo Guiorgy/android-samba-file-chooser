@@ -1,20 +1,22 @@
 package com.obsez.android.lib.smbfilechooser.demo;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.obsez.android.lib.smbfilechooser.FileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
-import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
+import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,25 +24,32 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import jcifs.smb.NtlmPasswordAuthenticator;
-
-import static com.obsez.android.lib.smbfilechooser.tool.IExceptionHandler.ExceptionId.FAILED_TO_LOAD_FILES;
-
-//import android.support.v7.app.AlertDialog;
+import jcifs.smb.SmbException;
+import jcifs.smb.SmbFile;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-@SuppressWarnings("RedundantCast")
-public class ChooseFileActivityFragment extends Fragment implements View.OnClickListener {
+public class ChooseFileActivityFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "ChooseFileActivityFragment";
-    private String _path;
-    private TextView _tv;
-    private ListView _lv;
 
-    public ChooseFileActivityFragment() {
-    }
+    private CheckBox disableTitle;
+    private CheckBox enableOptions;
+    private CheckBox enableSamba;
+    private CheckBox enableMultiple;
+    private CheckBox displayPath;
+    private CheckBox dirOnly;
+    private CheckBox allowHidden;
+    private CheckBox continueFromLast;
+    private CheckBox filterImages;
+    private CheckBox displayIcon;
+    private CheckBox dateFormat;
+
+    private String _server = "smb://";
+    private String _path = null;
+    private TextView _tv;
+    private ImageView _iv;
 
     @Nullable
     @Override
@@ -49,137 +58,49 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         //return super.onCreateView(inflater, container, savedInstanceState);
 
         View root = inflater.inflate(R.layout.fragment_choose_file, container, false);
-        _tv = (TextView) root.findViewById(R.id.textView);
+
+        _tv = root.findViewById(R.id.textView);
         _tv.setText(BuildConfig.VERSION_NAME);
-        _lv = (ListView) root.findViewById(R.id.listView);
-        root.findViewById(R.id.btn_choose_multiple_files).setOnClickListener(this);
-        root.findViewById(R.id.btn_choose_a_folder).setOnClickListener(v -> {
-            // choose a folder
-            final Context ctx = getActivity();
-            assert ctx != null;
-            FileChooserDialog.newDialog(ctx)
-                .displayPath(true)
-                .setIcon(R.mipmap.ic_launcher)
-                .setFilter(true, false)
-                .setStartFile(_path)
-                .setDateFormat("HH:mm")
-                .setResources(R.string.title_choose_folder, R.string.title_choose, R.string.dialog_cancel)
-                //.setOnCancelListener(new DialogInterface.OnCancelListener(){
-                //
-                //    /**
-                //     * This method will be invoked when the dialog is canceled.
-                //     *
-                //     * @param dialog the dialog that was canceled will be passed into the method
-                //     */
-                //    @Override
-                //    public void onCancel(DialogInterface dialog) {
-                //        Log.d("CANCEL", "CANCEL");
-                //    }
-                //})
-                //.setNegativeButtonListener(new DialogInterface.OnClickListener(){
-                //
-                //    /**
-                //     * This method will be invoked when the cancel button in the dialog is clicked.
-                //     *
-                //     * @param dialog the dialog that received the click
-                //     * @param which the button that was clicked (ex. {@link DialogInterface#BUTTON_NEGATIVE}) or the position
-                //     */
-                //    @Override
-                //    public void onClick(DialogInterface dialog, int which) {
-                //        Log.d("Negative", "Negative");
-                //    }
-                //})
-                //.setOnDismissListener(new DialogInterface.OnDismissListener(){
-                //
-                //    /**
-                //     * This method will be invoked when the dialog is dismissed. (both when canceled or file chosen)
-                //     * OnDismissListener is only available on API 17 or higher!
-                //     *
-                //     * @param dialog the dialog that was dismissed
-                //     */
-                //    @Override
-                //    public void onDismiss(final DialogInterface dialog){
-                //        Log.d("DISMISS", "DISMISS");
-                //    }
-                //})
-                .setOnChosenListener((path, pathFile) -> {
-                    Toast.makeText(ctx, "FOLDER: " + path, Toast.LENGTH_SHORT).show();
-                    _path = path;
-                    _tv.setText(_path);
-                })
-                .cancelOnTouchOutside(true)
-                .enableOptions(true)
-                .displayPath(true)
-                .setOnLastBackPressedListener(dialog -> Toast.makeText(ctx, "there is no parent directory", Toast.LENGTH_SHORT).show())
-                .build()
-                .show();
-        });
-        root.findViewById(R.id.btn_choose_any_file).setOnClickListener(v -> {
-            final Context ctx = getActivity();
-            assert ctx != null;
-            FileChooserDialog.newDialog(ctx)
-                .displayPath(true)
-                .disableTitle(true)
-                .setStartFile(_path)
-                .setResources(R.string.title_choose_any_file, R.string.title_choose,
-                    R.string.dialog_cancel)
-                .setFileIconsRes(false, R.mipmap.ic_my_file, R.mipmap.ic_my_folder)
-                .setAdapterSetter(adapter -> {
-                    //
-                })
-                .setOnChosenListener((path, pathFile) -> {
-                    Toast.makeText(ctx, "FILE: " + path, Toast.LENGTH_SHORT).show();
+        _iv = root.findViewById(R.id.imageView);
 
-                    _path = path;
-                    _tv.setText(_path);
-                })
-                .build()
-                .show();
-        });
+        enableSamba = root.findViewById(R.id.checkbox_enable_samba);
+        enableOptions = root.findViewById(R.id.checkbox_enable_options);
+        disableTitle = root.findViewById(R.id.checkbox_disable_title);
+        enableMultiple = root.findViewById(R.id.checkbox_enable_multiple);
+        displayPath = root.findViewById(R.id.checkbox_display_path);
+        dirOnly = root.findViewById(R.id.checkbox_dir_only);
+        allowHidden = root.findViewById(R.id.checkbox_allow_hidden);
+        continueFromLast = root.findViewById(R.id.checkbox_continue_from_last);
+        filterImages = root.findViewById(R.id.checkbox_filter_images);
+        displayIcon = root.findViewById(R.id.checkbox_display_icon);
+        dateFormat = root.findViewById(R.id.checkbox_date_format);
 
-        final EditText mEditDomain = root.findViewById(R.id.edit_domain);
-        final EditText mEditName = root.findViewById(R.id.edit_name);
-        final EditText mEditPassword = root.findViewById(R.id.edit_password);
-        root.findViewById(R.id.btn_choose_a_folder_smb).setOnClickListener(v -> {
-            final Context ctx = getActivity();
-            assert ctx != null;
-            String domain = mEditDomain.getText().toString();
-            String name = mEditName.getText().toString();
-            if (name.isEmpty()) name = null;
-            String password = mEditPassword.getText().toString();
-            if (password.isEmpty()) password = null;
-            NtlmPasswordAuthenticator auth;
-            if (name == null && password == null) auth = null;
-            else auth = new NtlmPasswordAuthenticator(domain, name, password);
-            if (domain.isEmpty()) {
-                mEditDomain.setError("Required!");
-                mEditDomain.requestFocus();
-                return;
-            }
-            SmbFileChooserDialog.newDialog(ctx, domain, auth)
-                .displayPath(true)
-                .setResources(R.string.title_choose_folder_smb, R.string.title_choose, R.string.dialog_cancel)
-                .setFilter(true, false)
-                //.setStartFile(null) // same as "smb://{domain}/
-                .setOnLastBackPressedListener(dialog -> Toast.makeText(ctx, "This dialog won't close by pressing back!", Toast.LENGTH_SHORT).show())
-                .setNewFolderFilter(new FileUtil.NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
-                .setOnChosenListener((path, file) -> {
-                    Handler mainHandler = new Handler(ctx.getMainLooper());
-                    mainHandler.post(() -> {
-                        Toast.makeText(ctx, "FOLDER: " + path, Toast.LENGTH_SHORT).show();
-                        _path = path;
-                        _tv.setText(_path);
-                    });
-                })
-                .setExceptionHandler((exception, id) -> {
-                    if (id == FAILED_TO_LOAD_FILES)
-                        Toast.makeText(ctx, exception.getMessage(), Toast.LENGTH_LONG).show();
-                    return true;
-                })
-                .build()
-                .show();
-        });
+        enableSamba.setOnCheckedChangeListener(this);
+        root.findViewById(R.id.btn_show_dialog).setOnClickListener(this);
+
         return root;
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+            alert.setTitle("Set server");
+            alert.setCancelable(false);
+            final EditText input = new EditText(getContext());
+            input.setText(_server);
+            alert.setView(input);
+            alert.setPositiveButton("Ok", (dialog, whichButton) -> _server = input.getText().toString());
+            alert.show();
+
+            ViewGroup.LayoutParams params = input.getLayoutParams();
+            ((ViewGroup.MarginLayoutParams) params).setMargins(
+                (int) UiUtil.dip2px(20),
+                (int) UiUtil.dip2px(10),
+                (int) UiUtil.dip2px(20),
+                (int) UiUtil.dip2px(10));
+            input.setLayoutParams(params);
+        }
     }
 
     @Override
@@ -187,29 +108,112 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         //choose a file
         final Context ctx = this.getActivity();
         assert ctx != null;
-        FileChooserDialog.newDialog(ctx)
-            .displayPath(true)
-            .setFilterRegex(false, true, ".*\\.(jpe?g|png)")
-            .setStartFile(_path)
-            .setResources(R.string.title_choose_multiple_files, R.string.title_choose, R.string.dialog_cancel)
-            .enableOptions(true)
-            .enableMultiple(true, false)
-            .setOnChosenListener((path, pathFile) -> {
-                Toast.makeText(ctx, "FILE: " + path, Toast.LENGTH_SHORT).show();
 
-                _path = path;
-                _tv.setText(_path);
-            })
-            .setOnSelectedListener(files -> {
-                ArrayList<String> paths = new ArrayList<>();
-                for (File file : files) {
-                    paths.add(file.getAbsolutePath());
-                }
+        if (enableSamba.isChecked()) {
+            SmbFileChooserDialog smbFileChooserDialog = SmbFileChooserDialog.newDialog(ctx, _server)
+                .setResources(R.string.title_choose_folder, R.string.title_choose, R.string.dialog_cancel)
+                .setOptionResources(R.string.option_create_folder, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
+                .disableTitle(disableTitle.isChecked())
+                .enableOptions(enableOptions.isChecked())
+                .displayPath(displayPath.isChecked());
+            if (filterImages.isChecked()) {
+                // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
+                smbFileChooserDialog.setFilter(dirOnly.isChecked(),
+                    allowHidden.isChecked(),
+                    "tif", "tiff", "gif", "jpeg", "jpg", "jif", "jfif",
+                    "jp2", "jpx", "j2k", "j2c", "fpx", "pcd", "png", "pdf");
+            } else {
+                smbFileChooserDialog.setFilter(dirOnly.isChecked(), allowHidden.isChecked());
+            }
+            if (enableMultiple.isChecked()) {
+                smbFileChooserDialog.enableMultiple(true, false);
+                smbFileChooserDialog.setOnSelectedListener(files -> {
+                    ArrayList<String> paths = new ArrayList<>();
+                    for (SmbFile file : files) {
+                        paths.add(file.getPath());
+                    }
 
-                _lv.setAdapter(new ArrayAdapter<>(ctx, android.R.layout.simple_expandable_list_item_1, paths));
-            })
-            .build()
-            .show();
+                    new AlertDialog.Builder(ctx)
+                        .setTitle(files.size() + " files selected:")
+                        .setAdapter(new ArrayAdapter<>(ctx,
+                            android.R.layout.simple_expandable_list_item_1, paths), null)
+                        .create()
+                        .show();
+                });
+            } else {
+                smbFileChooserDialog.setOnChosenListener((dir, dirFile) -> {
+                    if (continueFromLast.isChecked()) {
+                        _path = dir;
+                    }
+                    try {
+                        Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
+                        _tv.setText(dir);
+                    } catch (SmbException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            if (continueFromLast.isChecked() && _path != null) {
+                smbFileChooserDialog.setStartFile(_path);
+            }
+            if (displayIcon.isChecked()) {
+                smbFileChooserDialog.setIcon(R.mipmap.ic_launcher);
+            }
+            if (dateFormat.isChecked()) {
+                smbFileChooserDialog.setDateFormat("dd MMMM yyyy");
+            }
+            smbFileChooserDialog.build().show();
+        } else {
+            FileChooserDialog fileChooserDialog = FileChooserDialog.newDialog(ctx)
+                .setResources(R.string.title_choose_folder, R.string.title_choose, R.string.dialog_cancel)
+                .setOptionResources(R.string.option_create_folder, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
+                .disableTitle(disableTitle.isChecked())
+                .enableOptions(enableOptions.isChecked())
+                .displayPath(displayPath.isChecked());
+            if (filterImages.isChecked()) {
+                // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
+                fileChooserDialog.setFilter(dirOnly.isChecked(),
+                    allowHidden.isChecked(),
+                    "tif", "tiff", "gif", "jpeg", "jpg", "jif", "jfif",
+                    "jp2", "jpx", "j2k", "j2c", "fpx", "pcd", "png", "pdf");
+            } else {
+                fileChooserDialog.setFilter(dirOnly.isChecked(), allowHidden.isChecked());
+            }
+            if (enableMultiple.isChecked()) {
+                fileChooserDialog.enableMultiple(true, false);
+                fileChooserDialog.setOnSelectedListener(files -> {
+                    ArrayList<String> paths = new ArrayList<>();
+                    for (File file : files) {
+                        paths.add(file.getAbsolutePath());
+                    }
+
+                    new AlertDialog.Builder(ctx)
+                        .setTitle(files.size() + " files selected:")
+                        .setAdapter(new ArrayAdapter<>(ctx,
+                            android.R.layout.simple_expandable_list_item_1, paths), null)
+                        .create()
+                        .show();
+                });
+            } else {
+                fileChooserDialog.setOnChosenListener((dir, dirFile) -> {
+                    if (continueFromLast.isChecked()) {
+                        _path = dir;
+                    }
+                    Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
+                    _tv.setText(dir);
+                    if (dirFile.isFile()) _iv.setImageBitmap(ImageUtil.decodeFile(dirFile));
+                });
+            }
+            if (continueFromLast.isChecked() && _path != null) {
+                fileChooserDialog.setStartFile(_path);
+            }
+            if (displayIcon.isChecked()) {
+                fileChooserDialog.setIcon(R.mipmap.ic_launcher);
+            }
+            if (dateFormat.isChecked()) {
+                fileChooserDialog.setDateFormat("dd MMMM yyyy");
+            }
+            fileChooserDialog.build().show();
+        }
     }
-
 }
