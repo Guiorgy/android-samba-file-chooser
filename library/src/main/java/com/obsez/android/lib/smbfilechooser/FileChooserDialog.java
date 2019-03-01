@@ -94,7 +94,7 @@ import static com.obsez.android.lib.smbfilechooser.internals.UiUtil.getListYScro
  * limitations under the License.
  */
 
-@SuppressWarnings({"SpellCheckingInspection", "unused"})
+@SuppressWarnings({"SpellCheckingInspection", "unused", "UnusedReturnValue"})
 public class FileChooserDialog extends LightContextWrapper implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
     @FunctionalInterface
     public interface OnChosenListener {

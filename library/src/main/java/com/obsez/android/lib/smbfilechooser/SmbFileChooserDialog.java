@@ -96,7 +96,7 @@ import static com.obsez.android.lib.smbfilechooser.internals.UiUtil.getListYScro
 /**
  * Created by coco on 6/7/15. Edited by Guiorgy on 10/09/18.
  */
-@SuppressWarnings({"SpellCheckingInspection", "unused", "WeakerAccess"})
+@SuppressWarnings({"SpellCheckingInspection", "unused", "WeakerAccess", "UnusedReturnValue"})
 public class SmbFileChooserDialog extends LightContextWrapper implements IExceptionHandler, DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
     private Thread thread;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
@@ -156,14 +156,21 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private SmbFileChooserDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
         super(context);
 
-        if (properties == null) init(serverIP);
-        else init(serverIP, properties);
+        if (serverIP.startsWith("smb://")){
+            this._serverIP = serverIP.substring(6);
+        } else this._serverIP = serverIP;
+        if (serverIP.endsWith("/")) {
+            this._serverIP = this._serverIP.substring(0, this._serverIP.length() - 1);
+        }
+
+        if (properties == null) init(this._serverIP);
+        else init(this._serverIP, properties);
 
         try {
             EXECUTOR.submit(() -> {
                 if (_smbContext != null) {
                     _smbContext.withCredentials(auth);
-                    this._rootDirPath = "smb://" + serverIP + '/';
+                    this._rootDirPath = "smb://" + this._serverIP + '/';
                     try {
                         this._rootDir = new SmbFile(this._rootDirPath, _smbContext);
                     } catch (MalformedURLException e) {
@@ -1786,6 +1793,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
     private List<SmbFile> _entries = new ArrayList<>();
     private SmbDirAdapter _adapter;
+    private String _serverIP;
     private CIFSContext _smbContext;
     private SmbFile _currentDir;
     private String _rootDirPath;
