@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.2s - 2019-03-01
+
+\+ added support for SD storage. (same as in android-file-chooser)
+\* displayPath(true) no longer sets dialog title to file name. Instead, path to the file is displayed below the title and above the list of files.
+\+ added customizePathView method to customize the filePath displayed.
+
+## 1.3.1s - 2019-02-28
+
+\* fixed progressbar not centered when loading files.
+\* fixed timeout when unable to connect to server.
+\- removed setServer and setAuthenticator methods.
+\+ now possible to pass custom properties to CIFSContext.
+
 ## 1.3.0s - 2019-02-26
 
 \* !BREAKING! switched to the new jcifs library currently maintained: https://github.com/AgNO3/jcifs-ng
