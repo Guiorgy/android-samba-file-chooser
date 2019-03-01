@@ -1681,7 +1681,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     if (!_dirOnly)
                         _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(VISIBLE);
                 }
-                SmbFileChooserDialog.this._deleteMode.run();
+                if (SmbFileChooserDialog.this._deleteMode != null)
+                    SmbFileChooserDialog.this._deleteMode.run();
             }
             return true;
         } catch (InterruptedException | ExecutionException e) {

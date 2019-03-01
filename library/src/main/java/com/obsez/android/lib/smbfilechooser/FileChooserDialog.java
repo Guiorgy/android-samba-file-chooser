@@ -1314,7 +1314,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             if (!_dirOnly)
                 _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(VISIBLE);
         }
-        FileChooserDialog.this._deleteMode.run();
+        if (FileChooserDialog.this._deleteMode != null) FileChooserDialog.this._deleteMode.run();
         return true;
     }
 
