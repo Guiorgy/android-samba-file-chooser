@@ -2,13 +2,20 @@ package com.obsez.android.lib.smbfilechooser.internals;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StatFs;
+import android.os.storage.StorageManager;
 import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +42,7 @@ import jcifs.smb.SmbFile;
  * limitations under the License.
  */
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class FileUtil {
 
     @NonNull
@@ -110,7 +118,68 @@ public class FileUtil {
         return String.valueOf(dec.format(fileSize) + suffix);
     }
 
+    public static String getStoragePath(final Context context, final boolean isRemovable) {
+        StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = storageManager.getClass().getMethod("getVolumeList");
+            //noinspection JavaReflectionMemberAccess
+            Method getPath = storageVolumeClazz.getMethod("getPath");
+            Method isRemovableMtd = storageVolumeClazz.getMethod("isRemovable");
+            Object result = getVolumeList.invoke(storageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                boolean removable = (Boolean) isRemovableMtd.invoke(storageVolumeElement);
+                if (isRemovable == removable) {
+                    return path;
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return Environment.getExternalStorageDirectory().getAbsolutePath();
+    }
 
+    public static long readSDCard(Context context, Boolean isRemovable) {
+        return readSDCard(context, isRemovable, false);
+    }
+
+    public static long readSDCard(Context context, Boolean isRemovable, Boolean freeOrTotal) {
+        if (getStoragePath(context, isRemovable) != null) {
+            StatFs sf = new StatFs(getStoragePath(context, isRemovable));
+            long blockSize;
+            long blockCount;
+            long availCount;
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                // 文件存储时每一个存储块的大小为4KB
+                //  (google translate: The size of each memory block is 4KB when the file is stored.)
+                blockSize = sf.getBlockSizeLong();
+                // 存储区域的存储块的总个数
+                //  (google translate: The total number of storage blocks in the storage area)
+                blockCount = sf.getBlockCountLong();
+                // 存储区域中可用的存储块的个数（剩余的存储大小）
+                //  (google translate: Number of memory blocks available in the storage area (remaining storage size))
+                availCount = sf.getFreeBlocksLong();
+            } else {
+                blockSize = sf.getBlockSize();
+                blockCount = sf.getBlockCount();
+                availCount = sf.getFreeBlocks();
+            }
+            return (freeOrTotal ? availCount : blockCount) * blockSize;
+        }
+        return -1;
+    }
+
+    @SuppressWarnings("unused")
     public static class NewFolderFilter implements InputFilter {
         private final int maxLength;
         private final Pattern pattern;
