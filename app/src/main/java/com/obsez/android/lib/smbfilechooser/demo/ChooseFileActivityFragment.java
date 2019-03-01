@@ -115,7 +115,18 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 .setOptionResources(R.string.option_create_folder, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
                 .disableTitle(disableTitle.isChecked())
                 .enableOptions(enableOptions.isChecked())
-                .displayPath(displayPath.isChecked());
+                .displayPath(displayPath.isChecked())
+                .setOnChosenListener((dir, dirFile) -> {
+                    if (continueFromLast.isChecked()) {
+                        _path = dir;
+                    }
+                    try {
+                        Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
+                        _tv.setText(dir);
+                    } catch (SmbException e) {
+                        e.printStackTrace();
+                    }
+                });
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 smbFileChooserDialog.setFilter(dirOnly.isChecked(),
@@ -140,18 +151,6 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                         .create()
                         .show();
                 });
-            } else {
-                smbFileChooserDialog.setOnChosenListener((dir, dirFile) -> {
-                    if (continueFromLast.isChecked()) {
-                        _path = dir;
-                    }
-                    try {
-                        Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
-                        _tv.setText(dir);
-                    } catch (SmbException e) {
-                        e.printStackTrace();
-                    }
-                });
             }
             if (continueFromLast.isChecked() && _path != null) {
                 smbFileChooserDialog.setStartFile(_path);
@@ -169,7 +168,15 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 .setOptionResources(R.string.option_create_folder, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
                 .disableTitle(disableTitle.isChecked())
                 .enableOptions(enableOptions.isChecked())
-                .displayPath(displayPath.isChecked());
+                .displayPath(displayPath.isChecked())
+                .setOnChosenListener((dir, dirFile) -> {
+                    if (continueFromLast.isChecked()) {
+                        _path = dir;
+                    }
+                    Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
+                    _tv.setText(dir);
+                    if (dirFile.isFile()) _iv.setImageBitmap(ImageUtil.decodeFile(dirFile));
+                });
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 fileChooserDialog.setFilter(dirOnly.isChecked(),
@@ -193,15 +200,6 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                             android.R.layout.simple_expandable_list_item_1, paths), null)
                         .create()
                         .show();
-                });
-            } else {
-                fileChooserDialog.setOnChosenListener((dir, dirFile) -> {
-                    if (continueFromLast.isChecked()) {
-                        _path = dir;
-                    }
-                    Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
-                    _tv.setText(dir);
-                    if (dirFile.isFile()) _iv.setImageBitmap(ImageUtil.decodeFile(dirFile));
                 });
             }
             if (continueFromLast.isChecked() && _path != null) {
