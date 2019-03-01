@@ -1055,7 +1055,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             _path.setTextSize(12);
             _path.setLines(1);
             _path.setTextColor(0x40000000);
-            _path.setPadding(5, 7, 5, 2);
+            _path.setPadding(
+                (int)UiUtil.dip2px(2),
+                (int)UiUtil.dip2px(5),
+                (int)UiUtil.dip2px(2),
+                (int)UiUtil.dip2px(2));
             _path.setBackgroundColor(0xffffffff);
             root.addView(_path, 0, params);
 
