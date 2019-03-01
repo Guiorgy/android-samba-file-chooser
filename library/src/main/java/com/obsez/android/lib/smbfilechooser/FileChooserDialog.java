@@ -40,7 +40,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -442,6 +441,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     @NonNull
     public FileChooserDialog build() {
+        if (_currentDir == null){
+            _currentDir = new File(FileUtil.getStoragePath(getBaseContext(), false));
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
 
         this._adapter = new DirAdapter(getBaseContext(), new ArrayList<>(), this._rowLayoutRes != -1 ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
@@ -1077,8 +1080,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         } else {
             String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
             String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
-            if (path.contains(removableRoot)) path = path.substring(removableRoot.length() - 1);
-            if (path.contains(primaryRoot)) path = path.substring(primaryRoot.length() - 1);
+            if (path.contains(removableRoot)) path = path.substring(removableRoot.length());
+            if (path.contains(primaryRoot)) path = path.substring(primaryRoot.length());
             _path.setText(path);
 
             while (_path.getLineCount() > 1) {
@@ -1128,10 +1131,19 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         File[] files = _currentDir.listFiles(_fileFilter);
 
         // Add the ".." entry
+        boolean up = false;
         String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
         String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
-        if (_currentDir.getParentFile() != null
-            && (!_currentDir.getParent().equals(removableRoot) || !_currentDir.getParent().equals(primaryRoot))) {
+        if (removableRoot != null && primaryRoot != null && !removableRoot.equals(primaryRoot)) {
+            if (_currentDir.getAbsolutePath().equals(primaryRoot)) {
+                _entries.add(new File(removableRoot));
+                up = true;
+            } else if (_currentDir.getAbsolutePath().equals(removableRoot)) {
+                _entries.add(new File(primaryRoot));
+                up = true;
+            }
+        }
+        if (!up && _currentDir.getParentFile() != null && _currentDir.getParentFile().canRead()) {
             _entries.add(new File("..") {
                 @Override
                 public boolean isDirectory() {
@@ -1143,12 +1155,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     return false;
                 }
             });
-
-            if (_alertDialog != null && _displayPath) {
-                displayPath(_currentDir.getPath());
-            }
-        } else if (_alertDialog != null && _displayPath) {
-            displayPath(null);
         }
 
         if (files == null) return;
@@ -1168,38 +1174,18 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         sortByName(fileList);
         _entries.addAll(dirList);
         _entries.addAll(fileList);
+
+        if (_alertDialog != null && _displayPath) {
+            if (up) {
+                displayPath(null);
+            } else {
+                displayPath(_currentDir.getPath());
+            }
+        }
     }
 
     private void sortByName(@NonNull final List<File> list) {
         Collections.sort(list, (f1, f2) -> f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase()));
-    }
-
-    /**
-     * @deprecated better use listDirs as it sorts directories and files separately
-     */
-    @Deprecated
-    private void listDirsUncategorised() {
-        _entries.clear();
-
-        // Get files
-        File[] files = _currentDir.listFiles(_fileFilter);
-
-        if (files != null) {
-            _entries.addAll(Arrays.asList(files));
-        }
-
-        sortByName(_entries);
-
-        // Add the ".." entry
-        if (_currentDir.getParent() != null && !_currentDir.getParent().equals("/storage/emulated")) {
-            _entries.add(new File(".."));
-
-            if (_alertDialog != null && _displayPath) {
-                displayPath(_currentDir.getPath());
-            }
-        } else if (_alertDialog != null && _displayPath) {
-            displayPath(null);
-        }
     }
 
     private void createNewDirectory(@NonNull final String name) {
