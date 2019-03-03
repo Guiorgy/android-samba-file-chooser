@@ -684,7 +684,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 //options.setBackgroundColor(0x60000000);
                                 ViewGroup.MarginLayoutParams params;
                                 if (root instanceof LinearLayout) {
-                                    params = new LinearLayout.LayoutParams(MATCH_PARENT, (int) UiUtil.dip2px(48));
+                                    params = new LinearLayout.LayoutParams(MATCH_PARENT, UiUtil.dip2px(48));
                                 } else {
                                     params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
                                 }
@@ -1055,10 +1055,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             _pathView.setLines(1);
             _pathView.setTextColor(0x40000000);
             _pathView.setPadding(
-                (int) UiUtil.dip2px(2),
-                (int) UiUtil.dip2px(5),
-                (int) UiUtil.dip2px(2),
-                (int) UiUtil.dip2px(2));
+                UiUtil.dip2px(2),
+                UiUtil.dip2px(5),
+                UiUtil.dip2px(2),
+                UiUtil.dip2px(2));
             _pathView.setBackgroundColor(0xffffffff);
             root.addView(_pathView, 0, params);
 
