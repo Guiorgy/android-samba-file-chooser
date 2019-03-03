@@ -405,7 +405,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     }
 
     @NonNull
-    public SmbFileChooserDialog setResources(@StringRes int titleRes, @StringRes int okRes, @StringRes int cancelRes) {
+    public SmbFileChooserDialog setResources(@Nullable @StringRes Integer titleRes, @Nullable @StringRes Integer okRes, @Nullable @StringRes Integer cancelRes) {
         this._titleRes = titleRes;
         this._okRes = okRes;
         this._negativeRes = cancelRes;
@@ -416,15 +416,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     public SmbFileChooserDialog setResources(@Nullable String title, @Nullable String ok, @Nullable String cancel) {
         if (title != null) {
             this._title = title;
-            this._titleRes = -1;
         }
         if (ok != null) {
             this._ok = ok;
-            this._okRes = -1;
         }
         if (cancel != null) {
             this._negative = cancel;
-            this._negativeRes = -1;
         }
         return this;
     }
@@ -436,7 +433,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     }
 
     @NonNull
-    public SmbFileChooserDialog setOptionResources(@StringRes final int createDirRes, @StringRes final int deleteRes, @StringRes final int newFolderCancelRes, @StringRes final int newFolderOkRes) {
+    public SmbFileChooserDialog setOptionResources(@Nullable @StringRes final Integer createDirRes, @Nullable @StringRes final Integer deleteRes, @Nullable @StringRes final Integer newFolderCancelRes, @Nullable @StringRes final Integer newFolderOkRes) {
         this._createDirRes = createDirRes;
         this._deleteRes = deleteRes;
         this._newFolderCancelRes = newFolderCancelRes;
@@ -448,19 +445,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     public SmbFileChooserDialog setOptionResources(@Nullable final String createDir, @Nullable final String delete, @Nullable final String newFolderCancel, @Nullable final String newFolderOk) {
         if (createDir != null) {
             this._createDir = createDir;
-            this._createDirRes = -1;
         }
         if (delete != null) {
             this._delete = delete;
-            this._deleteRes = -1;
         }
         if (newFolderCancel != null) {
             this._newFolderCancel = newFolderCancel;
-            this._newFolderCancelRes = -1;
         }
         if (newFolderOk != null) {
             this._newFolderOk = newFolderOk;
-            this._newFolderOkRes = -1;
         }
         return this;
     }
@@ -474,19 +467,19 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     }
 
     @NonNull
-    public SmbFileChooserDialog setIcon(@DrawableRes int iconId) {
+    public SmbFileChooserDialog setIcon(@Nullable @DrawableRes Integer iconId) {
         this._iconRes = iconId;
         return this;
     }
 
     @NonNull
-    public SmbFileChooserDialog setLayoutView(@LayoutRes int layoutResId) {
+    public SmbFileChooserDialog setLayoutView(@Nullable @LayoutRes Integer layoutResId) {
         this._layoutRes = layoutResId;
         return this;
     }
 
     @NonNull
-    public SmbFileChooserDialog setRowLayoutView(@LayoutRes int layoutResId) {
+    public SmbFileChooserDialog setRowLayoutView(@Nullable @LayoutRes Integer layoutResId) {
         this._rowLayoutRes = layoutResId;
         return this;
     }
@@ -541,11 +534,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
     @Deprecated
     @NonNull
-    public SmbFileChooserDialog setFileIcons(final boolean tryResolveFileTypeAndIcon, final int fileIconResId, final int folderIconResId) {
+    public SmbFileChooserDialog setFileIcons(final boolean tryResolveFileTypeAndIcon, @Nullable @DrawableRes final Integer fileIconResId, @Nullable @DrawableRes final Integer folderIconResId) {
         this._adapterSetter = adapter -> {
-            if (fileIconResId != -1)
+            if (fileIconResId != null)
                 adapter.setDefaultFileIcon(ContextCompat.getDrawable(SmbFileChooserDialog.this.getBaseContext(), fileIconResId));
-            if (folderIconResId != -1)
+            if (folderIconResId != null)
                 adapter.setDefaultFolderIcon(ContextCompat.getDrawable(SmbFileChooserDialog.this.getBaseContext(), folderIconResId));
             //noinspection deprecation
             adapter.setResolveFileType(tryResolveFileTypeAndIcon);
@@ -554,11 +547,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     }
 
     @NonNull
-    public SmbFileChooserDialog setFileIcons(final int fileIconResId, final int folderIconResId) {
+    public SmbFileChooserDialog setFileIcons(@Nullable @DrawableRes final Integer fileIconResId, @Nullable @DrawableRes final Integer folderIconResId) {
         this._adapterSetter = adapter -> {
-            if (fileIconResId != -1)
+            if (fileIconResId != null)
                 adapter.setDefaultFileIcon(ContextCompat.getDrawable(SmbFileChooserDialog.this.getBaseContext(), fileIconResId));
-            if (folderIconResId != -1)
+            if (folderIconResId != null)
                 adapter.setDefaultFolderIcon(ContextCompat.getDrawable(SmbFileChooserDialog.this.getBaseContext(), folderIconResId));
         };
         return this;
@@ -640,7 +633,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
 
-        this._adapter = new SmbDirAdapter(getBaseContext(), EXECUTOR, this._rowLayoutRes != -1 ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
+        this._adapter = new SmbDirAdapter(getBaseContext(), EXECUTOR, this._rowLayoutRes != null ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
         if (this._adapterSetter != null) {
             this._adapterSetter.apply(this._adapter);
         }
@@ -653,15 +646,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         this.refreshDirs(true);
 
         if (!this._disableTitle) {
-            if (this._titleRes == -1) builder.setTitle(this._title);
+            if (this._titleRes == null) builder.setTitle(this._title);
             else builder.setTitle(this._titleRes);
         }
 
-        if (this._iconRes != -1) {
+        if (this._iconRes != null) {
             builder.setIcon(this._iconRes);
         }
 
-        if (this._layoutRes != -1) {
+        if (this._layoutRes != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 builder.setView(this._layoutRes);
             }
@@ -676,7 +669,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 }
             };
 
-            if (this._okRes == -1) builder.setPositiveButton(this._ok, listener);
+            if (this._okRes == null) builder.setPositiveButton(this._ok, listener);
             else builder.setPositiveButton(this._okRes, listener);
         }
 
@@ -702,13 +695,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 SmbFileChooserDialog.this._alertDialog.dismiss();
             };
 
-            if (this._okRes == -1) builder.setPositiveButton(this._ok, listener);
+            if (this._okRes == null) builder.setPositiveButton(this._ok, listener);
             else builder.setPositiveButton(this._okRes, listener);
         }
 
         final DialogInterface.OnClickListener listener = this._negativeListener != null ? this._negativeListener : (dialog, which) -> dialog.cancel();
 
-        if (this._negativeRes == -1) builder.setNegativeButton(this._negative, listener);
+        if (this._negativeRes == null) builder.setNegativeButton(this._negative, listener);
         else builder.setNegativeButton(this._negativeRes, listener);
 
         if (this._onCancelListener != null) {
@@ -820,13 +813,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     options.setVisibility(VISIBLE);
                     options.setTextColor(color);
                     final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
-                        SmbFileChooserDialog.this._optionsIconRes != -1 ? SmbFileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
+                        SmbFileChooserDialog.this._optionsIconRes != null ? SmbFileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
                     if (drawable != null) {
                         drawable.setColorFilter(filter);
                         options.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
                     } else {
                         options.setCompoundDrawablesWithIntrinsicBounds(
-                            SmbFileChooserDialog.this._optionsIconRes != -1 ? SmbFileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
+                            SmbFileChooserDialog.this._optionsIconRes != null ? SmbFileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
                     }
 
                     final class Integer {
@@ -928,18 +921,18 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                                 // Create a button for the option to create a new directory/folder.
                                 final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                if (SmbFileChooserDialog.this._createDirRes == -1)
+                                if (SmbFileChooserDialog.this._createDirRes == null)
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);
                                 createDir.setTextColor(color);
                                 final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
-                                    SmbFileChooserDialog.this._createDirIconRes != -1 ? SmbFileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
+                                    SmbFileChooserDialog.this._createDirIconRes != null ? SmbFileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
                                 if (plus != null) {
                                     plus.setColorFilter(filter);
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(plus, null, null, null);
                                 } else {
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(
-                                        SmbFileChooserDialog.this._createDirIconRes != -1 ? SmbFileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
+                                        SmbFileChooserDialog.this._createDirIconRes != null ? SmbFileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
                                 }
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     createDir.setBackgroundResource(R.drawable.listview_item_selector);
@@ -950,18 +943,18 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                                 // Create a button for the option to delete a file.
                                 final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                if (SmbFileChooserDialog.this._deleteRes == -1)
+                                if (SmbFileChooserDialog.this._deleteRes == null)
                                     delete.setText(SmbFileChooserDialog.this._delete);
                                 else delete.setText(SmbFileChooserDialog.this._deleteRes);
                                 delete.setTextColor(color);
                                 final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
-                                    SmbFileChooserDialog.this._deleteIconRes != -1 ? SmbFileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
+                                    SmbFileChooserDialog.this._deleteIconRes != null ? SmbFileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
                                 if (bin != null) {
                                     bin.setColorFilter(filter);
                                     delete.setCompoundDrawablesWithIntrinsicBounds(bin, null, null, null);
                                 } else {
                                     delete.setCompoundDrawablesWithIntrinsicBounds(
-                                        SmbFileChooserDialog.this._deleteIconRes != -1 ? SmbFileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
+                                        SmbFileChooserDialog.this._deleteIconRes != null ? SmbFileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
                                 }
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     delete.setBackgroundResource(R.drawable.listview_item_selector);
@@ -1070,7 +1063,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                                             // The Cancel button.
                                             final Button cancel = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                            if (SmbFileChooserDialog.this._newFolderCancelRes == -1)
+                                            if (SmbFileChooserDialog.this._newFolderCancelRes == null)
                                                 cancel.setText(SmbFileChooserDialog.this._newFolderCancel);
                                             else
                                                 cancel.setText(SmbFileChooserDialog.this._newFolderCancelRes);
@@ -1083,7 +1076,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
 
                                             // The OK button.
                                             final Button ok = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                            if (SmbFileChooserDialog.this._newFolderOkRes == -1)
+                                            if (SmbFileChooserDialog.this._newFolderOkRes == null)
                                                 ok.setText(SmbFileChooserDialog.this._newFolderOk);
                                             else
                                                 ok.setText(SmbFileChooserDialog.this._newFolderOkRes);
@@ -1805,17 +1798,17 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private OnSelectedListener _onSelectedListener = null;
     private boolean _dirOnly;
     private SmbFileFilter _fileFilter;
-    private @StringRes
-    int _titleRes = -1, _okRes = -1, _negativeRes = -1;
+    private @Nullable @StringRes
+    Integer _titleRes = null, _okRes = null, _negativeRes = null;
     private @NonNull
     String _title = "Select a file", _ok = "Choose", _negative = "Cancel";
-    private @DrawableRes
-    int _iconRes = -1;
+    private @Nullable @DrawableRes
+    Integer _iconRes = null;
     //private Drawable _icon = null;
-    private @LayoutRes
-    int _layoutRes = -1;
-    private @LayoutRes
-    int _rowLayoutRes = -1;
+    private @Nullable @LayoutRes
+    Integer _layoutRes = null;
+    private @Nullable @LayoutRes
+    Integer _rowLayoutRes = null;
     private String _dateFormat;
     private DialogInterface.OnClickListener _negativeListener;
     private DialogInterface.OnCancelListener _onCancelListener;
@@ -1829,12 +1822,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private DialogInterface.OnDismissListener _onDismissListener;
     private boolean _enableOptions;
     private View _options;
-    private @StringRes
-    int _createDirRes = -1, _deleteRes = -1, _newFolderCancelRes = -1, _newFolderOkRes = -1;
+    private @Nullable @StringRes
+    Integer _createDirRes = null, _deleteRes = null, _newFolderCancelRes = null, _newFolderOkRes = null;
     private @NonNull
     String _createDir = "New folder", _delete = "Delete", _newFolderCancel = "Cancel", _newFolderOk = "Ok";
-    private @DrawableRes
-    int _optionsIconRes = -1, _createDirIconRes = -1, _deleteIconRes = -1;
+    private @Nullable @DrawableRes
+    Integer _optionsIconRes = null, _createDirIconRes = null, _deleteIconRes = null;
     private View _newFolderView;
     private boolean _enableMultiple;
     private boolean _allowSelectDir = false;
