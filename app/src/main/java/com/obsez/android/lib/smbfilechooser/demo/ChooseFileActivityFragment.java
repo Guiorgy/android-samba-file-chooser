@@ -95,10 +95,10 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
 
             ViewGroup.LayoutParams params = input.getLayoutParams();
             ((ViewGroup.MarginLayoutParams) params).setMargins(
-                (int) UiUtil.dip2px(20),
-                (int) UiUtil.dip2px(10),
-                (int) UiUtil.dip2px(20),
-                (int) UiUtil.dip2px(10));
+                UiUtil.dip2px(20),
+                UiUtil.dip2px(10),
+                UiUtil.dip2px(20),
+                UiUtil.dip2px(10));
             input.setLayoutParams(params);
         }
     }
