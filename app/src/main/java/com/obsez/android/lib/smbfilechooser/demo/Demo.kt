@@ -20,7 +20,7 @@ object Demo {
             .show()
     }
 
-    fun demo2(context: Context, startPath: String, onChosenListener: FileChooserDialog.OnChosenListener, onSelectedListener : FileChooserDialog.OnSelectedListener) {
+    fun demo2(context: Context, startPath: String, onChosenListener: FileChooserDialog.OnChosenListener, onSelectedListener: FileChooserDialog.OnSelectedListener) {
         FileChooserDialog.newDialog(context)
             .displayPath(true)
             .setFilter(false, true, "jpg", "jpeg", "png")

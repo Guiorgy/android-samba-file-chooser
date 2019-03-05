@@ -1412,15 +1412,19 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private OnSelectedListener _onSelectedListener = null;
     private boolean _dirOnly;
     private FileFilter _fileFilter;
-    private @Nullable @StringRes
+    private @Nullable
+    @StringRes
     Integer _titleRes = null, _okRes = null, _negativeRes = null;
     private @NonNull
     String _title = "Select a file", _ok = "Choose", _negative = "Cancel";
-    private @Nullable @DrawableRes
+    private @Nullable
+    @DrawableRes
     Integer _iconRes = null;
-    private @Nullable @LayoutRes
+    private @Nullable
+    @LayoutRes
     Integer _layoutRes = null;
-    private @Nullable @LayoutRes
+    private @Nullable
+    @LayoutRes
     Integer _rowLayoutRes = null;
     private String _dateFormat;
     private DialogInterface.OnClickListener _negativeListener;
@@ -1435,11 +1439,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private DialogInterface.OnDismissListener _onDismissListener;
     private boolean _enableOptions;
     private View _options;
-    private @Nullable @StringRes
+    private @Nullable
+    @StringRes
     Integer _createDirRes = null, _deleteRes = null, _newFolderCancelRes = null, _newFolderOkRes = null;
     private @NonNull
     String _createDir = "New folder", _delete = "Delete", _newFolderCancel = "Cancel", _newFolderOk = "Ok";
-    private @Nullable @DrawableRes
+    private @Nullable
+    @DrawableRes
     Integer _optionsIconRes = null, _createDirIconRes = null, _deleteIconRes = null;
     private View _newFolderView;
     private boolean _enableMultiple;

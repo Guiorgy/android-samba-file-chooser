@@ -156,7 +156,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private SmbFileChooserDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
         super(context);
 
-        if (serverIP.startsWith("smb://")){
+        if (serverIP.startsWith("smb://")) {
             this._serverIP = serverIP.substring(6);
         } else this._serverIP = serverIP;
         if (serverIP.endsWith("/")) {
@@ -1798,16 +1798,20 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private OnSelectedListener _onSelectedListener = null;
     private boolean _dirOnly;
     private SmbFileFilter _fileFilter;
-    private @Nullable @StringRes
+    private @Nullable
+    @StringRes
     Integer _titleRes = null, _okRes = null, _negativeRes = null;
     private @NonNull
     String _title = "Select a file", _ok = "Choose", _negative = "Cancel";
-    private @Nullable @DrawableRes
+    private @Nullable
+    @DrawableRes
     Integer _iconRes = null;
     //private Drawable _icon = null;
-    private @Nullable @LayoutRes
+    private @Nullable
+    @LayoutRes
     Integer _layoutRes = null;
-    private @Nullable @LayoutRes
+    private @Nullable
+    @LayoutRes
     Integer _rowLayoutRes = null;
     private String _dateFormat;
     private DialogInterface.OnClickListener _negativeListener;
@@ -1822,11 +1826,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
     private DialogInterface.OnDismissListener _onDismissListener;
     private boolean _enableOptions;
     private View _options;
-    private @Nullable @StringRes
+    private @Nullable
+    @StringRes
     Integer _createDirRes = null, _deleteRes = null, _newFolderCancelRes = null, _newFolderOkRes = null;
     private @NonNull
     String _createDir = "New folder", _delete = "Delete", _newFolderCancel = "Cancel", _newFolderOk = "Ok";
-    private @Nullable @DrawableRes
+    private @Nullable
+    @DrawableRes
     Integer _optionsIconRes = null, _createDirIconRes = null, _deleteIconRes = null;
     private View _newFolderView;
     private boolean _enableMultiple;
