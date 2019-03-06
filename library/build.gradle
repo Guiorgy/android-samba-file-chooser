@@ -59,7 +59,7 @@ dependencies {
 // gradle bintrayUpload
 //apply from: '_bintray.gradle'
 
-task createPom << {
+task createPom {
     pom {
         project {
             groupId 'com.github.Guiorgy'
