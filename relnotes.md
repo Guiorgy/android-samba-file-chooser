@@ -1,5 +1,11 @@
 # RELEASES
 
+## 1.3.4s - 2019-03-12
+
+\+ enabled R8 shrinker
+\* bump jcifs-ng from 2.1.1 to 2.1.2
+\* removed the workaround introduced in commit 3b94230, release v1.3.1s, as the problem was fixed in eu.agno3.jcifs:jcifs-ng:2.1.2 thanks to mbechler
+
 ## 1.3.3s - 2019-03-01
 
 \* fixed a bug that threw NullPointerException when selecting multiple files.

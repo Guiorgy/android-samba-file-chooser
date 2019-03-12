@@ -31,7 +31,7 @@ import jcifs.smb.SmbFile;
  * A placeholder fragment containing a simple view.
  */
 public class ChooseFileActivityFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-
+    @SuppressWarnings("unused")
     private static final String TAG = "ChooseFileActivityFragment";
 
     private CheckBox disableTitle;
@@ -95,10 +95,10 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
 
             ViewGroup.LayoutParams params = input.getLayoutParams();
             ((ViewGroup.MarginLayoutParams) params).setMargins(
-                (int) UiUtil.dip2px(20),
-                (int) UiUtil.dip2px(10),
-                (int) UiUtil.dip2px(20),
-                (int) UiUtil.dip2px(10));
+                UiUtil.dip2px(20),
+                UiUtil.dip2px(10),
+                UiUtil.dip2px(20),
+                UiUtil.dip2px(10));
             input.setLayoutParams(params);
         }
     }
@@ -115,7 +115,22 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 .setOptionResources(R.string.option_create_folder, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
                 .disableTitle(disableTitle.isChecked())
                 .enableOptions(enableOptions.isChecked())
-                .displayPath(displayPath.isChecked());
+                .displayPath(displayPath.isChecked())
+                .setOnChosenListener((dir, dirFile) -> {
+                    if (continueFromLast.isChecked()) {
+                        _path = dir;
+                    }
+                    try {
+                        Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
+                        _tv.setText(dir);
+                    } catch (SmbException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .setExceptionHandler((exception, id) -> {
+                    Toast.makeText(ctx, "Please, check your internet connection", Toast.LENGTH_SHORT).show();
+                    return true;
+                });
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 smbFileChooserDialog.setFilter(dirOnly.isChecked(),
@@ -140,18 +155,6 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                         .create()
                         .show();
                 });
-            } else {
-                smbFileChooserDialog.setOnChosenListener((dir, dirFile) -> {
-                    if (continueFromLast.isChecked()) {
-                        _path = dir;
-                    }
-                    try {
-                        Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
-                        _tv.setText(dir);
-                    } catch (SmbException e) {
-                        e.printStackTrace();
-                    }
-                });
             }
             if (continueFromLast.isChecked() && _path != null) {
                 smbFileChooserDialog.setStartFile(_path);
@@ -169,7 +172,15 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                 .setOptionResources(R.string.option_create_folder, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
                 .disableTitle(disableTitle.isChecked())
                 .enableOptions(enableOptions.isChecked())
-                .displayPath(displayPath.isChecked());
+                .displayPath(displayPath.isChecked())
+                .setOnChosenListener((dir, dirFile) -> {
+                    if (continueFromLast.isChecked()) {
+                        _path = dir;
+                    }
+                    Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
+                    _tv.setText(dir);
+                    if (dirFile.isFile()) _iv.setImageBitmap(ImageUtil.decodeFile(dirFile));
+                });
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 fileChooserDialog.setFilter(dirOnly.isChecked(),
@@ -193,15 +204,6 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                             android.R.layout.simple_expandable_list_item_1, paths), null)
                         .create()
                         .show();
-                });
-            } else {
-                fileChooserDialog.setOnChosenListener((dir, dirFile) -> {
-                    if (continueFromLast.isChecked()) {
-                        _path = dir;
-                    }
-                    Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
-                    _tv.setText(dir);
-                    if (dirFile.isFile()) _iv.setImageBitmap(ImageUtil.decodeFile(dirFile));
                 });
             }
             if (continueFromLast.isChecked() && _path != null) {

@@ -1,6 +1,5 @@
 # android-file-chooser
 
-
 ## Overview
 
 ![banner](captures/banner.svg)
@@ -96,6 +95,7 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 	dialog.show();
 })
 .enableDpad(/*enables Dpad controls (mainly fot Android TVs)*/ true)
+.cancelOnTouchOutside(true)
 ```
 
 ## What's Different?

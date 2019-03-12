@@ -237,7 +237,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
-    public FileChooserDialog setResources(@StringRes final int titleRes, @StringRes final int okRes, @StringRes final int cancelRes) {
+    public FileChooserDialog setResources(@Nullable @StringRes final Integer titleRes, @Nullable @StringRes final Integer okRes, @Nullable @StringRes final Integer cancelRes) {
         this._titleRes = titleRes;
         this._okRes = okRes;
         this._negativeRes = cancelRes;
@@ -248,15 +248,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     public FileChooserDialog setResources(@Nullable final String title, @Nullable final String ok, @Nullable final String cancel) {
         if (title != null) {
             this._title = title;
-            this._titleRes = -1;
         }
         if (ok != null) {
             this._ok = ok;
-            this._okRes = -1;
         }
         if (cancel != null) {
             this._negative = cancel;
-            this._negativeRes = -1;
         }
         return this;
     }
@@ -268,7 +265,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
-    public FileChooserDialog setOptionResources(@StringRes final int createDirRes, @StringRes final int deleteRes, @StringRes final int newFolderCancelRes, @StringRes final int newFolderOkRes) {
+    public FileChooserDialog setOptionResources(@Nullable @StringRes final Integer createDirRes, @Nullable @StringRes final Integer deleteRes, @Nullable @StringRes final Integer newFolderCancelRes, @Nullable @StringRes final Integer newFolderOkRes) {
         this._createDirRes = createDirRes;
         this._deleteRes = deleteRes;
         this._newFolderCancelRes = newFolderCancelRes;
@@ -280,25 +277,21 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     public FileChooserDialog setOptionResources(@Nullable final String createDir, @Nullable final String delete, @Nullable final String newFolderCancel, @Nullable final String newFolderOk) {
         if (createDir != null) {
             this._createDir = createDir;
-            this._createDirRes = -1;
         }
         if (delete != null) {
             this._delete = delete;
-            this._deleteRes = -1;
         }
         if (newFolderCancel != null) {
             this._newFolderCancel = newFolderCancel;
-            this._newFolderCancelRes = -1;
         }
         if (newFolderOk != null) {
             this._newFolderOk = newFolderOk;
-            this._newFolderOkRes = -1;
         }
         return this;
     }
 
     @NonNull
-    public FileChooserDialog setOptionIcons(@DrawableRes final int optionsIconRes, @DrawableRes final int createDirIconRes, @DrawableRes final int deleteRes) {
+    public FileChooserDialog setOptionIcons(@Nullable @DrawableRes final Integer optionsIconRes, @Nullable @DrawableRes final Integer createDirIconRes, @Nullable @DrawableRes final Integer deleteRes) {
         this._optionsIconRes = optionsIconRes;
         this._createDirIconRes = createDirIconRes;
         this._deleteIconRes = deleteRes;
@@ -306,19 +299,19 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
-    public FileChooserDialog setIcon(@DrawableRes final int iconId) {
+    public FileChooserDialog setIcon(@Nullable @DrawableRes final Integer iconId) {
         this._iconRes = iconId;
         return this;
     }
 
     @NonNull
-    public FileChooserDialog setLayoutView(@LayoutRes final int layoutResId) {
+    public FileChooserDialog setLayoutView(@Nullable @LayoutRes final Integer layoutResId) {
         this._layoutRes = layoutResId;
         return this;
     }
 
     @NonNull
-    public FileChooserDialog setRowLayoutView(@LayoutRes final int layoutResId) {
+    public FileChooserDialog setRowLayoutView(@Nullable @LayoutRes final Integer layoutResId) {
         this._rowLayoutRes = layoutResId;
         return this;
     }
@@ -364,12 +357,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
-    public FileChooserDialog setFileIconsRes(final boolean tryResolveFileTypeAndIcon, final int fileIcon, final int folderIcon) {
+    public FileChooserDialog setFileIconsRes(final boolean tryResolveFileTypeAndIcon, @Nullable final Integer fileIcon, @Nullable final Integer folderIcon) {
         this._adapterSetter = adapter -> {
-            if (fileIcon != -1) {
+            if (fileIcon != null) {
                 adapter.setDefaultFileIcon(ContextCompat.getDrawable(FileChooserDialog.this.getBaseContext(), fileIcon));
             }
-            if (folderIcon != -1) {
+            if (folderIcon != null) {
                 adapter.setDefaultFolderIcon(
                     ContextCompat.getDrawable(FileChooserDialog.this.getBaseContext(), folderIcon));
             }
@@ -453,7 +446,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
 
-        this._adapter = new DirAdapter(getBaseContext(), new ArrayList<>(), this._rowLayoutRes != -1 ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
+        this._adapter = new DirAdapter(getBaseContext(), new ArrayList<>(), this._rowLayoutRes != null ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
         if (this._adapterSetter != null) {
             this._adapterSetter.apply(this._adapter);
         }
@@ -461,15 +454,15 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         builder.setAdapter(this._adapter, this);
 
         if (!this._disableTitle) {
-            if (this._titleRes == -1) builder.setTitle(this._title);
+            if (this._titleRes == null) builder.setTitle(this._title);
             else builder.setTitle(this._titleRes);
         }
 
-        if (this._iconRes != -1) {
+        if (this._iconRes != null) {
             builder.setIcon(this._iconRes);
         }
 
-        if (this._layoutRes != -1) {
+        if (this._layoutRes != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 builder.setView(this._layoutRes);
             }
@@ -497,13 +490,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 FileChooserDialog.this._alertDialog.dismiss();
             };
 
-            if (this._okRes == -1) builder.setPositiveButton(this._ok, listener);
+            if (this._okRes == null) builder.setPositiveButton(this._ok, listener);
             else builder.setPositiveButton(this._okRes, listener);
         }
 
         final DialogInterface.OnClickListener listener = this._negativeListener != null ? this._negativeListener : (dialog, which) -> dialog.cancel();
 
-        if (this._negativeRes == -1) builder.setNegativeButton(this._negative, listener);
+        if (this._negativeRes == null) builder.setNegativeButton(this._negative, listener);
         else builder.setNegativeButton(this._negativeRes, listener);
 
         if (this._onCancelListener != null) {
@@ -585,13 +578,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     options.setVisibility(VISIBLE);
                     options.setTextColor(color);
                     final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
-                        FileChooserDialog.this._optionsIconRes != -1 ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
+                        FileChooserDialog.this._optionsIconRes != null ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
                     if (drawable != null) {
                         drawable.setColorFilter(filter);
                         options.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
                     } else {
                         options.setCompoundDrawablesWithIntrinsicBounds(
-                            FileChooserDialog.this._optionsIconRes != -1 ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
+                            FileChooserDialog.this._optionsIconRes != null ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
                     }
 
                     final class Integer {
@@ -691,7 +684,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 //options.setBackgroundColor(0x60000000);
                                 ViewGroup.MarginLayoutParams params;
                                 if (root instanceof LinearLayout) {
-                                    params = new LinearLayout.LayoutParams(MATCH_PARENT, (int) UiUtil.dip2px(48));
+                                    params = new LinearLayout.LayoutParams(MATCH_PARENT, UiUtil.dip2px(48));
                                 } else {
                                     params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
                                 }
@@ -703,18 +696,18 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                 // Create a button for the option to create a new directory/folder.
                                 final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                if (FileChooserDialog.this._createDirRes == -1)
+                                if (FileChooserDialog.this._createDirRes == null)
                                     createDir.setText(FileChooserDialog.this._createDir);
                                 else createDir.setText(FileChooserDialog.this._createDirRes);
                                 createDir.setTextColor(color);
                                 final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
-                                    FileChooserDialog.this._createDirIconRes != -1 ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
+                                    FileChooserDialog.this._createDirIconRes != null ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
                                 if (plus != null) {
                                     plus.setColorFilter(filter);
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(plus, null, null, null);
                                 } else {
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(
-                                        FileChooserDialog.this._createDirIconRes != -1 ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
+                                        FileChooserDialog.this._createDirIconRes != null ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
                                 }
                                 if (FileChooserDialog.this._enableDpad) {
                                     createDir.setBackgroundResource(R.drawable.listview_item_selector);
@@ -725,18 +718,18 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                 // Create a button for the option to delete a file.
                                 final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                if (FileChooserDialog.this._deleteRes == -1)
+                                if (FileChooserDialog.this._deleteRes == null)
                                     delete.setText(FileChooserDialog.this._delete);
                                 else delete.setText(FileChooserDialog.this._deleteRes);
                                 delete.setTextColor(color);
                                 final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
-                                    FileChooserDialog.this._deleteIconRes != -1 ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
+                                    FileChooserDialog.this._deleteIconRes != null ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
                                 if (bin != null) {
                                     bin.setColorFilter(filter);
                                     delete.setCompoundDrawablesWithIntrinsicBounds(bin, null, null, null);
                                 } else {
                                     delete.setCompoundDrawablesWithIntrinsicBounds(
-                                        FileChooserDialog.this._deleteIconRes != -1 ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
+                                        FileChooserDialog.this._deleteIconRes != null ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
                                 }
                                 if (FileChooserDialog.this._enableDpad) {
                                     delete.setBackgroundResource(R.drawable.listview_item_selector);
@@ -828,7 +821,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                             // The Cancel button.
                                             final Button cancel = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                            if (FileChooserDialog.this._newFolderCancelRes == -1)
+                                            if (FileChooserDialog.this._newFolderCancelRes == null)
                                                 cancel.setText(FileChooserDialog.this._newFolderCancel);
                                             else
                                                 cancel.setText(FileChooserDialog.this._newFolderCancelRes);
@@ -841,7 +834,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                             // The OK button.
                                             final Button ok = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
-                                            if (FileChooserDialog.this._newFolderOkRes == -1)
+                                            if (FileChooserDialog.this._newFolderOkRes == null)
                                                 ok.setText(FileChooserDialog.this._newFolderOk);
                                             else ok.setText(FileChooserDialog.this._newFolderOkRes);
                                             ok.setTextColor(color);
@@ -1062,10 +1055,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             _pathView.setLines(1);
             _pathView.setTextColor(0x40000000);
             _pathView.setPadding(
-                (int) UiUtil.dip2px(2),
-                (int) UiUtil.dip2px(5),
-                (int) UiUtil.dip2px(2),
-                (int) UiUtil.dip2px(2));
+                UiUtil.dip2px(2),
+                UiUtil.dip2px(5),
+                UiUtil.dip2px(2),
+                UiUtil.dip2px(2));
             _pathView.setBackgroundColor(0xffffffff);
             root.addView(_pathView, 0, params);
 
@@ -1419,16 +1412,20 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private OnSelectedListener _onSelectedListener = null;
     private boolean _dirOnly;
     private FileFilter _fileFilter;
-    private @StringRes
-    int _titleRes = -1, _okRes = -1, _negativeRes = -1;
+    private @Nullable
+    @StringRes
+    Integer _titleRes = null, _okRes = null, _negativeRes = null;
     private @NonNull
     String _title = "Select a file", _ok = "Choose", _negative = "Cancel";
-    private @DrawableRes
-    int _iconRes = -1;
-    private @LayoutRes
-    int _layoutRes = -1;
-    private @LayoutRes
-    int _rowLayoutRes = -1;
+    private @Nullable
+    @DrawableRes
+    Integer _iconRes = null;
+    private @Nullable
+    @LayoutRes
+    Integer _layoutRes = null;
+    private @Nullable
+    @LayoutRes
+    Integer _rowLayoutRes = null;
     private String _dateFormat;
     private DialogInterface.OnClickListener _negativeListener;
     private DialogInterface.OnCancelListener _onCancelListener;
@@ -1442,12 +1439,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private DialogInterface.OnDismissListener _onDismissListener;
     private boolean _enableOptions;
     private View _options;
-    private @StringRes
-    int _createDirRes = -1, _deleteRes = -1, _newFolderCancelRes = -1, _newFolderOkRes = -1;
+    private @Nullable
+    @StringRes
+    Integer _createDirRes = null, _deleteRes = null, _newFolderCancelRes = null, _newFolderOkRes = null;
     private @NonNull
     String _createDir = "New folder", _delete = "Delete", _newFolderCancel = "Cancel", _newFolderOk = "Ok";
-    private @DrawableRes
-    int _optionsIconRes = -1, _createDirIconRes = -1, _deleteIconRes = -1;
+    private @Nullable
+    @DrawableRes
+    Integer _optionsIconRes = null, _createDirIconRes = null, _deleteIconRes = null;
     private View _newFolderView;
     private boolean _enableMultiple;
     private boolean _allowSelectDir = false;

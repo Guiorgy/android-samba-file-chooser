@@ -38,7 +38,13 @@ import androidx.annotation.Nullable;
  * limitations under the License.
  */
 
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class UiUtil {
+
+    public static int dip2px(int dipValue) {
+        final float scale = Resources.getSystem().getDisplayMetrics().density;
+        return Float.valueOf(dipValue * scale + 0.5f).intValue();
+    }
 
     public static float dip2px(final float dipValue) {
         final float scale = Resources.getSystem().getDisplayMetrics().density;
