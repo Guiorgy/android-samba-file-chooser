@@ -200,22 +200,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         this.init(serverIP, properties);
     }
 
-    /**
-     * Temporary solution
-     */
-    private long _timeout = 5000;
-
     private void init(@NonNull final String serverIP, @NonNull final Properties properties) {
-        try {
-            String s = properties.getProperty("jcifs.smb.client.connTimeout", null);
-            if (s == null) s = properties.getProperty("jcifs.smb.client.responseTimeout", null);
-            if (s != null) {
-                _timeout = Long.parseLong(s);
-            }
-        } catch (NumberFormatException ignore) {
-            _timeout = 5000;
-        }
-
         try {
             EXECUTOR.submit(() -> {
                 try {
@@ -1424,22 +1409,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     isRoot.set(true);
                 }
 
-                final AtomicBoolean connected = new AtomicBoolean(false);
-                runOnUiThread(() -> {
-                    final Handler handler = new Handler();
-                    handler.postDelayed(() -> {
-                        if (!connected.get()) {
-                            _terminate = true;
-                            handleException(new SmbException("Timed out!"), ExceptionId.TIMED_OUT);
-                            thread.interrupt();
-                            _alertDialog.dismiss();
-                        }
-                    }, _timeout);
-                });
-
                 // Get files
                 SmbFile[] files = _currentDir.listFiles(_fileFilter);
-                connected.set(true);
 
                 if (files == null) return;
 

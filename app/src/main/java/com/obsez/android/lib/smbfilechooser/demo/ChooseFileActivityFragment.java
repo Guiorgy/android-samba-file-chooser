@@ -127,7 +127,10 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                         e.printStackTrace();
                     }
                 })
-                .setExceptionHandler((exception, id) -> true);
+                .setExceptionHandler((exception, id) -> {
+                    Toast.makeText(ctx, "Please, check your internet connection", Toast.LENGTH_SHORT).show();
+                    return true;
+                });
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 smbFileChooserDialog.setFilter(dirOnly.isChecked(),
