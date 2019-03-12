@@ -97,7 +97,7 @@ import static com.obsez.android.lib.smbfilechooser.internals.UiUtil.getListYScro
  * Created by coco on 6/7/15. Edited by Guiorgy on 10/09/18.
  */
 @SuppressWarnings({"SpellCheckingInspection", "unused", "WeakerAccess", "UnusedReturnValue"})
-public class SmbFileChooserDialog extends LightContextWrapper implements IExceptionHandler, DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
+public class SmbFileChooserDialog extends LightContextWrapper implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
     private Thread thread;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
         thread = new Thread(runnable);
@@ -111,25 +111,27 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
         return EXECUTOR;
     }
 
-    private ExceptionHandler _handler;
+    private IExceptionHandler.ExceptionHandler _handler;
     private boolean _terminate;
 
-    public SmbFileChooserDialog setExceptionHandler(@NonNull final ExceptionHandler handler) {
+    public SmbFileChooserDialog setExceptionHandler(@NonNull final IExceptionHandler.ExceptionHandler handler) {
         this._handler = handler;
         return this;
     }
 
-    @Override
-    public void handleException(@NonNull final Throwable exception) {
-        _terminate = _handler != null && _handler.handle(exception, ExceptionId.UNDEFINED);
-        if (_alertDialog != null && _terminate) _alertDialog.dismiss();
-    }
+    private IExceptionHandler _exceptionHandler = new IExceptionHandler() {
+        @Override
+        public void handleException(@NonNull final Throwable exception) {
+            _terminate = _handler != null && _handler.handle(exception, ExceptionId.UNDEFINED);
+            if (_alertDialog != null && _terminate) _alertDialog.dismiss();
+        }
 
-    @Override
-    public void handleException(@NonNull final Throwable exception, final int id) {
-        _terminate = _handler != null && _handler.handle(exception, id);
-        if (_alertDialog != null && _terminate) _alertDialog.dismiss();
-    }
+        @Override
+        public void handleException(@NonNull final Throwable exception, final int id) {
+            _terminate = _handler != null && _handler.handle(exception, id);
+            if (_alertDialog != null && _terminate) _alertDialog.dismiss();
+        }
+    };
 
     @FunctionalInterface
     public interface OnChosenListener {
@@ -174,13 +176,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     try {
                         this._rootDir = new SmbFile(this._rootDirPath, _smbContext);
                     } catch (MalformedURLException e) {
-                        handleException(e, ExceptionId.FAILED_TO_FIND_ROOT_DIR);
+                        _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.FAILED_TO_FIND_ROOT_DIR);
                         this._rootDir = null;
                     }
                 }
             }).get();
         } catch (ExecutionException | InterruptedException e) {
-            handleException(e, ExceptionId.EXECUTOR_INTERRUPTED);
+            _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.EXECUTOR_INTERRUPTED);
         }
     }
 
@@ -222,11 +224,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     Configuration configuration = new PropertyConfiguration(properties);
                     _smbContext = new BaseContext(configuration);
                 } catch (CIFSException e) {
-                    runOnUiThread(() -> handleException(e, ExceptionId.FAILED_TO_INITIALIZE));
+                    runOnUiThread(() -> _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.FAILED_TO_INITIALIZE));
                 }
             }).get();
         } catch (ExecutionException | InterruptedException e) {
-            handleException(e, ExceptionId.EXECUTOR_INTERRUPTED);
+            _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.EXECUTOR_INTERRUPTED);
         }
     }
 
@@ -336,13 +338,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                     }
                 } catch (final MalformedURLException | SmbException | NullPointerException e) {
                     e.printStackTrace();
-                    runOnUiThread(() -> handleException(e, ExceptionId.FAILED_TO_FIND_ROOT_DIR));
+                    runOnUiThread(() -> _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.FAILED_TO_FIND_ROOT_DIR));
                 }
 
                 return SmbFileChooserDialog.this;
             }).get();
         } catch (ExecutionException | InterruptedException e) {
-            handleException(e, ExceptionId.EXECUTOR_INTERRUPTED);
+            _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.EXECUTOR_INTERRUPTED);
         }
         return this;
     }
@@ -986,7 +988,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                                 e.printStackTrace();
                                                 runOnUiThread(() -> {
                                                     if (input != null) {
-                                                        handleException(e);
+                                                        _exceptionHandler.handleException(e);
                                                     }
                                                 });
                                                 return "";
@@ -1002,7 +1004,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                                 ((AlertDialog) dialog).getWindow().setSoftInputMode(SOFT_INPUT_STATE_VISIBLE);
                                             } catch (NullPointerException e) {
                                                 e.printStackTrace();
-                                                handleException(e);
+                                                _exceptionHandler.handleException(e);
                                             }
 
                                             // A semitransparent background overlay.
@@ -1138,7 +1140,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                                         this.input.setText(futureNewFile.get());
                                                 } catch (InterruptedException | ExecutionException e) {
                                                     e.printStackTrace();
-                                                    handleException(e);
+                                                    _exceptionHandler.handleException(e);
                                                     this.input.setText("");
                                                 }
                                             }
@@ -1198,7 +1200,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                                             refreshDirs(scrollTop);
                                         } catch (InterruptedException | ExecutionException e) {
                                             e.printStackTrace();
-                                            handleException(e);
+                                            _exceptionHandler.handleException(e);
                                         }
 
                                         SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
@@ -1459,7 +1461,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
                 _entries.addAll(fileList);
             } catch (SmbException | MalformedURLException e) {
                 e.printStackTrace();
-                runOnUiThread(() -> handleException(e, ExceptionId.FAILED_TO_LOAD_FILES));
+                runOnUiThread(() -> _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.FAILED_TO_LOAD_FILES));
             } finally {
                 runOnUiThread(() -> {
                     _adapter.setEntries(_entries);
@@ -1522,7 +1524,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             } catch (MalformedURLException | SmbException e) {
                 e.printStackTrace();
                 if (progressBar != null) runOnUiThread(() -> {
-                    handleException(e);
+                    _exceptionHandler.handleException(e);
                     Toast.makeText(getBaseContext(), "Failed to load files!", Toast.LENGTH_LONG).show();
                 });
             } finally {
@@ -1554,7 +1556,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             } catch (MalformedURLException | SmbException e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
-                    handleException(e);
+                    _exceptionHandler.handleException(e);
                     Toast.makeText(getBaseContext(), "Couldn't create folder " + name + " at " + SmbFileChooserDialog.this._currentDir, Toast.LENGTH_LONG).show();
                 });
             }
@@ -1572,7 +1574,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             } catch (final SmbException e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
-                    handleException(e);
+                    _exceptionHandler.handleException(e);
                     Toast.makeText(getBaseContext(), "Couldn't delete " + file.getName() + " at " + file.getPath(), Toast.LENGTH_LONG).show();
                 });
             }
@@ -1660,7 +1662,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            handleException(e);
+            _exceptionHandler.handleException(e);
         }
     }
 
@@ -1687,7 +1689,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements IExcept
             return true;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            handleException(e);
+            _exceptionHandler.handleException(e);
         }
         return false;
     }

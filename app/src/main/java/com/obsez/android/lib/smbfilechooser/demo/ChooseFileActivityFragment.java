@@ -31,7 +31,7 @@ import jcifs.smb.SmbFile;
  * A placeholder fragment containing a simple view.
  */
 public class ChooseFileActivityFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-
+    @SuppressWarnings("unused")
     private static final String TAG = "ChooseFileActivityFragment";
 
     private CheckBox disableTitle;
@@ -126,7 +126,8 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                     } catch (SmbException e) {
                         e.printStackTrace();
                     }
-                });
+                })
+                .setExceptionHandler((exception, id) -> true);
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 smbFileChooserDialog.setFilter(dirOnly.isChecked(),
