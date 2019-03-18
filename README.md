@@ -38,8 +38,8 @@ configurations.all {
 ```
 
 1.2.0 used jcifs 1.3.17, which only supports SMB1.\
-1.3.0 an open source, maintained jcifs-ng 2.1.1 which is a breaking change! This one fully supports SMB2, and partially SMB3.
-Also, target sdk was bomped to 1.8:
+1.3.0 however switched to an open source, maintained [jcifs-ng](https://github.com/AgNO3/jcifs-ng) which is a breaking change! This one fully supports SMB2, and partially SMB3.
+Also, target sdk was bumped to 1.8:
 ```java
 android {
     compileOptions {
