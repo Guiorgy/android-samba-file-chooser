@@ -96,6 +96,7 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 })
 .enableDpad(/*enables Dpad controls (mainly fot Android TVs)*/ true)
 .cancelOnTouchOutside(true)
+.setTheme(R.style.FileChooserStyle)
 ```
 
 ## What's Different?
