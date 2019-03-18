@@ -1,5 +1,6 @@
 package com.obsez.android.lib.smbfilechooser.internals;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
 import jcifs.smb.SmbFile;
 
@@ -229,15 +231,26 @@ public class FileUtil {
     }
 
     public static abstract class LightContextWrapper {
-        private Context context;
+        private @Nullable
+        Activity activity;
+        private @NonNull
+        Context context;
 
         public LightContextWrapper(@NonNull final Context context) {
             this.context = context;
+            if (context instanceof AppCompatActivity || context instanceof Activity) {
+                this.activity = (Activity) context;
+            }
         }
 
         @NonNull
         public Context getBaseContext() {
             return context;
+        }
+
+        @Nullable
+        public Activity getActivity() {
+            return activity;
         }
 
         @NonNull
@@ -251,7 +264,7 @@ public class FileUtil {
         }
 
         public void themeWrapContext(@StyleRes final int themeResId) {
-            this.context =  new ContextThemeWrapper(this.context, themeResId);
+            this.context = new ContextThemeWrapper(this.context, themeResId);
         }
 
         public void runOnUiThread(Runnable runnable) {

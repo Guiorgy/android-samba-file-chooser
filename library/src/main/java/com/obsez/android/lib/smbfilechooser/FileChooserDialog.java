@@ -1042,19 +1042,23 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         // Check for permissions if SDK version is >= 23
         if (Build.VERSION.SDK_INT >= 23) {
+            if (getActivity() == null) {
+                throw new RuntimeException("Either pass an Activity as Context, or grant READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE permission!");
+            }
+
             int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
             int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
 
             if (readPermissionCheck != PERMISSION_GRANTED && writePermissionCheck != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions((Activity) getBaseContext(),
+                ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     111);
             } else if (readPermissionCheck != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions((Activity) getBaseContext(),
+                ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     222);
             } else if (writePermissionCheck != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions((Activity) getBaseContext(),
+                ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     333);
             } else {
