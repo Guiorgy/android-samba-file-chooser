@@ -45,6 +45,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
     private CheckBox filterImages;
     private CheckBox displayIcon;
     private CheckBox dateFormat;
+    private CheckBox darkTheme;
 
     private String _server = "smb://";
     private String _path = null;
@@ -74,6 +75,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         filterImages = root.findViewById(R.id.checkbox_filter_images);
         displayIcon = root.findViewById(R.id.checkbox_display_icon);
         dateFormat = root.findViewById(R.id.checkbox_date_format);
+        darkTheme = root.findViewById(R.id.checkbox_dark_theme);
 
         enableSamba.setOnCheckedChangeListener(this);
         root.findViewById(R.id.btn_show_dialog).setOnClickListener(this);

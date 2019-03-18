@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -59,6 +60,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -611,14 +613,34 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
+    public SmbFileChooserDialog setTheme(@StyleRes final int themeResId) {
+        this._themeResId = themeResId;
+        return this;
+    }
+
+    public SmbFileChooserDialog build() {
+        return this.build(null);
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @NonNull
-    public SmbFileChooserDialog build() {
+    public SmbFileChooserDialog build(@StyleRes @Nullable Integer themeResId) {
         if (_terminate) {
             return this;
         }
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+        if (themeResId != null) this._themeResId = themeResId;
+        if (this._themeResId == null) {
+            themeWrapContext(R.style.FileChooserStyle);
+        } else {
+            themeWrapContext(this._themeResId);
+        }
+
+        TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+        int style = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getThemeWrappedContext(style),
+            ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
+        ta.recycle();
 
         this._adapter = new SmbDirAdapter(getBaseContext(), EXECUTOR, this._rowLayoutRes != null ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
         if (this._adapterSetter != null) {
@@ -790,6 +812,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     }
                     swipeRefreshLayout.setRefreshing(false);
                 });
+
 
                 if (SmbFileChooserDialog.this._enableOptions) {
                     final int color = UiUtil.getThemeAccentColor(getBaseContext());
@@ -1757,6 +1780,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         _alertDialog.cancel();
     }
 
+    private @Nullable
+    @StyleRes
+    Integer _themeResId = null;
     private List<SmbFile> _entries = new ArrayList<>();
     private SmbDirAdapter _adapter;
     private String _serverIP;

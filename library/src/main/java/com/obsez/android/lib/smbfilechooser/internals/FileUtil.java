@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
+import androidx.appcompat.view.ContextThemeWrapper;
 import jcifs.smb.SmbFile;
 
 /**
@@ -227,7 +229,7 @@ public class FileUtil {
     }
 
     public static abstract class LightContextWrapper {
-        final private Context context;
+        private Context context;
 
         public LightContextWrapper(@NonNull final Context context) {
             this.context = context;
@@ -241,6 +243,15 @@ public class FileUtil {
         @NonNull
         public Resources getResources() {
             return context.getResources();
+        }
+
+        @NonNull
+        public Context getThemeWrappedContext(@StyleRes final int themeResId) {
+            return new ContextThemeWrapper(this.context, themeResId);
+        }
+
+        public void themeWrapContext(@StyleRes final int themeResId) {
+            this.context =  new ContextThemeWrapper(this.context, themeResId);
         }
 
         public void runOnUiThread(Runnable runnable) {
