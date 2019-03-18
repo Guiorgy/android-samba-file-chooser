@@ -913,7 +913,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     };
 
                     options.setOnClickListener(new View.OnClickListener() {
-
                         private Button createDir = null;
 
                         @Override
