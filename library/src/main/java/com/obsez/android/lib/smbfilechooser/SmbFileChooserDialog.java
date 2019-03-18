@@ -161,11 +161,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         super(context);
 
         if (serverIP.equals("smb://")) {
-            this._serverIP = "smb://";
+            this._serverIP = "";
         } else if (serverIP.startsWith("smb://")) {
             this._serverIP = serverIP.substring(6);
         } else this._serverIP = serverIP;
-        if (!this._serverIP.isEmpty() && !this._serverIP.equals("smb://") && this._serverIP.endsWith("/")) {
+        if (!this._serverIP.isEmpty() && this._serverIP.endsWith("/")) {
             this._serverIP = this._serverIP.substring(0, this._serverIP.length() - 1);
         }
 
