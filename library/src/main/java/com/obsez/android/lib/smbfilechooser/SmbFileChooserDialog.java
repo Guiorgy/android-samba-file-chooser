@@ -14,11 +14,14 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -1319,7 +1322,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     333);
             } else {
-                if (!_terminate) _alertDialog.show();
+                if (!_terminate) showDialog();
                 return this;
             }
 
@@ -1327,14 +1330,30 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
 
             if (readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED) {
-                if (!_terminate) _alertDialog.show();
+                if (!_terminate) showDialog();
             }
 
             return this;
         } else {
-            _alertDialog.show();
+            showDialog();
         }
         return this;
+    }
+
+    private void showDialog() {
+        Window window = _alertDialog.getWindow();
+        if (window != null) {
+            TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);
+            lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+            window.setAttributes(lp);
+            ta.recycle();
+        }
+
+        _alertDialog.show();
     }
 
     private void displayPath(@Nullable String path) {
