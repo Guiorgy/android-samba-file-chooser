@@ -102,11 +102,32 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 
 I replaced all methods "with___()" with "set___()"! And, use static method "newDialog(context)" instead of a constructor.
 
+- there are no public constructors. Instead use static methods:
+```java
+FileChooserDialog.newDialog(context)
+```
 - you can also pass Strings instead of Resource id. **if Resource id was set, it will take priority over Strings!**
 ```java
 .setOptionResources(0, 0, 0, 0)
 .setOptionResources("new folder", "delete", "cancel", "ok")
 ```
+- when multiple files are selected, a new listener is called:
+```java
+FileChooserDialog.setOnSelectedListener(files -> {
+    ArrayList<String> paths = new ArrayList<>();
+    for (File file : files) {
+        paths.add(file.getPath());
+    }
+
+    new AlertDialog.Builder(ctx)
+        .setTitle(files.size() + " files selected:")
+        .setAdapter(new ArrayAdapter<>(ctx,
+            android.R.layout.simple_expandable_list_item_1, paths), null)
+        .create()
+        .show();
+});
+```
+- theres no _**titleFollowsDir**_ option, and _**displayPath**_ is false by default
 
 For more information please refere to the [upstream repo](https://github.com/hedzr/android-file-chooser).
 
