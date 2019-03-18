@@ -930,7 +930,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 SmbFileChooserDialog.this._options = options;
 
                                 // Create a button for the option to create a new directory/folder.
-                                final Button createDir = new Button(getBaseContext(), null, R.style.FileChooserButtonStyle);
+                                final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if (SmbFileChooserDialog.this._createDirRes == null)
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);
@@ -952,7 +952,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 options.addView(createDir, params);
 
                                 // Create a button for the option to delete a file.
-                                final Button delete = new Button(getBaseContext(), null, R.style.FileChooserButtonStyle);
+                                final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if (SmbFileChooserDialog.this._deleteRes == null)
                                     delete.setText(SmbFileChooserDialog.this._delete);
                                 else delete.setText(SmbFileChooserDialog.this._deleteRes);
@@ -1015,9 +1015,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 _exceptionHandler.handleException(e);
                                             }
 
+                                            TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+                                            int style = ta.getResourceId(R.styleable.FileChooser_fileChooserNewFolderStyle, R.style.FileChooserNewFolderStyle);
+                                            final Context context = getThemeWrappedContext(style);
+                                            ta.recycle();
+                                            ta = context.obtainStyledAttributes(R.styleable.FileChooser);
+
                                             // A semitransparent background overlay.
                                             final FrameLayout overlay = new FrameLayout(getBaseContext());
-                                            overlay.setBackgroundColor(0x60ffffff);
+                                            overlay.setBackgroundColor(ta.getColor(R.styleable.FileChooser_fileChooserNewFolderOverlayColor, 0x60ffffff));
                                             overlay.setScrollContainer(true);
                                             ViewGroup.MarginLayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT, CENTER);
                                             root.addView(overlay, params);
@@ -1031,37 +1037,46 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
                                             overlay.addView(linearLayout, params);
 
+                                            float widthWeight = ta.getFloat(R.styleable.FileChooser_fileChooserNewFolderWidthWeight, 55.56f);
+                                            if (widthWeight <= 0) widthWeight = 55.56f;
+                                            if (widthWeight > 100) widthWeight = 100f;
+
                                             // The Space on the left.
                                             Space leftSpace = new Space(getBaseContext());
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 2);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (100 - widthWeight) / 2);
                                             linearLayout.addView(leftSpace, params);
 
                                             // A solid holder view for the EditText and Buttons.
                                             final LinearLayout holder = new LinearLayout(getBaseContext());
                                             holder.setOrientation(LinearLayout.VERTICAL);
-                                            holder.setBackgroundColor(0xffffffff);
+                                            holder.setBackgroundColor(ta.getColor(R.styleable.FileChooser_fileChooserNewFolderBackgroundColor, 0xffffffff));
+                                            final int elevation = ta.getInt(R.styleable.FileChooser_fileChooserNewFolderElevation, 25);
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                holder.setElevation(25f);
+                                                holder.setElevation(elevation);
                                             } else {
-                                                ViewCompat.setElevation(holder, 25);
+                                                ViewCompat.setElevation(holder, elevation);
                                             }
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 5);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, widthWeight);
                                             linearLayout.addView(holder, params);
 
                                             // The Space on the right.
                                             Space rightSpace = new Space(getBaseContext());
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 2);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (100 - widthWeight) / 2);
                                             linearLayout.addView(rightSpace, params);
 
                                             // An EditText to input the new folder name.
                                             final EditText input = new EditText(getBaseContext());
+                                            final int color = ta.getColor(R.styleable.FileChooser_fileChooserNewFolderTextColor, buttonColor);
+                                            input.setTextColor(color);
+                                            input.getBackground().mutate().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
                                             input.setSelectAllOnFocus(true);
                                             input.setSingleLine(true);
                                             // There should be no suggestions, but... :)
                                             input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_FILTER | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                                             input.setFilters(new InputFilter[]{SmbFileChooserDialog.this._newFolderFilter != null ? SmbFileChooserDialog.this._newFolderFilter : new NewFolderFilter()});
                                             input.setGravity(CENTER_HORIZONTAL);
-                                            params = new LinearLayout.LayoutParams(256, WRAP_CONTENT);
+                                            params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+                                            params.setMargins(3, 2, 3, 0);
                                             holder.addView(input, params);
 
                                             this.input = input;
@@ -1131,6 +1146,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                     SmbFileChooserDialog.this._list.setFocusable(true);
                                                 }
                                             });
+                                            ta.recycle();
                                             // endregion
                                         }
 
@@ -1329,28 +1345,25 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, TOP);
             }
 
-            _pathView = new TextView(getBaseContext());
-            _pathView.setTextSize(12);
-            _pathView.setLines(1);
-            _pathView.setTextColor(0x40000000);
-            _pathView.setPadding(
-                UiUtil.dip2px(2),
-                UiUtil.dip2px(5),
-                UiUtil.dip2px(2),
-                UiUtil.dip2px(2));
-            _pathView.setBackgroundColor(0xffffffff);
+            TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+            int style = ta.getResourceId(R.styleable.FileChooser_fileChooserPathViewStyle, R.style.FileChooserPathViewStyle);
+            final Context context = getThemeWrappedContext(style);
+
+            _pathView = new TextView(context);
             root.addView(_pathView, 0, params);
 
             _pathView.bringToFront();
+            int elevation = ta.getInt(R.styleable.FileChooser_fileChooserPathViewElevation, 2);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                _pathView.setElevation(2f);
+                _pathView.setElevation(elevation);
             } else {
-                ViewCompat.setElevation(_pathView, 2);
+                ViewCompat.setElevation(_pathView, elevation);
             }
 
             if (_pathViewCallback != null) {
                 _pathViewCallback.customize(_pathView);
             }
+            ta.recycle();
         }
 
         if (path == null) {
