@@ -815,13 +815,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
 
                 if (SmbFileChooserDialog.this._enableOptions) {
-                    final int color = UiUtil.getThemeAccentColor(getBaseContext());
-                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
-
                     final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
+                    
+                    final int buttonColor = options.getCurrentTextColor();
+                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
+
                     options.setText("");
                     options.setVisibility(VISIBLE);
-                    options.setTextColor(color);
                     final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
                         SmbFileChooserDialog.this._optionsIconRes != null ? SmbFileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
                     if (drawable != null) {
@@ -930,11 +930,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 SmbFileChooserDialog.this._options = options;
 
                                 // Create a button for the option to create a new directory/folder.
-                                final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                final Button createDir = new Button(getBaseContext(), null, R.style.FileChooserButtonStyle);
                                 if (SmbFileChooserDialog.this._createDirRes == null)
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);
-                                createDir.setTextColor(color);
+                                createDir.setTextColor(buttonColor);
                                 final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
                                     SmbFileChooserDialog.this._createDirIconRes != null ? SmbFileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
                                 if (plus != null) {
@@ -952,11 +952,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 options.addView(createDir, params);
 
                                 // Create a button for the option to delete a file.
-                                final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                final Button delete = new Button(getBaseContext(), null, R.style.FileChooserButtonStyle);
                                 if (SmbFileChooserDialog.this._deleteRes == null)
                                     delete.setText(SmbFileChooserDialog.this._delete);
                                 else delete.setText(SmbFileChooserDialog.this._deleteRes);
-                                delete.setTextColor(color);
+                                delete.setTextColor(buttonColor);
                                 final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
                                     SmbFileChooserDialog.this._deleteIconRes != null ? SmbFileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
                                 if (bin != null) {
@@ -1077,7 +1077,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 cancel.setText(SmbFileChooserDialog.this._newFolderCancel);
                                             else
                                                 cancel.setText(SmbFileChooserDialog.this._newFolderCancelRes);
-                                            cancel.setTextColor(color);
+                                            cancel.setTextColor(buttonColor);
                                             if (SmbFileChooserDialog.this._enableDpad) {
                                                 cancel.setBackgroundResource(R.drawable.listview_item_selector);
                                             }
@@ -1090,7 +1090,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 ok.setText(SmbFileChooserDialog.this._newFolderOk);
                                             else
                                                 ok.setText(SmbFileChooserDialog.this._newFolderOkRes);
-                                            ok.setTextColor(color);
+                                            ok.setTextColor(buttonColor);
                                             if (SmbFileChooserDialog.this._enableDpad) {
                                                 ok.setBackgroundResource(R.drawable.listview_item_selector);
                                             }
@@ -1227,9 +1227,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 delete.setTextColor(color1);
                                             } else {
                                                 _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].clearColorFilter();
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color);
+                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(buttonColor);
                                                 delete.getCompoundDrawables()[0].clearColorFilter();
-                                                delete.setTextColor(color);
+                                                delete.setTextColor(buttonColor);
                                             }
                                         };
                                     }
