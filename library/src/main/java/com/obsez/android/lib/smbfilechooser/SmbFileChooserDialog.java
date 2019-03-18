@@ -2,7 +2,6 @@ package com.obsez.android.lib.smbfilechooser;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -41,7 +40,6 @@ import com.obsez.android.lib.smbfilechooser.tool.SmbDirAdapter;
 import java.net.MalformedURLException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -1431,11 +1429,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private void listDirs(final boolean scrollToTop) {
         if (progressBar != null) progressBar.setVisibility(VISIBLE);
         _isScrollable = false;
-        AtomicBoolean isRoot = new AtomicBoolean(false);
+        AtomicBoolean displayPath = new AtomicBoolean(false);
         EXECUTOR.execute(() -> {
             try {
                 _entries.clear();
-
                 // Add the ".." entry
                 final String parent = _currentDir.getParent();
                 if (parent != null && !parent.equalsIgnoreCase("smb://")) {
@@ -1450,7 +1447,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             return false;
                         }
                     });
-                    isRoot.set(true);
+                    displayPath.set(true);
                 }
 
                 // Get files
@@ -1484,7 +1481,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     if (scrollToTop) SmbFileChooserDialog.this._list.setSelection(0);
                     if (progressBar != null) progressBar.setVisibility(GONE);
                     if (_alertDialog != null && _displayPath) {
-                        if (isRoot.get()) {
+                        if (displayPath.get()) {
                             displayPath(_currentDir.getPath());
                         } else {
                             displayPath(null);
@@ -1497,67 +1494,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     void sortByName(@NonNull List<SmbFile> list) {
         Collections.sort(list, (f1, f2) -> f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase()));
-    }
-
-    /**
-     * @deprecated better use listDirs as it sorts directories and files separately
-     */
-    @Deprecated
-    private void listDirsUncategorised(final boolean scrollToTop) {
-        if (progressBar != null) progressBar.setVisibility(VISIBLE);
-        _isScrollable = false;
-        AtomicBoolean isRoot = new AtomicBoolean(false);
-        EXECUTOR.execute(() -> {
-            try {
-                _entries.clear();
-
-                // Get files
-                SmbFile[] files = _currentDir.listFiles(_fileFilter);
-
-                if (files != null) {
-                    _entries.addAll(Arrays.asList(files));
-                }
-
-                sortByName(_entries);
-
-                // Add the ".." entry
-                final String parent = _currentDir.getParent();
-                if (parent != null && !parent.equalsIgnoreCase("smb://")) {
-                    _entries.add(0, new SmbFile("..", _smbContext) {
-                        @Override
-                        public boolean isDirectory() {
-                            return true;
-                        }
-
-                        @Override
-                        public boolean isHidden() {
-                            return false;
-                        }
-                    });
-                    isRoot.set(true);
-                }
-            } catch (MalformedURLException | SmbException e) {
-                e.printStackTrace();
-                if (progressBar != null) runOnUiThread(() -> {
-                    _exceptionHandler.handleException(e);
-                    Toast.makeText(getBaseContext(), "Failed to load files!", Toast.LENGTH_LONG).show();
-                });
-            } finally {
-                runOnUiThread(() -> {
-                    _adapter.setEntries(_entries);
-                    _isScrollable = true;
-                    if (scrollToTop) SmbFileChooserDialog.this._list.setSelection(0);
-                    if (progressBar != null) progressBar.setVisibility(GONE);
-                    if (_alertDialog != null && _displayPath) {
-                        if (isRoot.get()) {
-                            displayPath(_currentDir.getPath());
-                        } else {
-                            displayPath(null);
-                        }
-                    }
-                });
-            }
-        });
     }
 
     private void createNewDirectory(@NonNull final String name) {

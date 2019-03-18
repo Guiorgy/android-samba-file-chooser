@@ -1,7 +1,6 @@
 package com.obsez.android.lib.smbfilechooser;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -1128,7 +1127,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         } else {
             String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
             String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
-            if (path.contains(removableRoot)) path = path.substring(removableRoot.lastIndexOf('/') + 1);
+            if (path.contains(removableRoot))
+                path = path.substring(removableRoot.lastIndexOf('/') + 1);
             if (path.contains(primaryRoot)) path = path.substring(primaryRoot.lastIndexOf('/') + 1);
             _pathView.setText(path);
 
@@ -1191,6 +1191,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 up = true;
             }
         }
+        boolean displayPath = false;
         if (!up && _currentDir.getParentFile() != null && _currentDir.getParentFile().canRead()) {
             _entries.add(new File("..") {
                 @Override
@@ -1203,6 +1204,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     return false;
                 }
             });
+            displayPath = true;
         }
 
         if (files == null) return;
@@ -1224,10 +1226,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         _entries.addAll(fileList);
 
         if (_alertDialog != null && _displayPath) {
-            if (up) {
-                displayPath(null);
-            } else {
+            if (displayPath) {
                 displayPath(_currentDir.getPath());
+            } else {
+                displayPath(null);
             }
         }
     }
