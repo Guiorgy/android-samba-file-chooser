@@ -913,8 +913,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     };
 
                     options.setOnClickListener(new View.OnClickListener() {
+
+                        private Button createDir = null;
+
                         @Override
                         public void onClick(final View v) {
+                            if (createDir != null && createDir.getVisibility() == VISIBLE) return;
+
                             if (SmbFileChooserDialog.this._options == null) {
                                 // region Draw options view. (this only happens the first time one clicks on options)
                                 // Create options view.
@@ -925,7 +930,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 options.setOnClickListener(null);
 
                                 // Create a button for the option to create a new directory/folder.
-                                final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if (SmbFileChooserDialog.this._createDirRes == null)
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);

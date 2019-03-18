@@ -686,8 +686,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     };
 
                     options.setOnClickListener(new View.OnClickListener() {
+                        private Button createDir = null;
+
                         @Override
                         public void onClick(final View v) {
+                            if (createDir != null && createDir.getVisibility() == VISIBLE) return;
+
                             if (FileChooserDialog.this._options == null) {
                                 // region Draw options view. (this only happens the first time one clicks on options)
                                 // Root view (FrameLayout) of the ListView in the AlertDialog.
@@ -712,7 +716,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 options.setOnClickListener(null);
 
                                 // Create a button for the option to create a new directory/folder.
-                                final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if (FileChooserDialog.this._createDirRes == null)
                                     createDir.setText(FileChooserDialog.this._createDir);
                                 else createDir.setText(FileChooserDialog.this._createDirRes);
