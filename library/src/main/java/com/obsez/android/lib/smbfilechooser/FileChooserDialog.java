@@ -1124,8 +1124,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         } else {
             String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
             String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
-            if (path.contains(removableRoot)) path = path.substring(removableRoot.length());
-            if (path.contains(primaryRoot)) path = path.substring(primaryRoot.length());
+            if (path.contains(removableRoot)) path = path.substring(removableRoot.lastIndexOf('/') + 1);
+            if (path.contains(primaryRoot)) path = path.substring(primaryRoot.lastIndexOf('/') + 1);
             _pathView.setText(path);
 
             while (_pathView.getLineCount() > 1) {
