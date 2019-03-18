@@ -128,7 +128,7 @@ FileChooserDialog.setOnSelectedListener(files -> {
         .show();
 });
 ```
-- theres no _**titleFollowsDir**_ option, and _**displayPath**_ is false by default
+- there's no _**titleFollowsDir**_ option, and _**displayPath**_ is false by default
 
 For more information please refere to the [upstream repo](https://github.com/hedzr/android-file-chooser).
 
