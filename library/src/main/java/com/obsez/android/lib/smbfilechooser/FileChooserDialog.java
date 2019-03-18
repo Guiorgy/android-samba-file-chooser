@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -51,6 +52,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -439,12 +441,34 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
+    public FileChooserDialog setTheme(@StyleRes final int themeResId) {
+        this._themeResId = themeResId;
+        return this;
+    }
+
+    @NonNull
     public FileChooserDialog build() {
+        return this.build(null);
+    }
+
+    @NonNull
+    public FileChooserDialog build(@StyleRes @Nullable Integer themeResId) {
         if (_currentDir == null) {
             _currentDir = new File(FileUtil.getStoragePath(getBaseContext(), false));
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+        if (themeResId != null) this._themeResId = themeResId;
+        if (this._themeResId == null) {
+            themeWrapContext(R.style.FileChooserStyle);
+        } else {
+            themeWrapContext(this._themeResId);
+        }
+
+        TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+        int style = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getThemeWrappedContext(style),
+            ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
+        ta.recycle();
 
         this._adapter = new DirAdapter(getBaseContext(), new ArrayList<>(), this._rowLayoutRes != null ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
         if (this._adapterSetter != null) {
@@ -570,13 +594,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 }
 
                 if (FileChooserDialog.this._enableOptions) {
-                    final int color = UiUtil.getThemeAccentColor(getBaseContext());
-                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
-
                     final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
+
+                    final int buttonColor = options.getCurrentTextColor();
+                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
+
                     options.setText("");
                     options.setVisibility(VISIBLE);
-                    options.setTextColor(color);
+                    options.setTextColor(buttonColor);
                     final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
                         FileChooserDialog.this._optionsIconRes != null ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
                     if (drawable != null) {
@@ -699,7 +724,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 if (FileChooserDialog.this._createDirRes == null)
                                     createDir.setText(FileChooserDialog.this._createDir);
                                 else createDir.setText(FileChooserDialog.this._createDirRes);
-                                createDir.setTextColor(color);
+                                createDir.setTextColor(buttonColor);
                                 final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
                                     FileChooserDialog.this._createDirIconRes != null ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
                                 if (plus != null) {
@@ -721,7 +746,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 if (FileChooserDialog.this._deleteRes == null)
                                     delete.setText(FileChooserDialog.this._delete);
                                 else delete.setText(FileChooserDialog.this._deleteRes);
-                                delete.setTextColor(color);
+                                delete.setTextColor(buttonColor);
                                 final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
                                     FileChooserDialog.this._deleteIconRes != null ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
                                 if (bin != null) {
@@ -762,9 +787,15 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 e.printStackTrace();
                                             }
 
+                                            TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+                                            int style = ta.getResourceId(R.styleable.FileChooser_fileChooserNewFolderStyle, R.style.FileChooserNewFolderStyle);
+                                            final Context context = getThemeWrappedContext(style);
+                                            ta.recycle();
+                                            ta = context.obtainStyledAttributes(R.styleable.FileChooser);
+
                                             // A semitransparent background overlay.
                                             final FrameLayout overlay = new FrameLayout(getBaseContext());
-                                            overlay.setBackgroundColor(0x60ffffff);
+                                            overlay.setBackgroundColor(ta.getColor(R.styleable.FileChooser_fileChooserNewFolderOverlayColor, 0x60ffffff));
                                             overlay.setScrollContainer(true);
                                             ViewGroup.MarginLayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT, CENTER);
                                             root.addView(overlay, params);
@@ -778,29 +809,37 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
                                             overlay.addView(linearLayout, params);
 
+                                            float widthWeight = ta.getFloat(R.styleable.FileChooser_fileChooserNewFolderWidthWeight, 55.56f);
+                                            if (widthWeight <= 0) widthWeight = 55.56f;
+                                            if (widthWeight > 100) widthWeight = 100f;
+
                                             // The Space on the left.
                                             Space leftSpace = new Space(getBaseContext());
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 2);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (100 - widthWeight) / 2);
                                             linearLayout.addView(leftSpace, params);
 
                                             // A solid holder view for the EditText and Buttons.
                                             final LinearLayout holder = new LinearLayout(getBaseContext());
                                             holder.setOrientation(LinearLayout.VERTICAL);
-                                            holder.setBackgroundColor(0xffffffff);
+                                            holder.setBackgroundColor(ta.getColor(R.styleable.FileChooser_fileChooserNewFolderBackgroundColor, 0xffffffff));
+                                            final int elevation = ta.getInt(R.styleable.FileChooser_fileChooserNewFolderElevation, 25);
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                holder.setElevation(25f);
+                                                holder.setElevation(elevation);
                                             } else {
-                                                ViewCompat.setElevation(holder, 25);
+                                                ViewCompat.setElevation(holder, elevation);
                                             }
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 5);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, widthWeight);
                                             linearLayout.addView(holder, params);
 
                                             // The Space on the right.
                                             Space rightSpace = new Space(getBaseContext());
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 2);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (100 - widthWeight) / 2);
                                             linearLayout.addView(rightSpace, params);
 
                                             final EditText input = new EditText(getBaseContext());
+                                            final int color = ta.getColor(R.styleable.FileChooser_fileChooserNewFolderTextColor, buttonColor);
+                                            input.setTextColor(color);
+                                            input.getBackground().mutate().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
                                             input.setText(newFolder.getName());
                                             input.setSelectAllOnFocus(true);
                                             input.setSingleLine(true);
@@ -825,7 +864,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 cancel.setText(FileChooserDialog.this._newFolderCancel);
                                             else
                                                 cancel.setText(FileChooserDialog.this._newFolderCancelRes);
-                                            cancel.setTextColor(color);
+                                            cancel.setTextColor(buttonColor);
                                             if (FileChooserDialog.this._enableDpad) {
                                                 cancel.setBackgroundResource(R.drawable.listview_item_selector);
                                             }
@@ -837,7 +876,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             if (FileChooserDialog.this._newFolderOkRes == null)
                                                 ok.setText(FileChooserDialog.this._newFolderOk);
                                             else ok.setText(FileChooserDialog.this._newFolderOkRes);
-                                            ok.setTextColor(color);
+                                            ok.setTextColor(buttonColor);
                                             if (FileChooserDialog.this._enableDpad) {
                                                 ok.setBackgroundResource(R.drawable.listview_item_selector);
                                             }
@@ -878,6 +917,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                     FileChooserDialog.this._list.setFocusable(true);
                                                 }
                                             });
+                                            ta.recycle();
                                             // endregion
                                         }
 
@@ -956,9 +996,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 delete.setTextColor(color1);
                                             } else {
                                                 _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].clearColorFilter();
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color);
+                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(buttonColor);
                                                 delete.getCompoundDrawables()[0].clearColorFilter();
-                                                delete.setTextColor(color);
+                                                delete.setTextColor(buttonColor);
                                             }
                                         };
                                     }
@@ -1050,28 +1090,25 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, TOP);
             }
 
-            _pathView = new TextView(getBaseContext());
-            _pathView.setTextSize(12);
-            _pathView.setLines(1);
-            _pathView.setTextColor(0x40000000);
-            _pathView.setPadding(
-                UiUtil.dip2px(2),
-                UiUtil.dip2px(5),
-                UiUtil.dip2px(2),
-                UiUtil.dip2px(2));
-            _pathView.setBackgroundColor(0xffffffff);
+            TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+            int style = ta.getResourceId(R.styleable.FileChooser_fileChooserPathViewStyle, R.style.FileChooserPathViewStyle);
+            final Context context = getThemeWrappedContext(style);
+
+            _pathView = new TextView(context);
             root.addView(_pathView, 0, params);
 
             _pathView.bringToFront();
+            int elevation = ta.getInt(R.styleable.FileChooser_fileChooserPathViewElevation, 2);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                _pathView.setElevation(2f);
+                _pathView.setElevation(elevation);
             } else {
-                ViewCompat.setElevation(_pathView, 2);
+                ViewCompat.setElevation(_pathView, elevation);
             }
 
             if (_pathViewCallback != null) {
                 _pathViewCallback.customize(_pathView);
             }
+            ta.recycle();
         }
 
         if (path == null) {
@@ -1403,6 +1440,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         _alertDialog.cancel();
     }
 
+    private @Nullable
+    @StyleRes
+    Integer _themeResId = null;
     private List<File> _entries = new ArrayList<>();
     private DirAdapter _adapter;
     private File _currentDir;

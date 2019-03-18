@@ -109,9 +109,7 @@ public class DirAdapter extends MyAdapter<File> {
         tvName.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
         View root = rl.findViewById(R.id.root);
-        if (root.getBackground() == null) {
-            root.setBackgroundResource(R.color.li_row_background);
-        }
+        if (root.getBackground() == null) root.setBackgroundResource(R.color.li_row_background);
         if (getSelected(file.hashCode()) == null) root.getBackground().clearColorFilter();
         else root.getBackground().setColorFilter(_colorFilter);
 

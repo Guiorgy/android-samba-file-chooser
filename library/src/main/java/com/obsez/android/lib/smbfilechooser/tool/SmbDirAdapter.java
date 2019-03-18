@@ -2,6 +2,7 @@ package com.obsez.android.lib.smbfilechooser.tool;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -45,12 +46,10 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         _defaultFolderIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_folder);
         _defaultFileIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_file);
 
-        int accentColor = UiUtil.getThemeAccentColor(getContext());
-        int red = Color.red(accentColor);
-        int green = Color.green(accentColor);
-        int blue = Color.blue(accentColor);
-        int accentColorWithAlpha = Color.argb(40, red, green, blue);
-        _colorFilter = new PorterDuffColorFilter(accentColorWithAlpha, PorterDuff.Mode.MULTIPLY);
+        TypedArray ta = getContext().obtainStyledAttributes(R.styleable.FileChooser);
+        int colorFilter = ta.getColor(R.styleable.FileChooser_fileListItemSelectedTint, getContext().getResources().getColor(R.color.li_row_background_tint));
+        ta.recycle();
+        _colorFilter = new PorterDuffColorFilter(colorFilter, PorterDuff.Mode.MULTIPLY);
     }
 
     private static final class File {
@@ -143,6 +142,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 tvDate.setVisibility(View.GONE);
             }
             tvSize.setText(file.fileSize);
+            if (root.getBackground() == null) root.setBackgroundResource(R.color.li_row_background);
             if (adapter.getSelected(file.hashCode) == null) root.getBackground().clearColorFilter();
             else root.getBackground().setColorFilter(adapter._colorFilter);
         }

@@ -613,11 +613,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
+    @NonNull
     public SmbFileChooserDialog setTheme(@StyleRes final int themeResId) {
         this._themeResId = themeResId;
         return this;
     }
 
+    @NonNull
     public SmbFileChooserDialog build() {
         return this.build(null);
     }
