@@ -160,10 +160,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private SmbFileChooserDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
         super(context);
 
-        if (serverIP.startsWith("smb://")) {
+        if (serverIP.equals("smb://")) {
+            this._serverIP = "smb://";
+        } else if (serverIP.startsWith("smb://")) {
             this._serverIP = serverIP.substring(6);
         } else this._serverIP = serverIP;
-        if (serverIP.endsWith("/")) {
+        if (!this._serverIP.isEmpty() && !this._serverIP.equals("smb://") && this._serverIP.endsWith("/")) {
             this._serverIP = this._serverIP.substring(0, this._serverIP.length() - 1);
         }
 
@@ -818,7 +820,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
                 if (SmbFileChooserDialog.this._enableOptions) {
                     final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
-                    
+
                     final int buttonColor = options.getCurrentTextColor();
                     final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
 
