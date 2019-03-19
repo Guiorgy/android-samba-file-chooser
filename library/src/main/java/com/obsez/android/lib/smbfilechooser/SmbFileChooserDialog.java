@@ -1037,9 +1037,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
                                             overlay.addView(linearLayout, params);
 
-                                            float widthWeight = ta.getFloat(R.styleable.FileChooser_fileChooserNewFolderWidthWeight, 55.56f);
-                                            if (widthWeight <= 0) widthWeight = 55.56f;
-                                            if (widthWeight > 100) widthWeight = 100f;
+                                            float widthWeight = ta.getFloat(R.styleable.FileChooser_fileChooserNewFolderWidthWeight, 0.6f);
+                                            if (widthWeight <= 0) widthWeight = 0.6f;
+                                            if (widthWeight > 1f) widthWeight = 1f;
 
                                             // The Space on the left.
                                             Space leftSpace = new Space(getBaseContext());
