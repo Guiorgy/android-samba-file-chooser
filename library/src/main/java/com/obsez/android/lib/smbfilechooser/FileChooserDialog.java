@@ -1029,66 +1029,60 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         return this;
     }
 
+    private boolean checkPermissions() {
+        if (Build.VERSION.SDK_INT < 23) return true;
+
+        if (getActivity() == null) {
+            throw new RuntimeException("Either pass an Activity as Context, or grant READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE permission!");
+        }
+
+        int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+        int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
+
+        if (readPermissionCheck != PERMISSION_GRANTED && writePermissionCheck != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                111);
+        } else if (readPermissionCheck != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                222);
+        } else if (writePermissionCheck != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                333);
+        } else {
+            return true;
+        }
+
+        readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+        writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
+
+        return readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED;
+    }
+
     @NonNull
     public FileChooserDialog show() {
         if (_alertDialog == null || _list == null) {
             throw new RuntimeException("call build() before show().");
         }
 
-        // Check for permissions if SDK version is >= 23
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (getActivity() == null) {
-                throw new RuntimeException("Either pass an Activity as Context, or grant READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE permission!");
+        if (checkPermissions()) {
+            Window window = _alertDialog.getWindow();
+            if (window != null) {
+                TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+                window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
+                WindowManager.LayoutParams lp = window.getAttributes();
+                lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);
+                lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                window.setAttributes(lp);
+                ta.recycle();
             }
-
-            int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-            int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
-
-            if (readPermissionCheck != PERMISSION_GRANTED && writePermissionCheck != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    111);
-            } else if (readPermissionCheck != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    222);
-            } else if (writePermissionCheck != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    333);
-            } else {
-                showDialog();
-                return this;
-            }
-
-            readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-            writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
-
-            if (readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED) {
-                showDialog();
-            }
-
-            return this;
-        } else {
-            showDialog();
+            _alertDialog.show();
         }
+
         return this;
-    }
-
-    private void showDialog() {
-        Window window = _alertDialog.getWindow();
-        if (window != null) {
-            TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-            window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
-            WindowManager.LayoutParams lp = window.getAttributes();
-            lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);
-            lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-            window.setAttributes(lp);
-            ta.recycle();
-        }
-
-        _alertDialog.show();
     }
 
     private void displayPath(@Nullable String path) {
