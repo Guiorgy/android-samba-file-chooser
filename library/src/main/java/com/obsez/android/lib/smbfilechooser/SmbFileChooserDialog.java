@@ -85,6 +85,7 @@ import static android.view.Gravity.END;
 import static android.view.Gravity.START;
 import static android.view.Gravity.TOP;
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -755,7 +756,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 parentLayout.addView(positive, 2);
 
                 if (_enableMultiple && !_dirOnly) {
-                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
                 }
 
                 if (_enableDpad) {
@@ -903,7 +904,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     };
                     final Runnable hideOptions = () -> {
                         scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
-                        SmbFileChooserDialog.this._options.setVisibility(View.GONE);
+                        SmbFileChooserDialog.this._options.setVisibility(GONE);
                         SmbFileChooserDialog.this._options.clearFocus();
                         if (SmbFileChooserDialog.this._options.getParent() instanceof FrameLayout) {
                             ViewGroup.MarginLayoutParams params1 = (ViewGroup.MarginLayoutParams) SmbFileChooserDialog.this._list.getLayoutParams();
@@ -923,6 +924,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 final FrameLayout options = new FrameLayout(getBaseContext());
                                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
                                 root.addView(options, params);
+
+                                if (root instanceof FrameLayout) {
+                                    _list.bringToFront();
+                                }
 
                                 options.setOnClickListener(null);
 
@@ -1029,7 +1034,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             root.addView(overlay, params);
 
                                             overlay.setOnClickListener(null);
-                                            overlay.setVisibility(View.INVISIBLE);
+                                            overlay.setVisibility(GONE);
                                             SmbFileChooserDialog.this._newFolderView = overlay;
 
                                             // A LynearLayout and a pair of Spaces to center vews.
@@ -1118,7 +1123,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                     UiUtil.hideKeyboardFrom(getBaseContext(), input);
                                                     if (!SmbFileChooserDialog.this._enableDpad) {
                                                         SmbFileChooserDialog.this.createNewDirectory(input.getText().toString());
-                                                        overlay.setVisibility(View.INVISIBLE);
+                                                        overlay.setVisibility(GONE);
                                                         overlay.clearFocus();
                                                     } else {
                                                         input.requestFocus();
@@ -1129,7 +1134,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             });
                                             cancel.setOnClickListener(v22 -> {
                                                 UiUtil.hideKeyboardFrom(getBaseContext(), input);
-                                                overlay.setVisibility(View.INVISIBLE);
+                                                overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (SmbFileChooserDialog.this._enableDpad) {
                                                     SmbFileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
@@ -1139,7 +1144,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             ok.setOnClickListener(v2 -> {
                                                 SmbFileChooserDialog.this.createNewDirectory(input.getText().toString());
                                                 UiUtil.hideKeyboardFrom(getBaseContext(), input);
-                                                overlay.setVisibility(View.INVISIBLE);
+                                                overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (SmbFileChooserDialog.this._enableDpad) {
                                                     SmbFileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
@@ -1150,7 +1155,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             // endregion
                                         }
 
-                                        if (SmbFileChooserDialog.this._newFolderView.getVisibility() == View.INVISIBLE) {
+                                        if (SmbFileChooserDialog.this._newFolderView.getVisibility() != VISIBLE) {
                                             SmbFileChooserDialog.this._newFolderView.setVisibility(VISIBLE);
                                             if (SmbFileChooserDialog.this._enableDpad) {
                                                 SmbFileChooserDialog.this._newFolderView.requestFocus();
@@ -1169,7 +1174,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 }
                                             }
                                         } else {
-                                            SmbFileChooserDialog.this._newFolderView.setVisibility(View.INVISIBLE);
+                                            SmbFileChooserDialog.this._newFolderView.setVisibility(GONE);
                                             if (SmbFileChooserDialog.this._enableDpad) {
                                                 SmbFileChooserDialog.this._newFolderView.clearFocus();
                                                 SmbFileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
@@ -1588,7 +1593,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             if (!_adapter.isAnySelected()) {
                                 _chooseMode = CHOOSE_MODE_NORMAL;
                                 if (!_dirOnly)
-                                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+                                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
                             }
                         }
                         break;
@@ -1627,7 +1632,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 if (!_adapter.isAnySelected()) {
                     _chooseMode = CHOOSE_MODE_NORMAL;
                     if (!_dirOnly)
-                        _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.INVISIBLE);
+                        _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
                 } else {
                     _chooseMode = CHOOSE_MODE_SELECT_MULTIPLE;
                     if (!_dirOnly)
