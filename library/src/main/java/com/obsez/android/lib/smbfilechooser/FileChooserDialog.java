@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -460,7 +461,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         if (themeResId != null) this._themeResId = themeResId;
         if (this._themeResId == null) {
-            themeWrapContext(R.style.FileChooserStyle);
+            TypedValue typedValue = new TypedValue();
+            if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true)) themeWrapContext(R.style.FileChooserStyle);
         } else {
             themeWrapContext(this._themeResId);
         }

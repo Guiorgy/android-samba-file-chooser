@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -636,7 +637,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
         if (themeResId != null) this._themeResId = themeResId;
         if (this._themeResId == null) {
-            themeWrapContext(R.style.FileChooserStyle);
+            TypedValue typedValue = new TypedValue();
+            if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true)) themeWrapContext(R.style.FileChooserStyle);
         } else {
             themeWrapContext(this._themeResId);
         }
