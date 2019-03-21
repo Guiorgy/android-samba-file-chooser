@@ -462,7 +462,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (themeResId != null) this._themeResId = themeResId;
         if (this._themeResId == null) {
             TypedValue typedValue = new TypedValue();
-            if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true)) themeWrapContext(R.style.FileChooserStyle);
+            if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true))
+                themeWrapContext(R.style.FileChooserStyle);
         } else {
             themeWrapContext(this._themeResId);
         }
@@ -690,7 +691,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     options.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
-                            if (FileChooserDialog.this._newFolderView != null && FileChooserDialog.this._newFolderView.getVisibility() == VISIBLE) return;
+                            if (FileChooserDialog.this._newFolderView != null && FileChooserDialog.this._newFolderView.getVisibility() == VISIBLE)
+                                return;
 
                             if (FileChooserDialog.this._options == null) {
                                 // region Draw options view. (this only happens the first time one clicks on options)

@@ -638,7 +638,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         if (themeResId != null) this._themeResId = themeResId;
         if (this._themeResId == null) {
             TypedValue typedValue = new TypedValue();
-            if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true)) themeWrapContext(R.style.FileChooserStyle);
+            if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true))
+                themeWrapContext(R.style.FileChooserStyle);
         } else {
             themeWrapContext(this._themeResId);
         }
@@ -918,7 +919,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     options.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
-                            if (SmbFileChooserDialog.this._newFolderView != null && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE) return;
+                            if (SmbFileChooserDialog.this._newFolderView != null && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE)
+                                return;
 
                             if (SmbFileChooserDialog.this._options == null) {
                                 // region Draw options view. (this only happens the first time one clicks on options)
