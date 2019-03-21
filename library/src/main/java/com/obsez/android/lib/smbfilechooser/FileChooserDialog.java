@@ -1138,8 +1138,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             }
             _list.setLayoutParams(param);
         } else {
-            String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
-            String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
+            if (removableRoot == null || primaryRoot == null) {
+                removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
+                primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
+            }
             if (path.contains(removableRoot))
                 path = path.substring(removableRoot.lastIndexOf('/') + 1);
             if (path.contains(primaryRoot)) path = path.substring(primaryRoot.lastIndexOf('/') + 1);
@@ -1185,6 +1187,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
     }
 
+    private String removableRoot = null;
+    private String primaryRoot = null;
+
     private void listDirs() {
         _entries.clear();
 
@@ -1193,8 +1198,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         // Add the ".." entry
         boolean up = false;
-        String removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
-        String primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
+        if (removableRoot == null || primaryRoot == null) {
+            removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
+            primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
+        }
         if (removableRoot != null && primaryRoot != null && !removableRoot.equals(primaryRoot)) {
             if (_currentDir.getAbsolutePath().equals(primaryRoot)) {
                 _entries.add(new File(removableRoot));
