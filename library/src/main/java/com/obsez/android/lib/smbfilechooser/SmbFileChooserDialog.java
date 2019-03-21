@@ -473,12 +473,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     @NonNull
-    public SmbFileChooserDialog setRowLayoutView(@Nullable @LayoutRes Integer layoutResId) {
-        this._rowLayoutRes = layoutResId;
-        return this;
-    }
-
-    @NonNull
     public SmbFileChooserDialog setDefaultDateFormat() {
         return this.setDateFormat("yyyy/MM/dd HH:mm:ss");
     }
@@ -651,10 +645,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
         ta.recycle();
 
-        this._adapter = new SmbDirAdapter(getBaseContext(), EXECUTOR, this._rowLayoutRes != null ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
-        if (this._adapterSetter != null) {
-            this._adapterSetter.apply(this._adapter);
-        }
+        this._adapter = new SmbDirAdapter(getBaseContext(), EXECUTOR, this._dateFormat);
+        if (this._adapterSetter != null) this._adapterSetter.apply(this._adapter);
+
         builder.setAdapter(this._adapter, this);
 
         if (_currentDir == null) {
@@ -1775,9 +1768,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private @Nullable
     @LayoutRes
     Integer _layoutRes = null;
-    private @Nullable
-    @LayoutRes
-    Integer _rowLayoutRes = null;
     private String _dateFormat;
     private DialogInterface.OnClickListener _negativeListener;
     private DialogInterface.OnCancelListener _onCancelListener;

@@ -1,9 +1,6 @@
 package com.obsez.android.lib.smbfilechooser.tool;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -14,16 +11,13 @@ import android.widget.TextView;
 
 import com.obsez.android.lib.smbfilechooser.R;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
-import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import kotlin.Triple;
@@ -34,22 +28,9 @@ import kotlin.Triple;
 public class SmbDirAdapter extends MyAdapter<SmbFile> {
     private final ExecutorService EXECUTOR;
 
-    public SmbDirAdapter(Context cxt, ExecutorService EXECUTOR, int resId, String dateFormat) {
-        super(cxt, resId);
+    public SmbDirAdapter(Context cxt, ExecutorService EXECUTOR, String dateFormat) {
+        super(cxt, dateFormat);
         this.EXECUTOR = EXECUTOR;
-        this.init(dateFormat);
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    private void init(String dateFormat) {
-        _formatter = new SimpleDateFormat(dateFormat != null && !"".equals(dateFormat.trim()) ? dateFormat.trim() : "yyyy/MM/dd HH:mm:ss");
-        _defaultFolderIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_folder);
-        _defaultFileIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_file);
-
-        TypedArray ta = getContext().obtainStyledAttributes(R.styleable.FileChooser);
-        int colorFilter = ta.getColor(R.styleable.FileChooser_fileListItemSelectedTint, getContext().getResources().getColor(R.color.li_row_background_tint));
-        ta.recycle();
-        _colorFilter = new PorterDuffColorFilter(colorFilter, PorterDuff.Mode.MULTIPLY);
     }
 
     private static final class File {
@@ -75,15 +56,25 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         }
     }
 
+    @Override
+    public void overrideGetView(GetView<SmbFile> getView) {
+        super.overrideGetView(getView);
+    }
+
     // This function is called to show each view item
     @NonNull
     @Override
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
-        ViewGroup rl = (ViewGroup) super.getView(position, convertView, parent);
+        SmbFile file = getItem(position);
+        if (file == null) return super.getView(position, convertView, parent);
 
-        new GetViewAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this, getItem(position), rl);
+        if (_getView != null)
+            return _getView.getView(file, getSelected(File.hashCode(file)) == null, convertView, parent);
 
-        return rl;
+        ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
+        new GetViewAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this, file, view);
+
+        return view;
     }
 
     private static class GetViewAsync extends AsyncTask<Object, Void, Triple<SmbDirAdapter, View, File>> {
@@ -120,18 +111,18 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         protected void onPostExecute(final Triple<SmbDirAdapter, View, File> triple) {
             if (triple == null) return;
             final SmbDirAdapter adapter = triple.getFirst();
-            final View rl = triple.getSecond();
+            final View view = triple.getSecond();
             final File file = triple.getThird();
-            if (adapter == null || rl == null || file == null) {
+            if (adapter == null || view == null || file == null) {
                 cancel(true);
                 return;
             }
 
-            final View root = rl.findViewById(R.id.root);
-            final TextView tvName = rl.findViewById(R.id.text);
-            final TextView tvSize = rl.findViewById(R.id.txt_size);
-            final TextView tvDate = rl.findViewById(R.id.txt_date);
-            //ImageView ivIcon = (ImageView) rl.findViewById(R.id.icon);
+            final View root = view.findViewById(R.id.root);
+            final TextView tvName = view.findViewById(R.id.text);
+            final TextView tvSize = view.findViewById(R.id.txt_size);
+            final TextView tvDate = view.findViewById(R.id.txt_date);
+            //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
 
             tvName.setText(file.name);
             tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
@@ -146,40 +137,6 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
             if (adapter.getSelected(file.hashCode) == null) root.getBackground().clearColorFilter();
             else root.getBackground().setColorFilter(adapter._colorFilter);
         }
-    }
-
-    public Drawable getDefaultFolderIcon() {
-        return _defaultFolderIcon;
-    }
-
-    public void setDefaultFolderIcon(Drawable defaultFolderIcon) {
-        this._defaultFolderIcon = defaultFolderIcon;
-    }
-
-    public Drawable getDefaultFileIcon() {
-        return _defaultFileIcon;
-    }
-
-    public void setDefaultFileIcon(Drawable defaultFileIcon) {
-        this._defaultFileIcon = defaultFileIcon;
-    }
-
-    /**
-     * @deprecated no point. can't get file icons on a samba server
-     */
-    @Deprecated
-    public boolean isResolveFileType() {
-        //noinspection deprecation
-        return _resolveFileType;
-    }
-
-    /**
-     * @deprecated no point. can't get file icons on a samba server
-     */
-    @Deprecated
-    public void setResolveFileType(boolean resolveFileType) {
-        //noinspection deprecation
-        this._resolveFileType = resolveFileType;
     }
 
     @Override
@@ -197,15 +154,5 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
         return position;
     }
-
-    private static SimpleDateFormat _formatter;
-    private Drawable _defaultFolderIcon = null;
-    private Drawable _defaultFileIcon = null;
-    /**
-     * @deprecated no point. can't get file icons on a samba server
-     */
-    @Deprecated
-    private boolean _resolveFileType = false;
-    private PorterDuffColorFilter _colorFilter;
 }
 

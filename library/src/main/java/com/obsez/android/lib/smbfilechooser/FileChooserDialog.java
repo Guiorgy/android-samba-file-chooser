@@ -316,12 +316,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
-    public FileChooserDialog setRowLayoutView(@Nullable @LayoutRes final Integer layoutResId) {
-        this._rowLayoutRes = layoutResId;
-        return this;
-    }
-
-    @NonNull
     public FileChooserDialog setDateFormat() {
         return this.setDateFormat("yyyy/MM/dd HH:mm:ss");
     }
@@ -475,10 +469,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
         ta.recycle();
 
-        this._adapter = new DirAdapter(getBaseContext(), new ArrayList<>(), this._rowLayoutRes != null ? this._rowLayoutRes : R.layout.li_row_textview, this._dateFormat);
-        if (this._adapterSetter != null) {
-            this._adapterSetter.apply(this._adapter);
-        }
+        this._adapter = new DirAdapter(getBaseContext(), this._dateFormat);
+        if (this._adapterSetter != null)  this._adapterSetter.apply(this._adapter);
+
         refreshDirs();
         builder.setAdapter(this._adapter, this);
 
@@ -1490,9 +1483,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private @Nullable
     @LayoutRes
     Integer _layoutRes = null;
-    private @Nullable
-    @LayoutRes
-    Integer _rowLayoutRes = null;
     private String _dateFormat;
     private DialogInterface.OnClickListener _negativeListener;
     private DialogInterface.OnCancelListener _onCancelListener;

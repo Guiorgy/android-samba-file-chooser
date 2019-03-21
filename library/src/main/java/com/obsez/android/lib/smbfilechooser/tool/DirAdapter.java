@@ -1,9 +1,6 @@
 package com.obsez.android.lib.smbfilechooser.tool;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -18,12 +15,9 @@ import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 import com.obsez.android.lib.smbfilechooser.internals.WrappedDrawable;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 /**
  * Created by coco on 6/7/15.
@@ -44,22 +38,13 @@ import androidx.core.content.ContextCompat;
  */
 
 public class DirAdapter extends MyAdapter<File> {
-
-    public DirAdapter(Context cxt, List<File> entries, int resId, String dateFormat) {
-        super(cxt, entries, resId);
-        this.init(dateFormat);
+    public DirAdapter(Context cxt, String dateFormat) {
+        super(cxt, dateFormat);
     }
 
-    @SuppressLint("SimpleDateFormat")
-    private void init(String dateFormat) {
-        _formatter = new SimpleDateFormat(dateFormat != null && !"".equals(dateFormat.trim()) ? dateFormat.trim() : "yyyy/MM/dd HH:mm:ss");
-        _defaultFolderIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_folder);
-        _defaultFileIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_file);
-
-        TypedArray ta = getContext().obtainStyledAttributes(R.styleable.FileChooser);
-        int colorFilter = ta.getColor(R.styleable.FileChooser_fileListItemSelectedTint, getContext().getResources().getColor(R.color.li_row_background_tint));
-        ta.recycle();
-        _colorFilter = new PorterDuffColorFilter(colorFilter, PorterDuff.Mode.MULTIPLY);
+    @Override
+    public void overrideGetView(GetView<File> getView) {
+        super.overrideGetView(getView);
     }
 
     // This function is called to show each view item
@@ -67,15 +52,19 @@ public class DirAdapter extends MyAdapter<File> {
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        ViewGroup rl = (ViewGroup) super.getView(position, convertView, parent);
+        File file = getItem(position);
+        if (file == null) return super.getView(position, convertView, parent);
 
-        TextView tvName = rl.findViewById(R.id.text);
-        TextView tvSize = rl.findViewById(R.id.txt_size);
-        TextView tvDate = rl.findViewById(R.id.txt_date);
-        //ImageView ivIcon = (ImageView) rl.findViewById(R.id.icon);
+        if (_getView != null)
+            return _getView.getView(file, getSelected(file.hashCode()) == null, convertView, parent);
 
-        File file = super.getItem(position);
-        if (file == null) return rl;
+        ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
+
+        TextView tvName = view.findViewById(R.id.text);
+        TextView tvSize = view.findViewById(R.id.txt_size);
+        TextView tvDate = view.findViewById(R.id.txt_date);
+        //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
+
 
         tvName.setText(file.getName());
 
@@ -108,36 +97,12 @@ public class DirAdapter extends MyAdapter<File> {
         }
         tvName.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
-        View root = rl.findViewById(R.id.root);
+        View root = view.findViewById(R.id.root);
         if (root.getBackground() == null) root.setBackgroundResource(R.color.li_row_background);
         if (getSelected(file.hashCode()) == null) root.getBackground().clearColorFilter();
         else root.getBackground().setColorFilter(_colorFilter);
 
-        return rl;
-    }
-
-    public Drawable getDefaultFolderIcon() {
-        return _defaultFolderIcon;
-    }
-
-    public void setDefaultFolderIcon(Drawable defaultFolderIcon) {
-        this._defaultFolderIcon = defaultFolderIcon;
-    }
-
-    public Drawable getDefaultFileIcon() {
-        return _defaultFileIcon;
-    }
-
-    public void setDefaultFileIcon(Drawable defaultFileIcon) {
-        this._defaultFileIcon = defaultFileIcon;
-    }
-
-    public boolean isResolveFileType() {
-        return _resolveFileType;
-    }
-
-    public void setResolveFileType(boolean resolveFileType) {
-        this._resolveFileType = resolveFileType;
+        return view;
     }
 
     @Override
@@ -145,11 +110,5 @@ public class DirAdapter extends MyAdapter<File> {
         //noinspection ConstantConditions
         return getItem(position).hashCode();
     }
-
-    private static SimpleDateFormat _formatter;
-    private Drawable _defaultFolderIcon = null;
-    private Drawable _defaultFileIcon = null;
-    private boolean _resolveFileType = false;
-    private PorterDuffColorFilter _colorFilter;
 }
 

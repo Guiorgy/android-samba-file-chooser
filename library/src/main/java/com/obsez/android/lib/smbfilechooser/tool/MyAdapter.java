@@ -1,14 +1,25 @@
 package com.obsez.android.lib.smbfilechooser.tool;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.obsez.android.lib.smbfilechooser.R;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 /**
  * Copyright 2015-2019 Hedzr Yeh
@@ -27,6 +38,7 @@ import java.util.List;
  * limitations under the License.
  */
 
+@SuppressWarnings("WeakerAccess")
 abstract class MyAdapter<T> extends BaseAdapter {
     private Context context;
 
@@ -37,19 +49,23 @@ abstract class MyAdapter<T> extends BaseAdapter {
     private List<T> _entries = new ArrayList<>();
     private SparseArray<T> _selected = new SparseArray<>();
     private LayoutInflater _inflater;
-    private int _resource;
 
-    MyAdapter(Context context, int resId) {
+    MyAdapter(Context context, String dateFormat) {
         this.context = context;
         this._inflater = LayoutInflater.from(context);
-        this._resource = resId;
+        this.init(dateFormat);
     }
 
-    MyAdapter(Context context, List<T> entries, int resId) {
-        this.context = context;
-        this._inflater = LayoutInflater.from(context);
-        this._resource = resId;
-        addAll(entries);
+    @SuppressLint("SimpleDateFormat")
+    private void init(String dateFormat) {
+        _formatter = new SimpleDateFormat(dateFormat != null && !"".equals(dateFormat.trim()) ? dateFormat.trim() : "yyyy/MM/dd HH:mm:ss");
+        _defaultFolderIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_folder);
+        _defaultFileIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_file);
+
+        TypedArray ta = getContext().obtainStyledAttributes(R.styleable.FileChooser);
+        int colorFilter = ta.getColor(R.styleable.FileChooser_fileListItemSelectedTint, getContext().getResources().getColor(R.color.li_row_background_tint));
+        ta.recycle();
+        _colorFilter = new PorterDuffColorFilter(colorFilter, PorterDuff.Mode.MULTIPLY);
     }
 
     @Override
@@ -71,9 +87,26 @@ abstract class MyAdapter<T> extends BaseAdapter {
         return _selected.get(id, null);
     }
 
+    @FunctionalInterface
+    public interface GetView<T> {
+        /**
+         * @param file file that should me displayed
+         * @param isSelected whether file is selected when _enableMultiple is set to true
+         * @param convertView see {@link BaseAdapter#getView(int, View, ViewGroup)}
+         * @param parent see {@link BaseAdapter#getView(int, View, ViewGroup)}
+         * @return your custom row item view
+         */
+        @NonNull
+        View getView(@NonNull T file, boolean isSelected, View convertView, @NonNull ViewGroup parent);
+    }
+
+    public void overrideGetView(GetView<T> getView) {
+        this._getView = getView;
+    }
+
     @Override
     public View getView(final int position, final View convertView, final ViewGroup parent) {
-        return convertView != null ? convertView : _inflater.inflate(_resource, parent, false);
+        return convertView != null ? convertView : _inflater.inflate(R.layout.li_row_textview, parent, false);
     }
 
     void clear() {
@@ -124,7 +157,38 @@ abstract class MyAdapter<T> extends BaseAdapter {
         return list;
     }
 
+    public Drawable getDefaultFolderIcon() {
+        return _defaultFolderIcon;
+    }
+
+    public void setDefaultFolderIcon(Drawable defaultFolderIcon) {
+        this._defaultFolderIcon = defaultFolderIcon;
+    }
+
+    public Drawable getDefaultFileIcon() {
+        return _defaultFileIcon;
+    }
+
+    public void setDefaultFileIcon(Drawable defaultFileIcon) {
+        this._defaultFileIcon = defaultFileIcon;
+    }
+
+    public boolean isResolveFileType() {
+        return _resolveFileType;
+    }
+
+    public void setResolveFileType(boolean resolveFileType) {
+        this._resolveFileType = resolveFileType;
+    }
+
     public void clearSelected() {
         _selected.clear();
     }
+
+    protected static SimpleDateFormat _formatter;
+    protected Drawable _defaultFolderIcon = null;
+    protected Drawable _defaultFileIcon = null;
+    protected boolean _resolveFileType = false;
+    protected PorterDuffColorFilter _colorFilter;
+    protected GetView _getView = null;
 }
