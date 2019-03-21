@@ -53,6 +53,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.core.app.ActivityCompat;
@@ -221,10 +222,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public FileChooserDialog setOnDismissListener(@NonNull final DialogInterface.OnDismissListener listener) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            this._onDismissListener = listener;
-        }
+        this._onDismissListener = listener;
         return this;
     }
 
@@ -309,6 +309,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public FileChooserDialog setLayoutView(@Nullable @LayoutRes final Integer layoutResId) {
         this._layoutRes = layoutResId;
         return this;
