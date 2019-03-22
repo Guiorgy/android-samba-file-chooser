@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -69,7 +70,8 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         if (file == null) return super.getView(position, convertView, parent);
 
         if (_getView != null)
-            return _getView.getView(file, getSelected(File.hashCode(file)) == null, convertView, parent);
+            //noinspection unchecked
+            return _getView.getView(file, getSelected(File.hashCode(file)) == null, convertView, parent, LayoutInflater.from(getContext()));
 
         ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
         new GetViewAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this, file, view);

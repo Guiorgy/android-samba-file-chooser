@@ -94,10 +94,11 @@ abstract class MyAdapter<T> extends BaseAdapter {
          * @param isSelected whether file is selected when _enableMultiple is set to true
          * @param convertView see {@link BaseAdapter#getView(int, View, ViewGroup)}
          * @param parent see {@link BaseAdapter#getView(int, View, ViewGroup)}
+         * @param inflater a layout inflater with the FileChooser theme wrapped context
          * @return your custom row item view
          */
         @NonNull
-        View getView(@NonNull T file, boolean isSelected, View convertView, @NonNull ViewGroup parent);
+        View getView(@NonNull T file, boolean isSelected, View convertView, @NonNull ViewGroup parent, @NonNull LayoutInflater inflater);
     }
 
     public void overrideGetView(GetView<T> getView) {

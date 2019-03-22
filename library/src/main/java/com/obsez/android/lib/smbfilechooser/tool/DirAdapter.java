@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -56,7 +57,8 @@ public class DirAdapter extends MyAdapter<File> {
         if (file == null) return super.getView(position, convertView, parent);
 
         if (_getView != null)
-            return _getView.getView(file, getSelected(file.hashCode()) == null, convertView, parent);
+            //noinspection unchecked
+            return _getView.getView(file, getSelected(file.hashCode()) == null, convertView, parent, LayoutInflater.from(getContext()));
 
         ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
 
