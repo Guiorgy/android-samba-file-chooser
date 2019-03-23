@@ -14,10 +14,11 @@ public final class PermissionsUtil {
     @SuppressWarnings("unused")
     public static final String TAG = PermissionsUtil.class.getName();
 
-    public interface OnPermissionListener
-    {
+    public interface OnPermissionListener {
         void onPermissionGranted(final String[] permissions);
+
         void onPermissionDenied(final String[] permissions);
+
         void onShouldShowRequestPermissionRationale(final String[] permissions);
     }
 

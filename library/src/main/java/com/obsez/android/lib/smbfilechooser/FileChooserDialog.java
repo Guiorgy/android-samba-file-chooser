@@ -57,11 +57,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
@@ -465,7 +463,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         ta.recycle();
 
         this._adapter = new DirAdapter(getBaseContext(), this._dateFormat);
-        if (this._adapterSetter != null)  this._adapterSetter.apply(this._adapter);
+        if (this._adapterSetter != null) this._adapterSetter.apply(this._adapter);
 
         refreshDirs();
         builder.setAdapter(this._adapter, this);
@@ -1091,8 +1089,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
 
         final String[] permissions =
-            _enableOptions ? new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }
-                : new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE };
+            _enableOptions ? new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                : new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
 
         PermissionsUtil.checkPermissions(getBaseContext(), _permissionListener, permissions);
 

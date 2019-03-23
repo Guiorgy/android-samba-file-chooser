@@ -64,7 +64,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -79,7 +78,6 @@ import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
 import kotlin.Triple;
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
@@ -1344,8 +1342,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         }
 
         final String[] permissions =
-            _enableOptions ? new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }
-                : new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE };
+            _enableOptions ? new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                : new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
 
         PermissionsUtil.checkPermissions(getBaseContext(), _permissionListener, permissions);
 
