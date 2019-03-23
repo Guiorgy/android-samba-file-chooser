@@ -307,6 +307,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         return this;
     }
 
+    public FileChooserDialog setIcon(@Nullable Drawable icon) {
+        this._icon = icon;
+        return this;
+    }
+
     @NonNull
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public FileChooserDialog setLayoutView(@Nullable @LayoutRes final Integer layoutResId) {
@@ -473,8 +478,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             else builder.setTitle(this._titleRes);
         }
 
-        if (this._iconRes != null) {
-            builder.setIcon(this._iconRes);
+        if (_iconRes != null) {
+            builder.setIcon(_iconRes);
+        } else if (_icon != null) {
+            builder.setIcon(_icon);
         }
 
         if (this._layoutRes != null) {
@@ -600,14 +607,16 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     options.setText("");
                     options.setVisibility(VISIBLE);
                     options.setTextColor(buttonColor);
-                    final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
-                        FileChooserDialog.this._optionsIconRes != null ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
-                    if (drawable != null) {
-                        drawable.setColorFilter(filter);
-                        options.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-                    } else {
-                        options.setCompoundDrawablesWithIntrinsicBounds(
-                            FileChooserDialog.this._optionsIconRes != null ? FileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
+                    Drawable dots;
+                    if (FileChooserDialog.this._optionsIconRes != null) {
+                        dots = ContextCompat.getDrawable(getBaseContext(), FileChooserDialog.this._optionsIconRes);
+                    } else if (FileChooserDialog.this._optionsIcon != null) {
+                        dots = FileChooserDialog.this._optionsIcon;
+                    } else
+                        dots = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_menu_24dp);
+                    if (dots != null) {
+                        dots.setColorFilter(filter);
+                        options.setCompoundDrawablesWithIntrinsicBounds(dots, null, null, null);
                     }
 
                     final class Integer {
@@ -714,15 +723,18 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     createDir.setText(FileChooserDialog.this._createDir);
                                 else createDir.setText(FileChooserDialog.this._createDirRes);
                                 createDir.setTextColor(buttonColor);
-                                final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
-                                    FileChooserDialog.this._createDirIconRes != null ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
+                                Drawable plus;
+                                if (FileChooserDialog.this._createDirIconRes != null) {
+                                    plus = ContextCompat.getDrawable(getBaseContext(), FileChooserDialog.this._createDirIconRes);
+                                } else if (FileChooserDialog.this._createDirIcon != null) {
+                                    plus = FileChooserDialog.this._createDirIcon;
+                                } else
+                                    plus = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_add_24dp);
                                 if (plus != null) {
                                     plus.setColorFilter(filter);
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(plus, null, null, null);
-                                } else {
-                                    createDir.setCompoundDrawablesWithIntrinsicBounds(
-                                        FileChooserDialog.this._createDirIconRes != null ? FileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
                                 }
+
                                 if (FileChooserDialog.this._enableDpad) {
                                     createDir.setBackgroundResource(R.drawable.listview_item_selector);
                                 }
@@ -736,15 +748,18 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     delete.setText(FileChooserDialog.this._delete);
                                 else delete.setText(FileChooserDialog.this._deleteRes);
                                 delete.setTextColor(buttonColor);
-                                final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
-                                    FileChooserDialog.this._deleteIconRes != null ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
+                                Drawable bin;
+                                if (FileChooserDialog.this._deleteIconRes != null) {
+                                    bin = ContextCompat.getDrawable(getBaseContext(), FileChooserDialog.this._deleteIconRes);
+                                } else if (FileChooserDialog.this._deleteIcon != null) {
+                                    bin = FileChooserDialog.this._deleteIcon;
+                                } else
+                                    bin = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_delete_24dp);
                                 if (bin != null) {
                                     bin.setColorFilter(filter);
                                     delete.setCompoundDrawablesWithIntrinsicBounds(bin, null, null, null);
-                                } else {
-                                    delete.setCompoundDrawablesWithIntrinsicBounds(
-                                        FileChooserDialog.this._deleteIconRes != null ? FileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
                                 }
+
                                 if (FileChooserDialog.this._enableDpad) {
                                     delete.setBackgroundResource(R.drawable.listview_item_selector);
                                 }
@@ -1502,6 +1517,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     @DrawableRes
     Integer _iconRes = null;
     private @Nullable
+    Drawable _icon = null;
+    private @Nullable
     @LayoutRes
     Integer _layoutRes = null;
     private String _dateFormat;
@@ -1525,6 +1542,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private @Nullable
     @DrawableRes
     Integer _optionsIconRes = null, _createDirIconRes = null, _deleteIconRes = null;
+    private @Nullable
+    Drawable _optionsIcon = null, _createDirIcon = null, _deleteIcon = null;
     private View _newFolderView;
     private boolean _enableMultiple;
     private boolean _allowSelectDir = false;

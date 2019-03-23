@@ -464,6 +464,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
+    public SmbFileChooserDialog setIcon(@Nullable Drawable icon) {
+        this._icon = icon;
+        return this;
+    }
+
     @NonNull
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public SmbFileChooserDialog setLayoutView(@Nullable @LayoutRes Integer layoutResId) {
@@ -654,8 +659,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             else builder.setTitle(this._titleRes);
         }
 
-        if (this._iconRes != null) {
-            builder.setIcon(this._iconRes);
+        if (_iconRes != null) {
+            builder.setIcon(_iconRes);
+        } else if (_icon != null) {
+            builder.setIcon(_icon);
         }
 
         if (this._layoutRes != null) {
@@ -826,15 +833,18 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
 
                     options.setText("");
+                    options.setTextColor(buttonColor);
                     options.setVisibility(VISIBLE);
-                    final Drawable drawable = ContextCompat.getDrawable(getBaseContext(),
-                        SmbFileChooserDialog.this._optionsIconRes != null ? SmbFileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp);
-                    if (drawable != null) {
-                        drawable.setColorFilter(filter);
-                        options.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-                    } else {
-                        options.setCompoundDrawablesWithIntrinsicBounds(
-                            SmbFileChooserDialog.this._optionsIconRes != null ? SmbFileChooserDialog.this._optionsIconRes : R.drawable.ic_menu_24dp, 0, 0, 0);
+                    Drawable dots;
+                    if (SmbFileChooserDialog.this._optionsIconRes != null) {
+                        dots = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._optionsIconRes);
+                    } else if (SmbFileChooserDialog.this._optionsIcon != null) {
+                        dots = SmbFileChooserDialog.this._optionsIcon;
+                    } else
+                        dots = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_menu_24dp);
+                    if (dots != null) {
+                        dots.setColorFilter(filter);
+                        options.setCompoundDrawablesWithIntrinsicBounds(dots, null, null, null);
                     }
 
                     final class Integer {
@@ -928,15 +938,18 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);
                                 createDir.setTextColor(buttonColor);
-                                final Drawable plus = ContextCompat.getDrawable(getBaseContext(),
-                                    SmbFileChooserDialog.this._createDirIconRes != null ? SmbFileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp);
+                                Drawable plus;
+                                if (SmbFileChooserDialog.this._createDirIconRes != null) {
+                                    plus = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._createDirIconRes);
+                                } else if (SmbFileChooserDialog.this._createDirIcon != null) {
+                                    plus = SmbFileChooserDialog.this._createDirIcon;
+                                } else
+                                    plus = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_add_24dp);
                                 if (plus != null) {
                                     plus.setColorFilter(filter);
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(plus, null, null, null);
-                                } else {
-                                    createDir.setCompoundDrawablesWithIntrinsicBounds(
-                                        SmbFileChooserDialog.this._createDirIconRes != null ? SmbFileChooserDialog.this._createDirIconRes : R.drawable.ic_add_24dp, 0, 0, 0);
                                 }
+
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     createDir.setBackgroundResource(R.drawable.listview_item_selector);
                                 }
@@ -950,15 +963,18 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     delete.setText(SmbFileChooserDialog.this._delete);
                                 else delete.setText(SmbFileChooserDialog.this._deleteRes);
                                 delete.setTextColor(buttonColor);
-                                final Drawable bin = ContextCompat.getDrawable(getBaseContext(),
-                                    SmbFileChooserDialog.this._deleteIconRes != null ? SmbFileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp);
+                                Drawable bin;
+                                if (SmbFileChooserDialog.this._deleteIconRes != null) {
+                                    bin = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._deleteIconRes);
+                                } else if (SmbFileChooserDialog.this._deleteIcon != null) {
+                                    bin = SmbFileChooserDialog.this._deleteIcon;
+                                } else
+                                    bin = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_delete_24dp);
                                 if (bin != null) {
                                     bin.setColorFilter(filter);
                                     delete.setCompoundDrawablesWithIntrinsicBounds(bin, null, null, null);
-                                } else {
-                                    delete.setCompoundDrawablesWithIntrinsicBounds(
-                                        SmbFileChooserDialog.this._deleteIconRes != null ? SmbFileChooserDialog.this._deleteIconRes : R.drawable.ic_delete_24dp, 0, 0, 0);
                                 }
+
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     delete.setBackgroundResource(R.drawable.listview_item_selector);
                                 }
@@ -1442,6 +1458,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         private String path;
 
         RootSmbFile(String pathname) throws MalformedURLException {
+            //noinspection deprecation
             super(pathname);
             this.path = pathname;
         }
@@ -1477,6 +1494,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 // Add the ".." entry
                 final String parent = _currentDir.getParent();
                 if (parent != null && !parent.equalsIgnoreCase("smb://")) {
+                    //noinspection deprecation
                     _entries.add(new SmbFile("..") {
                         @Override
                         public boolean isDirectory() {
@@ -1803,7 +1821,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private @Nullable
     @DrawableRes
     Integer _iconRes = null;
-    //private Drawable _icon = null;
+    private @Nullable
+    Drawable _icon = null;
     private @Nullable
     @LayoutRes
     Integer _layoutRes = null;
@@ -1828,6 +1847,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private @Nullable
     @DrawableRes
     Integer _optionsIconRes = null, _createDirIconRes = null, _deleteIconRes = null;
+    private @Nullable
+    Drawable _optionsIcon = null, _createDirIcon = null, _deleteIcon = null;
     private View _newFolderView;
     private boolean _enableMultiple;
     private boolean _allowSelectDir = false;
