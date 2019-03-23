@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.obsez.android.lib.smbfilechooser.internals.ExtSmbFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.RegexSmbFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
+import com.obsez.android.lib.smbfilechooser.permissions.PermissionsUtil;
 import com.obsez.android.lib.smbfilechooser.tool.IExceptionHandler;
 import com.obsez.android.lib.smbfilechooser.tool.SmbDirAdapter;
 
@@ -618,19 +619,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
-    @NonNull
-    public SmbFileChooserDialog build() {
-        return this.build(null);
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     @NonNull
-    public SmbFileChooserDialog build(@StyleRes @Nullable Integer themeResId) {
+    public SmbFileChooserDialog build() {
         if (_terminate) {
             return this;
         }
 
-        if (themeResId != null) this._themeResId = themeResId;
         if (this._themeResId == null) {
             TypedValue typedValue = new TypedValue();
             if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true))
@@ -1284,58 +1279,75 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
-    private boolean checkPermissions() {
-        if (Build.VERSION.SDK_INT < 23) return true;
-
-        if (getActivity() == null) {
-            throw new RuntimeException("Either pass an Activity as Context, or grant READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE permission!");
+    private void showDialog() {
+        Window window = _alertDialog.getWindow();
+        if (window != null) {
+            TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
+            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);
+            lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+            window.setAttributes(lp);
+            ta.recycle();
         }
-
-        int readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-        int writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
-
-        if (readPermissionCheck != PERMISSION_GRANTED && writePermissionCheck != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                111);
-        } else if (readPermissionCheck != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                222);
-        } else if (writePermissionCheck != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                333);
-        } else {
-            return !_terminate;
-        }
-
-        readPermissionCheck = ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-        writePermissionCheck = _enableOptions ? ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) : PERMISSION_GRANTED;
-
-        return !_terminate && readPermissionCheck == PERMISSION_GRANTED && writePermissionCheck == PERMISSION_GRANTED;
+        _alertDialog.show();
     }
 
-    @NonNull
     public SmbFileChooserDialog show() {
         if (_alertDialog == null || _list == null) {
-            throw new RuntimeException("call build() before show().");
+            build();
         }
 
-        if (!_terminate && checkPermissions()) {
-            Window window = _alertDialog.getWindow();
-            if (window != null) {
-                TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-                window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-                window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
-                WindowManager.LayoutParams lp = window.getAttributes();
-                lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);
-                lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-                window.setAttributes(lp);
-                ta.recycle();
-            }
-            _alertDialog.show();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            showDialog();
+            return this;
         }
+
+        if (_permissionListener == null) {
+            _permissionListener = new PermissionsUtil.OnPermissionListener() {
+                @Override
+                public void onPermissionGranted(String[] permissions) {
+                    boolean show = false;
+                    for (String permission : permissions) {
+                        if (permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                            show = true;
+                            break;
+                        }
+                    }
+                    if (!show) return;
+                    if (_enableOptions) {
+                        show = false;
+                        for (String permission : permissions) {
+                            if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                show = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!show) return;
+                    if (_adapter.isEmpty()) refreshDirs(true);
+                    showDialog();
+                }
+
+                @Override
+                public void onPermissionDenied(String[] permissions) {
+                    //
+                }
+
+                @Override
+                public void onShouldShowRequestPermissionRationale(final String[] permissions) {
+                    Toast.makeText(getBaseContext(), "You denied the Read/Write permissions!",
+                        Toast.LENGTH_LONG).show();
+                }
+            };
+        }
+
+        final String[] permissions =
+            _enableOptions ? new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }
+                : new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE };
+
+        PermissionsUtil.checkPermissions(getBaseContext(), _permissionListener, permissions);
 
         return this;
     }
@@ -1793,6 +1805,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private boolean _enableMultiple;
     private boolean _allowSelectDir = false;
     private boolean _enableDpad;
+    private PermissionsUtil.OnPermissionListener _permissionListener;
 
 
     @FunctionalInterface
