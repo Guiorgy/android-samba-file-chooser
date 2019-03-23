@@ -1438,6 +1438,35 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         }
     }
 
+    public final class RootSmbFile extends SmbFile {
+        private String path;
+
+        RootSmbFile(String pathname) throws MalformedURLException {
+            super(pathname);
+            this.path = pathname;
+        }
+
+        @Override
+        public boolean isDirectory() {
+            return true;
+        }
+
+        @Override
+        public boolean isHidden() {
+            return false;
+        }
+
+        @Override
+        public long lastModified() {
+            return 0L;
+        }
+
+        @Override
+        public String getPath() {
+            return this.path;
+        }
+    }
+
     private void listDirs(final boolean scrollToTop) {
         if (progressBar != null) progressBar.setVisibility(VISIBLE);
         _isScrollable = false;
@@ -1448,7 +1477,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 // Add the ".." entry
                 final String parent = _currentDir.getParent();
                 if (parent != null && !parent.equalsIgnoreCase("smb://")) {
-                    _entries.add(new SmbFile("smb://..", _smbContext) {
+                    _entries.add(new SmbFile("..") {
                         @Override
                         public boolean isDirectory() {
                             return true;

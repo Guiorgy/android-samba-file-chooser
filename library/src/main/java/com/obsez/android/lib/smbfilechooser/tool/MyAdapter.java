@@ -12,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.obsez.android.lib.smbfilechooser.FileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.R;
+import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -184,6 +186,10 @@ abstract class MyAdapter<T> extends BaseAdapter {
 
     public void clearSelected() {
         _selected.clear();
+    }
+
+    public boolean isEmpty() {
+        return getCount() == 1 && (getItem(0) instanceof FileChooserDialog.RootFile || getItem(0) instanceof SmbFileChooserDialog.RootSmbFile);
     }
 
     protected static SimpleDateFormat _formatter;

@@ -1194,6 +1194,27 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private String removableRoot = null;
     private String primaryRoot = null;
 
+    public final class RootFile extends File {
+        RootFile(String pathname) {
+            super(pathname);
+        }
+
+        @Override
+        public boolean isDirectory() {
+            return true;
+        }
+
+        @Override
+        public boolean isHidden() {
+            return false;
+        }
+
+        @Override
+        public long lastModified() {
+            return 0L;
+        }
+    }
+
     private void listDirs() {
         _entries.clear();
 
@@ -1217,17 +1238,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
         boolean displayPath = false;
         if (!up && _currentDir.getParentFile() != null && _currentDir.getParentFile().canRead()) {
-            _entries.add(new File("..") {
-                @Override
-                public boolean isDirectory() {
-                    return true;
-                }
-
-                @Override
-                public boolean isHidden() {
-                    return false;
-                }
-            });
+            _entries.add(new RootFile(".."));
             displayPath = true;
         }
 
