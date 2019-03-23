@@ -1229,10 +1229,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
         if (removableRoot != null && primaryRoot != null && !removableRoot.equals(primaryRoot)) {
             if (_currentDir.getAbsolutePath().equals(primaryRoot)) {
-                _entries.add(new File(removableRoot));
+                _entries.add(new RootFile(removableRoot));
                 up = true;
             } else if (_currentDir.getAbsolutePath().equals(removableRoot)) {
-                _entries.add(new File(primaryRoot));
+                _entries.add(new RootFile(primaryRoot));
                 up = true;
             }
         }
