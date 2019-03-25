@@ -1388,6 +1388,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
+    private boolean displayRoot;
     private void displayPath(@Nullable String path) {
         if (_pathView == null) {
             final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
@@ -1405,6 +1406,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
             int style = ta.getResourceId(R.styleable.FileChooser_fileChooserPathViewStyle, R.style.FileChooserPathViewStyle);
             final Context context = getThemeWrappedContext(style);
+
+            displayRoot = ta.getBoolean(R.styleable.FileChooser_fileChooserPathViewDisplayRoot, false);
 
             _pathView = new TextView(context);
             root.addView(_pathView, 0, params);
@@ -1433,6 +1436,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             }
         } else {
             if (path.contains("smb://")) path = path.substring(5);
+            if (path.contains(_serverIP)) path = path.substring(_serverIP.length() + 1);
             _pathView.setText(path);
 
             while (_pathView.getLineCount() > 1) {
