@@ -791,6 +791,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     }
                 }
 
+                final int buttonColor = options.getCurrentTextColor();
+                final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
+
                 // Root view (FrameLayout) of the ListView in the AlertDialog.
                 final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
                 final ViewGroup root = ((AlertDialog) dialog).findViewById(rootId);
@@ -815,17 +818,16 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     progressBar = new ProgressBar(getBaseContext(), null, android.R.attr.progressBarStyleHorizontal);
                     params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
                     ((LinearLayout.LayoutParams) params).gravity = CENTER;
-                    progressBar.setIndeterminate(true);
-                    progressBar.setBackgroundColor(0x00000000);
                     root.addView(progressBar, 0, params);
                 } else {
                     progressBar = new ProgressBar(getBaseContext(), null, android.R.attr.progressBarStyleLarge);
                     params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, CENTER);
-                    progressBar.setIndeterminate(true);
-                    progressBar.setBackgroundColor(0x00000000);
                     root.addView(progressBar, params);
                     progressBar.bringToFront();
                 }
+                progressBar.setIndeterminate(true);
+                progressBar.setBackgroundColor(0x00000000);
+                progressBar.getIndeterminateDrawable().setColorFilter(filter);
                 SmbFileChooserDialog.this.progressBar = progressBar;
 
                 SmbFileChooserDialog.this._swipeLayout.setOnRefreshListener(() -> {
@@ -837,9 +839,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
 
                 if (SmbFileChooserDialog.this._enableOptions) {
-                    final int buttonColor = options.getCurrentTextColor();
-                    final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
-
                     options.setText("");
                     options.setTextColor(buttonColor);
                     options.setVisibility(VISIBLE);
