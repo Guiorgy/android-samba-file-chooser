@@ -76,6 +76,11 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         super.overrideGetView(getView);
     }
 
+    public void overrideGetView(GetView<SmbFile> getView, BindView bindView) {
+        overrideGetView(getView);
+        this._bindView = bindView;
+    }
+
     // This function is called to show each view item
     @NonNull
     @Override
