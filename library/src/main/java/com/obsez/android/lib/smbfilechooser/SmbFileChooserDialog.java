@@ -890,7 +890,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                         scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
                                         if (SmbFileChooserDialog.this._options.getParent() instanceof FrameLayout) {
                                             final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
-                                            params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
+                                            params.bottomMargin = UiUtil.px2dip(SmbFileChooserDialog.this._options.getHeight());
                                             SmbFileChooserDialog.this._swipeLayout.setLayoutParams(params);
                                         }
                                         SmbFileChooserDialog.this._options.setVisibility(VISIBLE);
@@ -902,7 +902,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
                                 if (SmbFileChooserDialog.this._options.getParent() instanceof FrameLayout) {
                                     final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
-                                    params.bottomMargin = SmbFileChooserDialog.this._options.getHeight();
+                                    params.bottomMargin = UiUtil.px2dip(SmbFileChooserDialog.this._options.getHeight());
                                     SmbFileChooserDialog.this._swipeLayout.setLayoutParams(params);
                                 }
                                 SmbFileChooserDialog.this._options.setVisibility(VISIBLE);
@@ -1454,7 +1454,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         }
                         _pathView.getViewTreeObserver().removeOnPreDrawListener(this);
                         if (_pathView.getParent() instanceof FrameLayout) {
-                            param.topMargin = _pathView.getHeight();
+                            param.topMargin = UiUtil.px2dip(_pathView.getHeight());
                         }
                         _swipeLayout.setLayoutParams(param);
                         return true;
@@ -1462,7 +1462,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 });
             } else {
                 if (_pathView.getParent() instanceof FrameLayout) {
-                    param.topMargin = _pathView.getHeight();
+                    param.topMargin = UiUtil.px2dip(_pathView.getHeight());
                 }
                 _swipeLayout.setLayoutParams(param);
             }
