@@ -1037,14 +1037,21 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             final FrameLayout overlay = new FrameLayout(getBaseContext());
                                             overlay.setBackgroundColor(ta.getColor(R.styleable.FileChooser_fileChooserNewFolderOverlayColor, 0x60ffffff));
                                             overlay.setScrollContainer(true);
-                                            ViewGroup.MarginLayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT, CENTER);
+                                            ViewGroup.MarginLayoutParams params;
+                                            if (root instanceof FrameLayout) {
+                                                params = new FrameLayout.LayoutParams(
+                                                    MATCH_PARENT, MATCH_PARENT, CENTER);
+                                            } else {
+                                                params = new LinearLayout.LayoutParams(
+                                                    MATCH_PARENT, MATCH_PARENT);
+                                            }
                                             root.addView(overlay, params);
 
                                             overlay.setOnClickListener(null);
                                             overlay.setVisibility(GONE);
                                             SmbFileChooserDialog.this._newFolderView = overlay;
 
-                                            // A LynearLayout and a pair of Spaces to center vews.
+                                            // A LynearLayout and a pair of Spaces to center views.
                                             LinearLayout linearLayout = new LinearLayout(getBaseContext());
                                             params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
                                             overlay.addView(linearLayout, params);
@@ -1055,7 +1062,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
                                             // The Space on the left.
                                             Space leftSpace = new Space(getBaseContext());
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (100 - widthWeight) / 2);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (1f - widthWeight) / 2);
                                             linearLayout.addView(leftSpace, params);
 
                                             // A solid holder view for the EditText and Buttons.
@@ -1073,7 +1080,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
                                             // The Space on the right.
                                             Space rightSpace = new Space(getBaseContext());
-                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (100 - widthWeight) / 2);
+                                            params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (1f - widthWeight) / 2);
                                             linearLayout.addView(rightSpace, params);
 
                                             // An EditText to input the new folder name.
