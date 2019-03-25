@@ -643,7 +643,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
         ta.recycle();
 
-        this._adapter = new SmbDirAdapter(getBaseContext(), EXECUTOR, this._dateFormat);
+        this._adapter = new SmbDirAdapter(getBaseContext(), this._dateFormat);
         if (this._adapterSetter != null) this._adapterSetter.apply(this._adapter);
 
         builder.setAdapter(this._adapter, this);
@@ -828,7 +828,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 progressBar.setIndeterminate(true);
                 progressBar.setBackgroundColor(0x00000000);
                 progressBar.getIndeterminateDrawable().setColorFilter(filter);
-                SmbFileChooserDialog.this.progressBar = progressBar;
+                SmbFileChooserDialog.this._progressBar = progressBar;
 
                 SmbFileChooserDialog.this._swipeLayout.setOnRefreshListener(() -> {
                     if (progressBar.getVisibility() != VISIBLE) {
@@ -836,7 +836,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     }
                     SmbFileChooserDialog.this._swipeLayout.setRefreshing(false);
                 });
-
 
                 if (SmbFileChooserDialog.this._enableOptions) {
                     options.setText("");
@@ -923,7 +922,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     options.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
-                            if (SmbFileChooserDialog.this._newFolderView != null && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE)
+                            if (UiUtil.getListYScroll(SmbFileChooserDialog.this._list) == -1
+                                || !SmbFileChooserDialog.this._isScrollable
+                                || (SmbFileChooserDialog.this._newFolderView != null
+                                    && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE))
                                 return;
 
                             if (SmbFileChooserDialog.this._options == null) {
@@ -940,6 +942,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
                                 if (root instanceof FrameLayout) {
                                     SmbFileChooserDialog.this._swipeLayout.bringToFront();
+                                    SmbFileChooserDialog.this._progressBar.bringToFront();
                                 }
 
                                 options.setOnClickListener(null);
@@ -1509,7 +1512,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     private void listDirs(final boolean scrollToTop) {
-        if (progressBar != null) progressBar.setVisibility(VISIBLE);
+        if (_progressBar != null) _progressBar.setVisibility(VISIBLE);
         _isScrollable = false;
         AtomicBoolean displayPath = new AtomicBoolean(false);
         EXECUTOR.execute(() -> {
@@ -1548,11 +1551,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 e.printStackTrace();
                 runOnUiThread(() -> _exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.FAILED_TO_LOAD_FILES));
             } finally {
+                _isScrollable = true;
                 runOnUiThread(() -> {
                     _adapter.setEntries(_entries);
-                    _isScrollable = true;
                     if (scrollToTop) SmbFileChooserDialog.this._list.setSelection(0);
-                    if (progressBar != null) progressBar.setVisibility(GONE);
+                    if (_progressBar != null) _progressBar.setVisibility(GONE);
                     if (_alertDialog != null && _displayPath) {
                         if (displayPath.get()) {
                             displayPath(_currentDir.getPath());
@@ -1591,7 +1594,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private Runnable _deleteMode;
 
     private void deleteFile(@NonNull final SmbFile file) {
-        progressBar.setVisibility(VISIBLE);
+        _progressBar.setVisibility(VISIBLE);
         EXECUTOR.execute(() -> {
             try {
                 file.delete();
@@ -1602,7 +1605,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     Toast.makeText(getBaseContext(), "Couldn't delete " + file.getName() + " at " + file.getPath(), Toast.LENGTH_LONG).show();
                 });
             }
-            runOnUiThread(() -> progressBar.setVisibility(GONE));
+            runOnUiThread(() -> _progressBar.setVisibility(GONE));
         });
     }
 
@@ -1797,7 +1800,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     private void refreshDirs(final boolean scrollToTop) {
         listDirs(scrollToTop);
-        //_adapter.setEntries(_entries);
     }
 
     public void dismiss() {
@@ -1922,7 +1924,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     private NewFolderFilter _newFolderFilter;
 
-    private ProgressBar progressBar;
+    private ProgressBar _progressBar;
 
     @FunctionalInterface
     public interface CustomizePathView {
