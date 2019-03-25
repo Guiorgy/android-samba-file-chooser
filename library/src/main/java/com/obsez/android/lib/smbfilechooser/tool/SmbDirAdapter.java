@@ -75,17 +75,17 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
         ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
         view.setVisibility(GONE);
-        _getViewAsync.getView(hashCode, view, isSelected);
+        _getViewAsync.bindView(hashCode, view, isSelected);
 
         return view;
     }
 
-    private static class GetViewAsync extends AsyncTask<SmbFile, Void, List<Integer>> {
+    private static class LoadFilesAsync extends AsyncTask<SmbFile, Void, List<Integer>> {
         private final SmbDirAdapter adapter;
         private SparseArrayCompat<File> files = new SparseArrayCompat<>();
         private SparseArrayCompat<Pair<View, Boolean>> views = new SparseArrayCompat<>();
 
-        GetViewAsync(SmbDirAdapter adapter) {
+        LoadFilesAsync(SmbDirAdapter adapter) {
             this.adapter = adapter;
         }
 
@@ -129,11 +129,11 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
             if (isCancelled() || hashCodes.isEmpty()) return;
             for (int hashCode : hashCodes) {
                 Pair<View, Boolean> pair = this.views.get(hashCode, null);
-                if (pair != null) this.getView(hashCode, pair.getFirst(), pair.getSecond());
+                if (pair != null) this.bindView(hashCode, pair.getFirst(), pair.getSecond());
             }
         }
 
-        void getView(final int hashCode, final View view, final boolean isSelected) {
+        void bindView(final int hashCode, final View view, final boolean isSelected) {
             if (isCancelled()) return;
             File file = this.files.get(hashCode, null);
             if (file == null) {
@@ -182,7 +182,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
     public void setEntries(List<SmbFile> entries) {
         if (_getView == null) {
             if (_getViewAsync != null) _getViewAsync.cancel(true);
-            _getViewAsync = new GetViewAsync(this);
+            _getViewAsync = new LoadFilesAsync(this);
             _getViewAsync.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, toArray(entries));
         }
         clear();
@@ -190,6 +190,6 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         notifyDataSetChanged();
     }
 
-    private GetViewAsync _getViewAsync;
+    private LoadFilesAsync _getViewAsync;
 }
 
