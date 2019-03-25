@@ -171,7 +171,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             if (dateFormat.isChecked()) {
                 smbFileChooserDialog.setDateFormat("dd MMMM yyyy");
             }
-            smbFileChooserDialog.build().show();
+            smbFileChooserDialog.show();
         } else {
             FileChooserDialog fileChooserDialog = FileChooserDialog.newDialog(ctx)
                 .setResources(R.string.title_choose_folder, R.string.title_choose, R.string.dialog_cancel)
@@ -224,7 +224,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             if (dateFormat.isChecked()) {
                 fileChooserDialog.setDateFormat("dd MMMM yyyy");
             }
-            fileChooserDialog.build().show();
+            fileChooserDialog.show();
         }
     }
 }
