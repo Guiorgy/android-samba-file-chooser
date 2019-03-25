@@ -1157,9 +1157,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             _pathView.setVisibility(GONE);
 
             ViewGroup.MarginLayoutParams param = ((ViewGroup.MarginLayoutParams) _list.getLayoutParams());
-            if (_pathView.getParent() instanceof LinearLayout) {
-                param.height = ((LinearLayout) _pathView.getParent()).getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
-            } else {
+            if (_pathView.getParent() instanceof FrameLayout) {
                 param.topMargin = 0;
             }
             _list.setLayoutParams(param);
@@ -1193,9 +1191,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                             return false;
                         }
                         _pathView.getViewTreeObserver().removeOnPreDrawListener(this);
-                        if (_pathView.getParent() instanceof LinearLayout) {
-                            param.height = ((LinearLayout) _pathView.getParent()).getHeight() - _pathView.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
-                        } else {
+                        if (_pathView.getParent() instanceof FrameLayout) {
                             param.topMargin = _pathView.getHeight();
                         }
                         _list.setLayoutParams(param);
@@ -1203,9 +1199,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     }
                 });
             } else {
-                if (_pathView.getParent() instanceof LinearLayout) {
-                    param.height = ((LinearLayout) _pathView.getParent()).getHeight() - _pathView.getHeight() - (_options != null && _options.getVisibility() == VISIBLE ? _options.getHeight() : 0);
-                } else {
+                if (_pathView.getParent() instanceof FrameLayout) {
                     param.topMargin = _pathView.getHeight();
                 }
                 _list.setLayoutParams(param);
