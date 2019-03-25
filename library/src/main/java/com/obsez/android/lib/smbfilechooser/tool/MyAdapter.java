@@ -6,7 +6,6 @@ import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.collection.SparseArrayCompat;
 import androidx.core.content.ContextCompat;
 
 /**
@@ -49,7 +49,7 @@ abstract class MyAdapter<T> extends BaseAdapter {
     }
 
     private List<T> _entries = new ArrayList<>();
-    private SparseArray<T> _selected = new SparseArray<>();
+    private SparseArrayCompat<T> _selected = new SparseArrayCompat<>();
     private LayoutInflater _inflater;
 
     MyAdapter(Context context, String dateFormat) {
