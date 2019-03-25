@@ -87,7 +87,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
             AlertDialog.Builder alert;
-            alert = darkTheme.isChecked() ? new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle_Dark) :  new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle);
+            alert = darkTheme.isChecked() ? new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle_Dark) : new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle);
             alert.setTitle("Set server");
             alert.setCancelable(false);
             final EditText input = new EditText(getContext());
