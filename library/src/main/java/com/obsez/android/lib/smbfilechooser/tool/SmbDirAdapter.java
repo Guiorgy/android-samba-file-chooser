@@ -34,25 +34,41 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         super(cxt, dateFormat);
     }
 
-    private static final class File {
-        final String name;
-        final Drawable icon;
-        final boolean isDirectory;
-        final long lastModified;
-        final String fileSize;
+    @SuppressWarnings("WeakerAccess")
+    public static final class FileInfo {
+        public final String share;
+        public final String name;
+        public final Drawable icon;
+        public final boolean isDirectory;
+        public final long lastModified;
+        public final String fileSize;
+        public final boolean isHidden;
 
-        File(String name, Drawable icon, boolean isDirectory, long lastModified, String fileSize) {
+        FileInfo(String share, String name, Drawable icon, boolean isDirectory, long lastModified, String fileSize, boolean isHidden) {
+            this.share = share;
             this.name = name;
             this.icon = icon;
             this.isDirectory = isDirectory;
             this.lastModified = lastModified;
             this.fileSize = fileSize;
+            this.isHidden = isHidden;
         }
 
         static int hashCode(SmbFile file) {
             // For some reason SmbFile default hashCode function takes ages to compute!
             return file.getServer().hashCode() + file.getCanonicalPath().hashCode();
         }
+    }
+
+    @FunctionalInterface
+    public interface BindView {
+        /**
+         * @param file       basic information about the file that can be accessed on main thread
+         *                   see {@link FileInfo}
+         * @param isSelected whether file is selected when _enableMultiple is set to true
+         * @param view       pre-inflated view to be bound
+         */
+        void bindView(@NonNull FileInfo file, boolean isSelected, View view);
     }
 
     @Override
@@ -66,7 +82,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
         SmbFile file = getItem(position);
         if (file == null) return super.getView(position, convertView, parent);
-        final int hashCode = File.hashCode(file);
+        final int hashCode = FileInfo.hashCode(file);
         final boolean isSelected = getSelected(hashCode) != null;
 
         if (_getView != null)
@@ -82,7 +98,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
     private static class LoadFilesAsync extends AsyncTask<SmbFile, Void, List<Integer>> {
         private final SmbDirAdapter adapter;
-        private SparseArrayCompat<File> files = new SparseArrayCompat<>();
+        private SparseArrayCompat<FileInfo> files = new SparseArrayCompat<>();
         private SparseArrayCompat<Pair<View, Boolean>> views = new SparseArrayCompat<>();
 
         LoadFilesAsync(SmbDirAdapter adapter) {
@@ -113,8 +129,8 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                     long lastModified = isDirectory ? 0L : file.lastModified();
                     String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLengthLong());
                     if (isCancelled()) return null;
-                    final int hashCode = File.hashCode(file);
-                    this.files.append(hashCode, new File(name, icon, isDirectory, lastModified, fileSize));
+                    final int hashCode = FileInfo.hashCode(file);
+                    this.files.append(hashCode, new FileInfo(file.getShare(), name, icon, isDirectory, lastModified, fileSize, file.isHidden()));
                     if (this.views.get(hashCode, null) != null) hashCodes.add(hashCode);
                 }
                 return hashCodes;
@@ -135,7 +151,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
         void bindView(final int hashCode, final View view, final boolean isSelected) {
             if (isCancelled()) return;
-            File file = this.files.get(hashCode, null);
+            FileInfo file = this.files.get(hashCode, null);
             if (file == null) {
                 this.views.append(hashCode, new Pair<>(view, isSelected));
                 return;
@@ -145,31 +161,35 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 return;
             }
 
-            final View root = view.findViewById(R.id.root);
-            final TextView tvName = view.findViewById(R.id.text);
-            final TextView tvSize = view.findViewById(R.id.txt_size);
-            final TextView tvDate = view.findViewById(R.id.txt_date);
-            //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
+            if (adapter._bindView == null) {
+                final View root = view.findViewById(R.id.root);
+                final TextView tvName = view.findViewById(R.id.text);
+                final TextView tvSize = view.findViewById(R.id.txt_size);
+                final TextView tvDate = view.findViewById(R.id.txt_date);
+                //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
 
-            tvName.setText(file.name);
-            tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
-            if (file.lastModified != 0L) {
-                tvDate.setText(_formatter.format(new Date(file.lastModified)));
-                tvDate.setVisibility(VISIBLE);
-            } else {
-                tvDate.setVisibility(GONE);
-            }
-            tvSize.setText(file.fileSize);
-            if (root.getBackground() == null) root.setBackgroundResource(R.color.li_row_background);
-            if (isSelected) root.getBackground().setColorFilter(adapter._colorFilter);
-            else root.getBackground().clearColorFilter();
+                tvName.setText(file.name);
+                tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
+                if (file.lastModified != 0L) {
+                    tvDate.setText(_formatter.format(new Date(file.lastModified)));
+                    tvDate.setVisibility(VISIBLE);
+                } else {
+                    tvDate.setVisibility(GONE);
+                }
+                tvSize.setText(file.fileSize);
+                if (root.getBackground() == null)
+                    root.setBackgroundResource(R.color.li_row_background);
+                if (isSelected) root.getBackground().setColorFilter(adapter._colorFilter);
+                else root.getBackground().clearColorFilter();
+            } else adapter._bindView.bindView(file, isSelected, view);
+
             view.setVisibility(VISIBLE);
         }
     }
 
     @Override
     public long getItemId(final int position) {
-        return File.hashCode(getItem(position));
+        return FileInfo.hashCode(getItem(position));
     }
 
     private SmbFile[] toArray(final List<SmbFile> list) {
@@ -191,5 +211,6 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
     }
 
     private LoadFilesAsync _getViewAsync;
+    private BindView _bindView;
 }
 
