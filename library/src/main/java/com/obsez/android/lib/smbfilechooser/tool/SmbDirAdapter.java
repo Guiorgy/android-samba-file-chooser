@@ -90,12 +90,11 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         final int hashCode = FileInfo.hashCode(file);
         final boolean isSelected = getSelected(hashCode) != null;
 
-        if (_getView != null)
-            //noinspection unchecked
-            return _getView.getView(file, isSelected, convertView, parent, LayoutInflater.from(getContext()));
-
-        ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
+        //noinspection unchecked
+        ViewGroup view = (ViewGroup) (_getView == null ? super.getView(position, convertView, parent)
+            : _getView.getView(file, isSelected, convertView, parent, LayoutInflater.from(getContext())));
         view.setVisibility(GONE);
+
         _getViewAsync.bindView(hashCode, view, isSelected);
 
         return view;
