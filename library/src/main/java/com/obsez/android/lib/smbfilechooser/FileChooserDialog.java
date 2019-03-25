@@ -1395,7 +1395,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View list, int position, long id) {
         File file = _entries.get(position);
-        if (file.getName().equals("..")) return true;
+        if (file instanceof RootFile) return true;
         if (!_allowSelectDir && file.isDirectory()) return true;
         _adapter.selectItem(position);
         if (!_adapter.isAnySelected()) {
@@ -1588,7 +1588,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     private OnBackPressedListener _onBackPressed = (dialog -> {
         if (FileChooserDialog.this._entries.size() > 0
-            && (FileChooserDialog.this._entries.get(0).getName().equals("../") || FileChooserDialog.this._entries.get(0).getName().equals(".."))) {
+            && (FileChooserDialog.this._entries.get(0).getName().equals(".."))) {
             FileChooserDialog.this.onItemClick(null, FileChooserDialog.this._list, 0, 0);
         } else {
             if (FileChooserDialog.this._onLastBackPressed != null)

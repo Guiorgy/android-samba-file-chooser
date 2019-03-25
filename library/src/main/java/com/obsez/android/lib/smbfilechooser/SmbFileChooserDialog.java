@@ -1466,7 +1466,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
         RootSmbFile(String pathname) throws MalformedURLException {
             //noinspection deprecation
-            super(pathname);
+            super("smb://");
             this.path = pathname;
         }
 
@@ -1489,6 +1489,16 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         public String getPath() {
             return this.path;
         }
+
+        @Override
+        public String getName() {
+            return this.path;
+        }
+
+        @Override
+        public String getServer() {
+            return this.path;
+        }
     }
 
     private void listDirs(final boolean scrollToTop) {
@@ -1502,17 +1512,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 final String parent = _currentDir.getParent();
                 if (parent != null && !parent.equalsIgnoreCase("smb://")) {
                     //noinspection deprecation
-                    _entries.add(new SmbFile("..") {
-                        @Override
-                        public boolean isDirectory() {
-                            return true;
-                        }
-
-                        @Override
-                        public boolean isHidden() {
-                            return false;
-                        }
-                    });
+                    _entries.add(new RootSmbFile(".."));
                     displayPath.set(true);
                 }
 
@@ -1607,7 +1607,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             View focus = _list;
             Triple<SmbFile, Boolean, String> triple = EXECUTOR.submit(() -> {
                 SmbFile file = _entries.get(position);
-                if (file.getName().equals("../") || file.getName().equals("..")) {
+                if (file instanceof RootSmbFile) {
                     final String parentPath = _currentDir.getParent();
                     final SmbFile f = new SmbFile(parentPath, _smbContext);
                     if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
@@ -1688,7 +1688,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         try {
             if (EXECUTOR.submit(() -> {
                 SmbFile file = _entries.get(position);
-                return !file.getName().equals("../") && !file.getName().equals("..") && (_allowSelectDir || !file.isDirectory());
+                return !(file instanceof RootSmbFile) && (_allowSelectDir || !file.isDirectory());
             }).get()) {
                 _adapter.selectItem(position);
                 if (!_adapter.isAnySelected()) {
@@ -1894,7 +1894,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     private OnBackPressedListener _onBackPressed = dialog -> {
         if (SmbFileChooserDialog.this._entries.size() > 0
-            && (SmbFileChooserDialog.this._entries.get(0).getName().equals("../") || SmbFileChooserDialog.this._entries.get(0).getName().equals(".."))) {
+            && (SmbFileChooserDialog.this._entries.get(0) instanceof RootSmbFile)) {
             SmbFileChooserDialog.this.onItemClick(null, SmbFileChooserDialog.this._list, 0, 0);
         } else {
             if (SmbFileChooserDialog.this._onLastBackPressed != null)
