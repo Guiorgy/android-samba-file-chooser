@@ -3,12 +3,12 @@ package com.obsez.android.lib.smbfilechooser.permissions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.SparseArray;
 
 import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
 
 public final class PermissionsUtil {
     @SuppressWarnings("unused")
@@ -37,7 +37,7 @@ public final class PermissionsUtil {
         context.startActivity(intent);
     }
 
-    private static final SparseArray<OnPermissionListener> _permissionListeners = new SparseArray<>();
+    private static final SparseArrayCompat<OnPermissionListener> _permissionListeners = new SparseArrayCompat<>();
     private static final Random _random = new Random();
 
     static OnPermissionListener getPermissionListener(final int requestCode) {
