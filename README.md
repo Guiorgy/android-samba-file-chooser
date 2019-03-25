@@ -75,7 +75,6 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
         Toast.makeText(context, exception.getMessage(), Toast.LENGTH_LONG).show();
         return true;
     })
-    .build()
     .show();
 ```
 
@@ -97,6 +96,15 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 .enableDpad(/*enables Dpad controls (mainly fot Android TVs)*/ true)
 .cancelOnTouchOutside(true)
 .setTheme(R.style.FileChooserStyle)
+.setAdapterSetter(adapter -> {
+    adapter.overrideGetView(
+        (file, isSelected, convertView, parent, inflater) -> { 
+            // inflate and return view. SmbFile should not be accessed on the main thread!
+            return convertView;
+        }, (file, isSelected, view) -> { 
+            // modify view. only available if SmbFileChooserDialog is being used.
+        });
+})
 ```
 
 ## What's Different?
@@ -106,11 +114,6 @@ I replaced all methods "with___()" with "set___()"! And, use static method "newD
 - there are no public constructors. Instead use static methods:
 ```java
 FileChooserDialog.newDialog(context)
-```
-- you can also pass Strings instead of Resource id. **if Resource id was set, it will take priority over Strings!**
-```java
-.setOptionResources(0, 0, 0, 0)
-.setOptionResources("new folder", "delete", "cancel", "ok")
 ```
 - when multiple files are selected, a new listener is called:
 ```java
@@ -130,7 +133,7 @@ FileChooserDialog.setOnSelectedListener(files -> {
 ```
 - there's no _**titleFollowsDir**_ option, and _**displayPath**_ is false by default
 
-For more information please refere to the [upstream repo](https://github.com/hedzr/android-file-chooser).
+For more information please refer to the [upstream repo](https://github.com/hedzr/android-file-chooser).
 
 ## License
 
