@@ -189,7 +189,7 @@ abstract class MyAdapter<T> extends BaseAdapter {
     }
 
     public boolean isEmpty() {
-        return getCount() == 1 && (getItem(0) instanceof FileChooserDialog.RootFile || getItem(0) instanceof SmbFileChooserDialog.RootSmbFile);
+        return getCount() == 0 || (getCount() == 1 && (getItem(0) instanceof FileChooserDialog.RootFile || getItem(0) instanceof SmbFileChooserDialog.RootSmbFile));
     }
 
     protected static SimpleDateFormat _formatter;
