@@ -633,6 +633,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             TypedValue typedValue = new TypedValue();
             if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true))
                 themeWrapContext(R.style.FileChooserStyle);
+			else themeWrapContext(typedValue.resourceId);
         } else {
             themeWrapContext(this._themeResId);
         }
