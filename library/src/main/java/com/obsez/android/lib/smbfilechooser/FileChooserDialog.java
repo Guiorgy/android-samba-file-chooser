@@ -457,7 +457,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             TypedValue typedValue = new TypedValue();
             if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true))
                 themeWrapContext(R.style.FileChooserStyle);
-			else themeWrapContext(typedValue.resourceId);
+            else themeWrapContext(typedValue.resourceId);
         } else {
             themeWrapContext(this._themeResId);
         }
