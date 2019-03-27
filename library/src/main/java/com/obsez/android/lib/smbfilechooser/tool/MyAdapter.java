@@ -100,7 +100,7 @@ abstract class MyAdapter<T> extends BaseAdapter {
          * @return your custom row item view
          */
         @NonNull
-        View getView(@NonNull T file, boolean isSelected, View convertView, @NonNull ViewGroup parent, @NonNull LayoutInflater inflater);
+        View getView(@NonNull final T file, final boolean isSelected, View convertView, @NonNull final ViewGroup parent, @NonNull final LayoutInflater inflater);
     }
 
     public void overrideGetView(GetView<T> getView) {
