@@ -112,30 +112,32 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
         @Override
         protected Void doInBackground(final SmbFile... files) {
-            try {
-                SmbFile file = files[0];
-                if (isCancelled() || file == null) return null;
-                String name = file.getName();
-                name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
-                boolean isDirectory = file.isDirectory();
-                Drawable icon = isDirectory ? adapter._defaultFolderIcon : adapter._defaultFileIcon;
-                if (file.isHidden()) {
-                    try {
-                        final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
-                        //noinspection ConstantConditions
-                        icon = icon.getConstantState().newDrawable().mutate();
-                        icon.setColorFilter(filter);
-                    } catch (NullPointerException ignore) {
-                        // ignore
+            for (SmbFile file : files) {
+                try {
+                    if (isCancelled() return null;
+                    if (file == null) return contrinue;
+                    String name = file.getName();
+                    name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
+                    boolean isDirectory = file.isDirectory();
+                    Drawable icon = isDirectory ? adapter._defaultFolderIcon : adapter._defaultFileIcon;
+                    if (file.isHidden()) {
+                        try {
+                            final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
+                            //noinspection ConstantConditions
+                            icon = icon.getConstantState().newDrawable().mutate();
+                            icon.setColorFilter(filter);
+                        } catch (NullPointerException ignore) {
+                            // ignore
+                        }
                     }
+                    long lastModified = isDirectory ? 0L : file.lastModified();
+                    String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLengthLong());
+                    //noinspection unchecked
+                    publishProgress(new Pair<>(FileInfo.hashCode(file), new FileInfo(file.getShare(), name, icon, isDirectory, lastModified, fileSize, file.isHidden())));
+                } catch (SmbException e) {
+                    e.printStackTrace();
+                    this.adapter._exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.ADAPTER_GETVIEW);
                 }
-                long lastModified = isDirectory ? 0L : file.lastModified();
-                String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLengthLong());
-                //noinspection unchecked
-                publishProgress(new Pair<>(FileInfo.hashCode(file), new FileInfo(file.getShare(), name, icon, isDirectory, lastModified, fileSize, file.isHidden())));
-            } catch (SmbException e) {
-                e.printStackTrace();
-                this.adapter._exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.ADAPTER_GETVIEW);
             }
             return null;
         }
@@ -178,6 +180,8 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         }
 
         private void bindView(final View view, final FileInfo file, final boolean isSelected) {
+            if (isCancelled()) return;
+            
             if (adapter == null || view == null) {
                 cancel(true);
                 return;
