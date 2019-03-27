@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.obsez.android.lib.smbfilechooser.R;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,9 +28,11 @@ import static android.view.View.VISIBLE;
 /**
  * Created by coco on 6/9/18. Edited by Guiorgy on 10/09/18.
  */
+@SuppressWarnings("unused")
 public class SmbDirAdapter extends MyAdapter<SmbFile> {
-    public SmbDirAdapter(Context cxt, String dateFormat) {
-        super(cxt, dateFormat);
+    public SmbDirAdapter(Context context, String dateFormat, IExceptionHandler exceptionHandler) {
+        super(context, dateFormat);
+        this._exceptionHandler = exceptionHandler;
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -95,12 +96,12 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
             : _getView.getView(file, isSelected, convertView, parent, LayoutInflater.from(getContext())));
         view.setVisibility(GONE);
 
-        _getViewAsync.bindView(hashCode, view, isSelected);
+        _loadViewsAsync.tryBindView(hashCode, view, isSelected);
 
         return view;
     }
 
-    private static class LoadFilesAsync extends AsyncTask<SmbFile, Void, List<Integer>> {
+    private static class LoadFilesAsync extends AsyncTask<SmbFile, Pair<Integer, FileInfo>, Void> {
         private final SmbDirAdapter adapter;
         private SparseArrayCompat<FileInfo> files = new SparseArrayCompat<>();
         private SparseArrayCompat<Pair<View, Boolean>> views = new SparseArrayCompat<>();
@@ -110,56 +111,73 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         }
 
         @Override
-        protected List<Integer> doInBackground(final SmbFile... files) {
+        protected Void doInBackground(final SmbFile... files) {
             try {
-                List<Integer> hashCodes = new ArrayList<>();
-                for (SmbFile file : files) {
-                    if (isCancelled()) return null;
-                    if (file == null) continue;
-                    String name = file.getName();
-                    name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
-                    boolean isDirectory = file.isDirectory();
-                    Drawable icon = isDirectory ? adapter._defaultFolderIcon : adapter._defaultFileIcon;
-                    if (file.isHidden()) {
-                        try {
-                            final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
-                            //noinspection ConstantConditions
-                            icon = icon.getConstantState().newDrawable().mutate();
-                            icon.setColorFilter(filter);
-                        } catch (NullPointerException ignore) {
-                            // ignore
-                        }
+                SmbFile file = files[0];
+                if (isCancelled() || file == null) return null;
+                String name = file.getName();
+                name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
+                boolean isDirectory = file.isDirectory();
+                Drawable icon = isDirectory ? adapter._defaultFolderIcon : adapter._defaultFileIcon;
+                if (file.isHidden()) {
+                    try {
+                        final PorterDuffColorFilter filter = new PorterDuffColorFilter(0x70ffffff, PorterDuff.Mode.SRC_ATOP);
+                        //noinspection ConstantConditions
+                        icon = icon.getConstantState().newDrawable().mutate();
+                        icon.setColorFilter(filter);
+                    } catch (NullPointerException ignore) {
+                        // ignore
                     }
-                    long lastModified = isDirectory ? 0L : file.lastModified();
-                    String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLengthLong());
-                    if (isCancelled()) return null;
-                    final int hashCode = FileInfo.hashCode(file);
-                    this.files.append(hashCode, new FileInfo(file.getShare(), name, icon, isDirectory, lastModified, fileSize, file.isHidden()));
-                    if (this.views.get(hashCode, null) != null) hashCodes.add(hashCode);
                 }
-                return hashCodes;
+                long lastModified = isDirectory ? 0L : file.lastModified();
+                String fileSize = isDirectory ? "" : FileUtil.getReadableFileSize(file.getContentLengthLong());
+                //noinspection unchecked
+                publishProgress(new Pair<>(FileInfo.hashCode(file), new FileInfo(file.getShare(), name, icon, isDirectory, lastModified, fileSize, file.isHidden())));
             } catch (SmbException e) {
                 e.printStackTrace();
+                this.adapter._exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.ADAPTER_GETVIEW);
             }
             return null;
         }
 
+        @SafeVarargs
         @Override
-        protected void onPostExecute(List<Integer> hashCodes) {
-            if (isCancelled() || hashCodes.isEmpty()) return;
-            for (int hashCode : hashCodes) {
-                Pair<View, Boolean> pair = this.views.get(hashCode, null);
-                if (pair != null) this.bindView(hashCode, pair.getFirst(), pair.getSecond());
+        protected final void onProgressUpdate(Pair<Integer, FileInfo>... pairs) {
+            if (isCancelled()) return;
+            Pair<Integer, FileInfo> pair = pairs[0];
+            Pair<View, Boolean> view = this.views.get(pair.getFirst(), null);
+            if (view != null) {
+                this.views.remove(pair.getFirst());
+                bindView(view.getFirst(), pair.getSecond(), view.getSecond());
+            } else {
+                this.files.append(pair.getFirst(), pair.getSecond());
             }
         }
 
-        void bindView(final int hashCode, final View view, final boolean isSelected) {
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (isCancelled()) return;
+            for (int i = this.views.size() - 1; i >= 0; --i) {
+                int hashCode = this.views.keyAt(i);
+                FileInfo file = this.files.get(hashCode, null);
+                if (file == null) continue;
+                Pair<View, Boolean> pair = this.views.get(hashCode, null);
+                if (pair == null) continue;
+                bindView(pair.getFirst(), file, pair.getSecond());
+            }
+        }
+
+        void tryBindView(final int hashCode, final View view, final boolean isSelected) {
             if (isCancelled()) return;
             FileInfo file = this.files.get(hashCode, null);
             if (file == null) {
                 this.views.append(hashCode, new Pair<>(view, isSelected));
                 return;
             }
+            bindView(view, file, isSelected);
+        }
+
+        private void bindView(final View view, final FileInfo file, final boolean isSelected) {
             if (adapter == null || view == null) {
                 cancel(true);
                 return;
@@ -205,16 +223,17 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
     @Override
     public void setEntries(List<SmbFile> entries) {
         if (_getView == null) {
-            if (_getViewAsync != null) _getViewAsync.cancel(true);
-            _getViewAsync = new LoadFilesAsync(this);
-            _getViewAsync.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, toArray(entries));
+            if (_loadViewsAsync != null) _loadViewsAsync.cancel(true);
+            _loadViewsAsync = new LoadFilesAsync(this);
+            _loadViewsAsync.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, toArray(entries));
         }
         clear();
         addAll(entries);
         notifyDataSetChanged();
     }
 
-    private LoadFilesAsync _getViewAsync;
+    private LoadFilesAsync _loadViewsAsync;
     private BindView _bindView;
+    private IExceptionHandler _exceptionHandler;
 }
 

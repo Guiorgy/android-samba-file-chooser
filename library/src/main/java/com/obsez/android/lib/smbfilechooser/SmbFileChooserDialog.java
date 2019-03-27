@@ -644,7 +644,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
         ta.recycle();
 
-        this._adapter = new SmbDirAdapter(getBaseContext(), this._dateFormat);
+        this._adapter = new SmbDirAdapter(getBaseContext(), this._dateFormat, this._exceptionHandler);
         if (this._adapterSetter != null) this._adapterSetter.apply(this._adapter);
 
         builder.setAdapter(this._adapter, this);
