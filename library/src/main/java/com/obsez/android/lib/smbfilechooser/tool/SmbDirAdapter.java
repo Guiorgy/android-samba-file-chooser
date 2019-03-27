@@ -69,7 +69,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
          * @param isSelected whether file is selected when _enableMultiple is set to true
          * @param view       pre-inflated view to be bound
          */
-        void bindView(@NonNull FileInfo file, boolean isSelected, View view);
+        void bindView(@NonNull final FileInfo file, final boolean isSelected, @NonNull final View view);
     }
 
     @Override
