@@ -114,8 +114,8 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         protected Void doInBackground(final SmbFile... files) {
             for (SmbFile file : files) {
                 try {
-                    if (isCancelled() return null;
-                    if (file == null) return contrinue;
+                    if (isCancelled()) return null;
+                    if (file == null) continue;
                     String name = file.getName();
                     name = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
                     boolean isDirectory = file.isDirectory();
