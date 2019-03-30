@@ -61,4 +61,24 @@
         <item name="fileChooserNewFolderTextColor">@android:color/holo_blue_light</item>
     </style>
 
+    <!-- AboutActivity -->
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="BarTextAppearance" parent="@android:style/TextAppearance">
+        <!--<item name="android:textSize">20sp</item>-->
+        <!--<item name="android:textColor">@color/white</item>-->
+        <!--<item name="android:fontFamily">@font/adamina</item>-->
+    </style>
+
+    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Dark">
+        <!--<item name="android:fontFamily">@font/adamina</item>-->
+    </style>
+
 </resources>

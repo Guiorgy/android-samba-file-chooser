@@ -1,7 +1,9 @@
 package com.obsez.android.lib.smbfilechooser.demo;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -50,7 +52,6 @@ public class ChooseFileActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -66,7 +67,17 @@ public class ChooseFileActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        //if (id == R.id.action_settings) {
+        //    return true;
+        //}
+
+        if (id == R.id.action_about) {
+            startActivity(new Intent(this, AboutActivity.class));
+            return true;
+        }
+        if (id == R.id.action_gh) {
+            startActivity(
+                new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/hedzr/android-file-chooser")));
             return true;
         }
 
