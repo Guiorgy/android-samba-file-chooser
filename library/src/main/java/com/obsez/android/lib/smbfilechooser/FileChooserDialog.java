@@ -1353,11 +1353,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         View focus = _list;
         boolean scrollToTop = false;
         File file = _entries.get(position);
-        if (file.getName().equals("..")) {
-            File f = _currentDir.getParentFile();
+        if (file instanceof RootFile) {
             if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
-            if (_folderNavUpCB.canUpTo(f)) {
-                _currentDir = f;
+            if (_folderNavUpCB.canUpTo(file)) {
+                _currentDir = file;
                 _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
                 if (_deleteMode != null) _deleteMode.run();
                 lastSelected = false;
