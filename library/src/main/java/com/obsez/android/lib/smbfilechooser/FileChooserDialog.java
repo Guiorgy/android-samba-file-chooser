@@ -1233,8 +1233,21 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private String primaryRoot = null;
 
     public final class RootFile extends File {
-        RootFile(String pathname) {
-            super(pathname);
+        private String name;
+
+        RootFile(String path) {
+            super(path);
+            this.name = null;
+        }
+
+        RootFile(String path, String name) {
+            super(path);
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return this.name != null ? this.name : super.getName();
         }
 
         @Override
@@ -1260,7 +1273,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         File[] files = _currentDir.listFiles(_fileFilter);
 
         // Add the ".." entry
-        boolean up = false;
         if (removableRoot == null || primaryRoot == null) {
             removableRoot = FileUtil.getStoragePath(getBaseContext(), true);
             primaryRoot = FileUtil.getStoragePath(getBaseContext(), false);
@@ -1268,15 +1280,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (removableRoot != null && primaryRoot != null && !removableRoot.equals(primaryRoot)) {
             if (_currentDir.getAbsolutePath().equals(primaryRoot)) {
                 _entries.add(new RootFile(removableRoot));
-                up = true;
             } else if (_currentDir.getAbsolutePath().equals(removableRoot)) {
                 _entries.add(new RootFile(primaryRoot));
-                up = true;
             }
         }
         boolean displayPath = false;
-        if (!up && _currentDir.getParentFile() != null && _currentDir.getParentFile().canRead()) {
-            _entries.add(new RootFile(".."));
+        if (_entries.isEmpty() && _currentDir.getParentFile() != null && _currentDir.getParentFile().canRead()) {
+            _entries.add(new RootFile(_currentDir.getParentFile().getAbsolutePath(), ".."));
             displayPath = true;
         }
 
