@@ -38,8 +38,8 @@ configurations.all {
 ```
 
 1.2.0 used jcifs 1.3.17, which only supports SMB1.\
-1.3.0 an open source, maintained jcifs-ng 2.1.1 which is a breaking change! This one fully supports SMB2, and partially SMB3.
-Also, target sdk was bomped to 1.8:
+1.3.0 however switched to an open source, maintained [jcifs-ng](https://github.com/AgNO3/jcifs-ng) which is a breaking change! This one fully supports SMB2, and partially SMB3.
+Also, target sdk was bumped to 1.8:
 ```java
 android {
     compileOptions {
@@ -75,7 +75,6 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
         Toast.makeText(context, exception.getMessage(), Toast.LENGTH_LONG).show();
         return true;
     })
-    .build()
     .show();
 ```
 
@@ -96,19 +95,45 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 })
 .enableDpad(/*enables Dpad controls (mainly fot Android TVs)*/ true)
 .cancelOnTouchOutside(true)
+.setTheme(R.style.FileChooserStyle)
+.setAdapterSetter(adapter -> {
+    adapter.overrideGetView(
+        (file, isSelected, convertView, parent, inflater) -> { 
+            // inflate and return view. SmbFile should not be accessed on the main thread!
+            return convertView;
+        }, (file, isSelected, view) -> { 
+            // modify view. only available if SmbFileChooserDialog is being used.
+        });
+})
 ```
 
 ## What's Different?
 
 I replaced all methods "with___()" with "set___()"! And, use static method "newDialog(context)" instead of a constructor.
 
-- you can also pass Strings instead of Resource id. **if Resource id was set, it will take priority over Strings!**
+- there are no public constructors. Instead use static methods:
 ```java
-.setOptionResources(0, 0, 0, 0)
-.setOptionResources("new folder", "delete", "cancel", "ok")
+FileChooserDialog.newDialog(context)
 ```
+- when multiple files are selected, a new listener is called:
+```java
+FileChooserDialog.setOnSelectedListener(files -> {
+    ArrayList<String> paths = new ArrayList<>();
+    for (File file : files) {
+        paths.add(file.getPath());
+    }
 
-For more information please refere to the [upstream repo](https://github.com/hedzr/android-file-chooser).
+    new AlertDialog.Builder(ctx)
+        .setTitle(files.size() + " files selected:")
+        .setAdapter(new ArrayAdapter<>(ctx,
+            android.R.layout.simple_expandable_list_item_1, paths), null)
+        .create()
+        .show();
+});
+```
+- there's no _**titleFollowsDir**_ option, and _**displayPath**_ is false by default
+
+For more information please refer to the [upstream repo](https://github.com/hedzr/android-file-chooser).
 
 ## License
 

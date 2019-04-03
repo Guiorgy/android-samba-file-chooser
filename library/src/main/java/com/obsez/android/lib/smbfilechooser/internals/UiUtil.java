@@ -115,7 +115,7 @@ public final class UiUtil {
     // This only works assuming that all list items have the same height!
     public static int getListYScroll(@NonNull final ListView list) {
         View child = list.getChildAt(0);
-        return list.getFirstVisiblePosition() * child.getHeight() - child.getTop() + list.getPaddingTop();
+        return child == null ? -1 : list.getFirstVisiblePosition() * child.getHeight() - child.getTop() + list.getPaddingTop();
     }
 
     public static int getListYScrollDeep(@NonNull final ListView list) {

@@ -11,6 +11,7 @@ public interface IExceptionHandler {
         public static final int FAILED_TO_INITIALIZE = 4;
         @Deprecated
         public static final int TIMED_OUT = 5;
+        public static final int ADAPTER_GETVIEW = 6;
     }
 
     @FunctionalInterface

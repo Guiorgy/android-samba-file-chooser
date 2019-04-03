@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0s - 2019-03-25
+
+\+ added FileChooser style. You can now set a custom theme
+\+ overrideGetView added to adapter (accessed from AdapterSetter)
+\* calling build() no longer obligatory
+\+ now possible to pass Drawables instead of drawable resouces
+\+ now dialog shows after granting read permission
+\* many small improvements and bug fixes
+
 ## 1.3.4s - 2019-03-12
 
 \+ enabled R8 shrinker

@@ -45,6 +45,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
     private CheckBox filterImages;
     private CheckBox displayIcon;
     private CheckBox dateFormat;
+    private CheckBox darkTheme;
 
     private String _server = "smb://";
     private String _path = null;
@@ -74,6 +75,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         filterImages = root.findViewById(R.id.checkbox_filter_images);
         displayIcon = root.findViewById(R.id.checkbox_display_icon);
         dateFormat = root.findViewById(R.id.checkbox_date_format);
+        darkTheme = root.findViewById(R.id.checkbox_dark_theme);
 
         enableSamba.setOnCheckedChangeListener(this);
         root.findViewById(R.id.btn_show_dialog).setOnClickListener(this);
@@ -84,7 +86,8 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
-            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+            AlertDialog.Builder alert;
+            alert = darkTheme.isChecked() ? new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle_Dark) : new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle);
             alert.setTitle("Set server");
             alert.setCancelable(false);
             final EditText input = new EditText(getContext());
@@ -131,6 +134,9 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                     Toast.makeText(ctx, "Please, check your internet connection", Toast.LENGTH_SHORT).show();
                     return true;
                 });
+            if (darkTheme.isChecked()) {
+                smbFileChooserDialog.setTheme(R.style.FileChooserStyle_Dark);
+            }
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 smbFileChooserDialog.setFilter(dirOnly.isChecked(),
@@ -148,8 +154,8 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                         paths.add(file.getPath());
                     }
 
-                    new AlertDialog.Builder(ctx)
-                        .setTitle(files.size() + " files selected:")
+                    AlertDialog.Builder builder = darkTheme.isChecked() ? new AlertDialog.Builder(ctx, R.style.FileChooserDialogStyle_Dark) : new AlertDialog.Builder(ctx, R.style.FileChooserDialogStyle);
+                    builder.setTitle(files.size() + " files selected:")
                         .setAdapter(new ArrayAdapter<>(ctx,
                             android.R.layout.simple_expandable_list_item_1, paths), null)
                         .create()
@@ -165,7 +171,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             if (dateFormat.isChecked()) {
                 smbFileChooserDialog.setDateFormat("dd MMMM yyyy");
             }
-            smbFileChooserDialog.build().show();
+            smbFileChooserDialog.show();
         } else {
             FileChooserDialog fileChooserDialog = FileChooserDialog.newDialog(ctx)
                 .setResources(R.string.title_choose_folder, R.string.title_choose, R.string.dialog_cancel)
@@ -181,6 +187,9 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                     _tv.setText(dir);
                     if (dirFile.isFile()) _iv.setImageBitmap(ImageUtil.decodeFile(dirFile));
                 });
+            if (darkTheme.isChecked()) {
+                fileChooserDialog.setTheme(R.style.FileChooserStyle_Dark);
+            }
             if (filterImages.isChecked()) {
                 // Most common image file extensions (source: http://preservationtutorial.library.cornell.edu/presentation/table7-1.html)
                 fileChooserDialog.setFilter(dirOnly.isChecked(),
@@ -198,8 +207,8 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                         paths.add(file.getAbsolutePath());
                     }
 
-                    new AlertDialog.Builder(ctx)
-                        .setTitle(files.size() + " files selected:")
+                    AlertDialog.Builder builder = darkTheme.isChecked() ? new AlertDialog.Builder(ctx, R.style.FileChooserDialogStyle_Dark) : new AlertDialog.Builder(ctx, R.style.FileChooserDialogStyle);
+                    builder.setTitle(files.size() + " files selected:")
                         .setAdapter(new ArrayAdapter<>(ctx,
                             android.R.layout.simple_expandable_list_item_1, paths), null)
                         .create()
@@ -215,7 +224,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             if (dateFormat.isChecked()) {
                 fileChooserDialog.setDateFormat("dd MMMM yyyy");
             }
-            fileChooserDialog.build().show();
+            fileChooserDialog.show();
         }
     }
 }
