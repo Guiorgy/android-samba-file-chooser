@@ -1515,7 +1515,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     lastSelected = false;
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
+                    //onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
+                    _list.performItemClick(_list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
                     lastSelected = false;
                     return true;
                 case KeyEvent.KEYCODE_DPAD_DOWN:
