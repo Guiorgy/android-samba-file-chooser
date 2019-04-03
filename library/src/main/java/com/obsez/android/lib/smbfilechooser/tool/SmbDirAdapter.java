@@ -147,12 +147,11 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         protected final void onProgressUpdate(Pair<Integer, FileInfo>... pairs) {
             if (isCancelled()) return;
             Pair<Integer, FileInfo> pair = pairs[0];
+            this.files.append(pair.getFirst(), pair.getSecond());
             Pair<View, Boolean> view = this.views.get(pair.getFirst(), null);
             if (view != null) {
                 this.views.remove(pair.getFirst());
                 bindView(view.getFirst(), pair.getSecond(), view.getSecond());
-            } else {
-                this.files.append(pair.getFirst(), pair.getSecond());
             }
         }
 
