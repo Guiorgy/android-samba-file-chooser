@@ -312,7 +312,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         this._icon = icon;
         return this;
     }
-  
+
     @NonNull
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public FileChooserDialog setLayoutView(@Nullable @LayoutRes final Integer layoutResId) {
@@ -552,6 +552,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         this._alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(final DialogInterface dialog) {
+                FileChooserDialog.this._list.requestFocus();
+
                 final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
                 final Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
                 final Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
@@ -712,6 +714,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, BOTTOM);
                                 }
                                 root.addView(options, params);
+                                options.setFocusable(false);
 
                                 if (root instanceof FrameLayout) {
                                     _list.bringToFront();
@@ -819,6 +822,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             overlay.setOnClickListener(null);
                                             overlay.setVisibility(GONE);
                                             FileChooserDialog.this._newFolderView = overlay;
+                                            overlay.setFocusable(false);
 
                                             // A LynearLayout and a pair of Spaces to center views.
                                             LinearLayout linearLayout = new LinearLayout(getBaseContext());
@@ -833,6 +837,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             Space leftSpace = new Space(getBaseContext());
                                             params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (1f - widthWeight) / 2);
                                             linearLayout.addView(leftSpace, params);
+                                            leftSpace.setFocusable(false);
 
                                             // A solid holder view for the EditText and Buttons.
                                             final LinearLayout holder = new LinearLayout(getBaseContext());
@@ -846,11 +851,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             }
                                             params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, widthWeight);
                                             linearLayout.addView(holder, params);
+                                            holder.setFocusable(false);
 
                                             // The Space on the right.
                                             Space rightSpace = new Space(getBaseContext());
                                             params = new LinearLayout.LayoutParams(0, WRAP_CONTENT, (1f - widthWeight) / 2);
                                             linearLayout.addView(rightSpace, params);
+                                            rightSpace.setFocusable(false);
 
                                             final EditText input = new EditText(getBaseContext());
                                             final int color = ta.getColor(R.styleable.FileChooser_fileChooserNewFolderTextColor, buttonColor);
@@ -867,7 +874,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             params.setMargins(3, 2, 3, 0);
                                             holder.addView(input, params);
 
-                                            this.input = input;
+                                            this.input = input; //todo: input get cut if list is empty
 
                                             // A FrameLayout to hold buttons
                                             final FrameLayout buttons = new FrameLayout(getBaseContext());
@@ -903,12 +910,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             input.setOnEditorActionListener((v23, actionId, event) -> {
                                                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                                                     UiUtil.hideKeyboardFrom(getBaseContext(), input);
-                                                    if (!FileChooserDialog.this._enableDpad) {
-                                                        FileChooserDialog.this.createNewDirectory(input.getText().toString());
-                                                        overlay.setVisibility(GONE);
-                                                        overlay.clearFocus();
-                                                    } else {
-                                                        input.requestFocus();
+                                                    FileChooserDialog.this.createNewDirectory(input.getText().toString());
+                                                    overlay.setVisibility(GONE);
+                                                    overlay.clearFocus();
+                                                    if (FileChooserDialog.this._enableDpad) {
+                                                        Button b = FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                                                        b.setFocusable(true);
+                                                        b.requestFocus();
+                                                        FileChooserDialog.this._list.setFocusable(true);
                                                     }
                                                     return true;
                                                 }
@@ -919,7 +928,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (FileChooserDialog.this._enableDpad) {
-                                                    FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                    Button b = FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                                                    b.setFocusable(true);
+                                                    b.requestFocus();
                                                     FileChooserDialog.this._list.setFocusable(true);
                                                 }
                                             });
@@ -929,7 +940,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (FileChooserDialog.this._enableDpad) {
-                                                    FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                    Button b = FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                                                    b.setFocusable(true);
+                                                    b.requestFocus();
                                                     FileChooserDialog.this._list.setFocusable(true);
                                                 }
                                             });
@@ -1122,6 +1135,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     private boolean displayRoot;
+
     private void displayPath(@Nullable String path) {
         if (_pathView == null) {
             final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
@@ -1425,6 +1439,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         lastSelected = false;
     }
 
+    private Button neutral;
+    private Button negative;
+    private Button positive;
+
     @Override
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
@@ -1439,56 +1457,80 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             return true;
         }
 
-        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-            if (lastSelected && _list.hasFocus()) {
-                lastSelected = false;
-                if (_options != null && _options.getVisibility() == VISIBLE) {
-                    _options.requestFocus();
-                } else {
-                    _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).requestFocus();
-                }
-                return true;
-            }
+        if (!_enableDpad) return true;
+
+        if (neutral == null || negative == null || positive == null) {
+            neutral = _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            negative = _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positive = _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         }
 
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (_alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).hasFocus()) {
-                if (_options != null && _options.getVisibility() == VISIBLE) {
-                    _options.requestFocus(View.FOCUS_RIGHT);
-                } else {
-                    _list.requestFocus();
-                    lastSelected = true;
-                }
-                return true;
-            } else if (_alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).hasFocus()
-                || _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).hasFocus()) {
-                if (_options != null && _options.getVisibility() == VISIBLE) {
-                    _options.requestFocus(View.FOCUS_LEFT);
-                    return true;
-                } else {
-                    _list.requestFocus();
-                    lastSelected = true;
-                    return true;
-                }
-            }
-
-            if (_options != null && _options.hasFocus()) {
-                _list.requestFocus();
-                lastSelected = true;
-                return true;
+        if (!_list.hasFocus()) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    if (neutral.hasFocus() || negative.hasFocus() || positive.hasFocus()) {
+                        if (_options != null && _options.getVisibility() == VISIBLE) {
+                            _options.requestFocus(View.FOCUS_LEFT);
+                            return true;
+                        } else if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE){
+                            _newFolderView.requestFocus(View.FOCUS_LEFT);
+                            return true;
+                        } else {
+                            _list.requestFocus();
+                            lastSelected = true;
+                            return true;
+                        }
+                    }
+                    if (_options != null && _options.hasFocus()) {
+                        _list.requestFocus();
+                        lastSelected = true;
+                        return true;
+                    }
+                    break;
+                /*case KeyEvent.KEYCODE_DPAD_LEFT:
+                    if (negative.hasFocus()) {
+                        neutral.requestFocus();
+                        return true;
+                    } else if (positive.hasFocus()) {
+                        negative.requestFocus();
+                        return true;
+                    }
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    if (neutral.hasFocus()) {
+                        negative.requestFocus();
+                        return true;
+                    } else if (negative.hasFocus()) {
+                        positive.requestFocus();
+                        return true;
+                    }*/
+                default:
+                    return false;
             }
         }
 
         if (_list.hasFocus()) {
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                _onBackPressed.onBackPressed(_alertDialog);
-                lastSelected = false;
-                return true;
-            }
-            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-                onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
-                lastSelected = false;
-                return true;
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    _onBackPressed.onBackPressed(_alertDialog);
+                    lastSelected = false;
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
+                    lastSelected = false;
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if (lastSelected) {
+                        lastSelected = false;
+                        if (_options != null && _options.getVisibility() == VISIBLE) {
+                            _options.requestFocus();
+                        } else {
+                            _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).requestFocus();
+                        }
+                        return true;
+                    }
+                    break;
+                default:
+                    return false;
             }
         }
         return false;
