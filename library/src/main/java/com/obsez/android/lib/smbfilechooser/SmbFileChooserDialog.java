@@ -464,6 +464,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
+    @NonNull
     public SmbFileChooserDialog setIcon(@Nullable Drawable icon) {
         this._icon = icon;
         return this;
@@ -628,7 +629,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         if (_terminate) {
             return this;
         }
-
+      
         if (this._themeResId == null) {
             TypedValue typedValue = new TypedValue();
             if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true))
