@@ -1561,7 +1561,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     _adapter.setEntries(_entries);
                     if (scrollToTop) SmbFileChooserDialog.this._list.setSelection(0);
                     if (_progressBar != null) _progressBar.setVisibility(GONE);
-                    if (_alertDialog != null && _displayPath) {
+                    if (_alertDialog != null && _alertDialog.isShowing() && _displayPath) {
                         if (displayPath.get()) {
                             displayPath(_currentDir.getPath());
                         } else {

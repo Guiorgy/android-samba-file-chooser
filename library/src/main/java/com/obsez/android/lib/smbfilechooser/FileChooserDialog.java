@@ -1283,7 +1283,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         _entries.addAll(dirList);
         _entries.addAll(fileList);
 
-        if (_alertDialog != null && _displayPath) {
+        if (_alertDialog != null && _alertDialog.isShowing() && _displayPath) {
             if (displayPath) {
                 displayPath(_currentDir.getPath());
             } else {
