@@ -1429,6 +1429,16 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
 
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (FileChooserDialog.this._newFolderView != null && FileChooserDialog.this._newFolderView.getVisibility() == VISIBLE) {
+                FileChooserDialog.this._newFolderView.setVisibility(GONE);
+                return true;
+            }
+
+            FileChooserDialog.this._onBackPressed.onBackPressed((AlertDialog) dialog);
+            return true;
+        }
+
         if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
             if (lastSelected && _list.hasFocus()) {
                 lastSelected = false;
@@ -1439,7 +1449,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 }
                 return true;
             }
-
         }
 
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
