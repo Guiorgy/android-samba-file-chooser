@@ -10,10 +10,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil
 import kotlinx.android.synthetic.main.activity_about.*
@@ -23,8 +25,8 @@ class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
-        setSupportActionBar(toolbar)
-        fab.setOnClickListener { view ->
+        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
+        (findViewById<FloatingActionButton>(R.id.fab)).setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
@@ -35,7 +37,7 @@ class AboutActivity : AppCompatActivity() {
     }
     
     private fun setupUi() {
-        setupRecyclerView(recyclerView1)
+        setupRecyclerView(findViewById<RecyclerView>(R.id.recyclerView1))
     }
     
     private fun setupRecyclerView(rv: RecyclerView) {
