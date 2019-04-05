@@ -1479,12 +1479,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     public final class RootSmbFile extends SmbFile {
-        private String path;
+        private String name;
 
-        RootSmbFile(String pathname) throws MalformedURLException {
+        RootSmbFile(String path, String name) throws MalformedURLException {
             //noinspection deprecation
-            super("smb://");
-            this.path = pathname;
+            super(path);
+            this.name = name;
         }
 
         @Override
@@ -1503,18 +1503,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         }
 
         @Override
-        public String getPath() {
-            return this.path;
-        }
-
-        @Override
         public String getName() {
-            return this.path;
-        }
-
-        @Override
-        public String getServer() {
-            return this.path;
+            return this.name;
         }
     }
 
@@ -1529,7 +1519,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 final String parent = _currentDir.getParent();
                 if (parent != null && !parent.equalsIgnoreCase("smb://")) {
                     //noinspection deprecation
-                    _entries.add(new RootSmbFile(".."));
+                    _entries.add(new RootSmbFile(parent, ".."));
                     displayPath.set(true);
                 }
 
@@ -1625,11 +1615,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             Triple<SmbFile, Boolean, String> triple = EXECUTOR.submit(() -> {
                 SmbFile file = _entries.get(position);
                 if (file instanceof RootSmbFile) {
-                    final String parentPath = _currentDir.getParent();
-                    final SmbFile f = new SmbFile(parentPath, _smbContext);
                     if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
-                    if (_folderNavUpCB.canUpTo(f)) {
-                        _currentDir = f;
+                    if (_folderNavUpCB.canUpTo(file)) {
+                        _currentDir = file;
                         _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
                         if (_deleteMode != null) _deleteMode.run();
                         lastSelected = false;
