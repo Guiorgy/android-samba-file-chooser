@@ -1439,7 +1439,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             }
         } else {
             if (path.contains("smb://")) path = path.substring(5);
-            if (path.contains(_serverIP)) path = path.substring(_serverIP.length() + 1);
+            if (!displayRoot && path.contains(_serverIP)) path = path.substring(_serverIP.length() + 1);
             _pathView.setText(path);
 
             while (_pathView.getLineCount() > 1) {
