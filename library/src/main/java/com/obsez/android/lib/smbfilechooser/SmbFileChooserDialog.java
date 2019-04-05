@@ -1414,6 +1414,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
             _pathView = new TextView(context);
             root.addView(_pathView, 0, params);
+            _pathView.setFocusable(false);
 
             int elevation = ta.getInt(R.styleable.FileChooser_fileChooserPathViewElevation, 2);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
