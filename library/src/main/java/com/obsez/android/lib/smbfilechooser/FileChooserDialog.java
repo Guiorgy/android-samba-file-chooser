@@ -1457,12 +1457,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (FileChooserDialog.this._newFolderView != null && FileChooserDialog.this._newFolderView.getVisibility() == VISIBLE) {
-                FileChooserDialog.this._newFolderView.setVisibility(GONE);
+            if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE) {
+                _newFolderView.setVisibility(GONE);
                 return true;
             }
 
-            FileChooserDialog.this._onBackPressed.onBackPressed((AlertDialog) dialog);
+            _onBackPressed.onBackPressed((AlertDialog) dialog);
             return true;
         }
 

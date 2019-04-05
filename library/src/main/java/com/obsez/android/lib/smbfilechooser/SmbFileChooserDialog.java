@@ -1740,61 +1740,99 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         lastSelected = false;
     }
 
+    private Button neutral;
+    private Button negative;
+    private Button positive;
+
     @Override
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
 
-        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-            if (lastSelected && _list.hasFocus()) {
-                lastSelected = false;
-                if (_options != null && _options.getVisibility() == VISIBLE) {
-                    _options.requestFocus();
-                } else {
-                    _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).requestFocus();
-                }
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE) {
+                _newFolderView.setVisibility(GONE);
                 return true;
             }
 
+            _onBackPressed.onBackPressed((AlertDialog) dialog);
+            return true;
         }
 
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (_alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).hasFocus()) {
-                if (_options != null && _options.getVisibility() == VISIBLE) {
-                    _options.requestFocus(View.FOCUS_RIGHT);
-                } else {
-                    _list.requestFocus();
-                    lastSelected = true;
-                }
-                return true;
-            } else if (_alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).hasFocus()
-                || _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).hasFocus()) {
-                if (_options != null && _options.getVisibility() == VISIBLE) {
-                    _options.requestFocus(View.FOCUS_LEFT);
-                    return true;
-                } else {
-                    _list.requestFocus();
-                    lastSelected = true;
-                    return true;
-                }
-            }
+        if (!_enableDpad) return true;
 
-            if (_options != null && _options.hasFocus()) {
-                _list.requestFocus();
-                lastSelected = true;
-                return true;
+        if (neutral == null || negative == null || positive == null) {
+            neutral = _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            negative = _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positive = _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        }
+
+        if (!_list.hasFocus()) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    if (neutral.hasFocus() || negative.hasFocus() || positive.hasFocus()) {
+                        if (_options != null && _options.getVisibility() == VISIBLE) {
+                            _options.requestFocus(View.FOCUS_LEFT);
+                            return true;
+                        } else if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE) {
+                            _newFolderView.requestFocus(View.FOCUS_LEFT);
+                            return true;
+                        } else {
+                            _list.requestFocus();
+                            lastSelected = true;
+                            return true;
+                        }
+                    }
+                    if (_options != null && _options.hasFocus()) {
+                        _list.requestFocus();
+                        lastSelected = true;
+                        return true;
+                    }
+                    break;
+                /*case KeyEvent.KEYCODE_DPAD_LEFT:
+                    if (negative.hasFocus()) {
+                        neutral.requestFocus();
+                        return true;
+                    } else if (positive.hasFocus()) {
+                        negative.requestFocus();
+                        return true;
+                    }
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    if (neutral.hasFocus()) {
+                        negative.requestFocus();
+                        return true;
+                    } else if (negative.hasFocus()) {
+                        positive.requestFocus();
+                        return true;
+                    }*/
+                default:
+                    return false;
             }
         }
 
         if (_list.hasFocus()) {
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                _onBackPressed.onBackPressed(_alertDialog);
-                lastSelected = false;
-                return true;
-            }
-            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-                onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
-                lastSelected = false;
-                return true;
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    _onBackPressed.onBackPressed(_alertDialog);
+                    lastSelected = false;
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    //onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
+                    _list.performItemClick(_list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
+                    lastSelected = false;
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if (lastSelected) {
+                        lastSelected = false;
+                        if (_options != null && _options.getVisibility() == VISIBLE) {
+                            _options.requestFocus();
+                        } else {
+                            _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).requestFocus();
+                        }
+                        return true;
+                    }
+                    break;
+                default:
+                    return false;
             }
         }
         return false;
