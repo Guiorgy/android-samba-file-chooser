@@ -629,7 +629,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         if (_terminate) {
             return this;
         }
-      
+
         if (this._themeResId == null) {
             TypedValue typedValue = new TypedValue();
             if (!getBaseContext().getTheme().resolveAttribute(R.attr.fileChooserStyle, typedValue, true))
@@ -927,7 +927,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             if (UiUtil.getListYScroll(SmbFileChooserDialog.this._list) == -1
                                 || !SmbFileChooserDialog.this._isScrollable
                                 || (SmbFileChooserDialog.this._newFolderView != null
-                                    && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE))
+                                && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE))
                                 return;
 
                             if (SmbFileChooserDialog.this._options == null) {
@@ -1391,6 +1391,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     private boolean displayRoot;
+
     private void displayPath(@Nullable String path) {
         if (_pathView == null) {
             final int rootId = getResources().getIdentifier("contentPanel", "id", "android");

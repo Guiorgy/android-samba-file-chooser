@@ -1481,7 +1481,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         if (_options != null && _options.getVisibility() == VISIBLE) {
                             _options.requestFocus(View.FOCUS_LEFT);
                             return true;
-                        } else if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE){
+                        } else if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE) {
                             _newFolderView.requestFocus(View.FOCUS_LEFT);
                             return true;
                         } else {
