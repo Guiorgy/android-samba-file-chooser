@@ -632,9 +632,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         int style = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getThemeWrappedContext(style),
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
+        style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
+        ta.recycle();
+        final Context context = getThemeWrappedContext(style);
+        ta = context.obtainStyledAttributes(R.styleable.FileChooser);
+        final int listview_item_selector = ta.getResourceId(R.styleable.FileChooser_fileListItemFocusedDrawable,
+            R.drawable.listview_item_selector);
         ta.recycle();
 
-        this._adapter = new SmbDirAdapter(getBaseContext(), this._dateFormat, this._exceptionHandler);
+        this._adapter = new SmbDirAdapter(context, this._dateFormat, this._exceptionHandler);
         if (this._adapterSetter != null) this._adapterSetter.apply(this._adapter);
 
         builder.setAdapter(this._adapter, this);
@@ -749,9 +755,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 }
 
                 if (_enableDpad) {
-                    _btnNeutral.setBackgroundResource(R.drawable.listview_item_selector);
-                    _btnNegative.setBackgroundResource(R.drawable.listview_item_selector);
-                    _btnPositive.setBackgroundResource(R.drawable.listview_item_selector);
+                    _btnNeutral.setBackgroundResource(listview_item_selector);
+                    _btnNegative.setBackgroundResource(listview_item_selector);
+                    _btnPositive.setBackgroundResource(listview_item_selector);
                 }
 
                 final int buttonColor = _btnNeutral.getCurrentTextColor();
@@ -929,7 +935,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 }
 
                                 if (SmbFileChooserDialog.this._enableDpad) {
-                                    createDir.setBackgroundResource(R.drawable.listview_item_selector);
+                                    createDir.setBackgroundResource(listview_item_selector);
                                 }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
                                 params.leftMargin = 10;
@@ -954,7 +960,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 }
 
                                 if (SmbFileChooserDialog.this._enableDpad) {
-                                    delete.setBackgroundResource(R.drawable.listview_item_selector);
+                                    delete.setBackgroundResource(listview_item_selector);
                                 }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
                                 params.rightMargin = 10;
@@ -1091,7 +1097,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 cancel.setText(SmbFileChooserDialog.this._newFolderCancelRes);
                                             cancel.setTextColor(buttonColor);
                                             if (SmbFileChooserDialog.this._enableDpad) {
-                                                cancel.setBackgroundResource(R.drawable.listview_item_selector);
+                                                cancel.setBackgroundResource(listview_item_selector);
                                             }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START);
                                             buttons.addView(cancel, params);
@@ -1104,7 +1110,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 ok.setText(SmbFileChooserDialog.this._newFolderOkRes);
                                             ok.setTextColor(buttonColor);
                                             if (SmbFileChooserDialog.this._enableDpad) {
-                                                ok.setBackgroundResource(R.drawable.listview_item_selector);
+                                                ok.setBackgroundResource(listview_item_selector);
                                             }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
@@ -1269,7 +1275,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         _list.setOnTouchListener((v, event) -> !_isScrollable && event.getAction() == MotionEvent.ACTION_MOVE);
 
         if (this._enableDpad) {
-            this._list.setSelector(R.drawable.listview_item_selector);
+            this._list.setSelector(listview_item_selector);
             this._list.setDrawSelectorOnTop(true);
             this._list.setItemsCanFocus(true);
             this._list.setOnItemSelectedListener(this);

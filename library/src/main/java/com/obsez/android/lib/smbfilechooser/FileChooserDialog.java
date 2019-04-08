@@ -169,7 +169,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (startFile != null) {
             _currentDir = new File(startFile);
         } else {
-            _currentDir = Environment.getExternalStorageDirectory();
+            _currentDir = new File(FileUtil.getStoragePath(getBaseContext(), false));
         }
 
         if (!_currentDir.isDirectory()) {
@@ -177,7 +177,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
 
         if (_currentDir == null) {
-            _currentDir = Environment.getExternalStorageDirectory();
+            _currentDir = new File(FileUtil.getStoragePath(getBaseContext(), false));
         }
 
         return this;
@@ -456,9 +456,15 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         int style = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getThemeWrappedContext(style),
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
+        style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
+        ta.recycle();
+        final Context context = getThemeWrappedContext(style);
+        ta = context.obtainStyledAttributes(R.styleable.FileChooser);
+        final int listview_item_selector = ta.getResourceId(R.styleable.FileChooser_fileListItemFocusedDrawable,
+            R.drawable.listview_item_selector);
         ta.recycle();
 
-        this._adapter = new DirAdapter(getBaseContext(), this._dateFormat);
+        this._adapter = new DirAdapter(context, this._dateFormat);
         if (this._adapterSetter != null) this._adapterSetter.apply(this._adapter);
 
         refreshDirs();
@@ -553,9 +559,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 }
 
                 if (_enableDpad) {
-                    _btnNeutral.setBackgroundResource(R.drawable.listview_item_selector);
-                    _btnNegative.setBackgroundResource(R.drawable.listview_item_selector);
-                    _btnPositive.setBackgroundResource(R.drawable.listview_item_selector);
+                    _btnNeutral.setBackgroundResource(listview_item_selector);
+                    _btnNegative.setBackgroundResource(listview_item_selector);
+                    _btnPositive.setBackgroundResource(listview_item_selector);
                 }
 
                 if (FileChooserDialog.this._enableOptions) {
@@ -695,7 +701,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 }
 
                                 if (FileChooserDialog.this._enableDpad) {
-                                    createDir.setBackgroundResource(R.drawable.listview_item_selector);
+                                    createDir.setBackgroundResource(listview_item_selector);
                                 }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
                                 params.leftMargin = 10;
@@ -720,7 +726,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 }
 
                                 if (FileChooserDialog.this._enableDpad) {
-                                    delete.setBackgroundResource(R.drawable.listview_item_selector);
+                                    delete.setBackgroundResource(listview_item_selector);
                                 }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
                                 params.rightMargin = 10;
@@ -843,7 +849,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 cancel.setText(FileChooserDialog.this._newFolderCancelRes);
                                             cancel.setTextColor(buttonColor);
                                             if (FileChooserDialog.this._enableDpad) {
-                                                cancel.setBackgroundResource(R.drawable.listview_item_selector);
+                                                cancel.setBackgroundResource(listview_item_selector);
                                             }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START);
                                             buttons.addView(cancel, params);
@@ -855,7 +861,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             else ok.setText(FileChooserDialog.this._newFolderOkRes);
                                             ok.setTextColor(buttonColor);
                                             if (FileChooserDialog.this._enableDpad) {
-                                                ok.setBackgroundResource(R.drawable.listview_item_selector);
+                                                ok.setBackgroundResource(listview_item_selector);
                                             }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
@@ -1006,7 +1012,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
 
         if (_enableDpad) {
-            this._list.setSelector(R.drawable.listview_item_selector);
+            this._list.setSelector(listview_item_selector);
             this._list.setDrawSelectorOnTop(true);
             this._list.setItemsCanFocus(true);
             this._list.setOnItemSelectedListener(this);
