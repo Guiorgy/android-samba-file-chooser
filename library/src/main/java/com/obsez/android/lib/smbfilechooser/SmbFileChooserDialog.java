@@ -716,16 +716,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             }
         }
 
-        builder.setOnKeyListener((dialog, keyCode, event) -> {
-                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-                    if (SmbFileChooserDialog.this._newFolderView != null && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE) {
-                        SmbFileChooserDialog.this._newFolderView.setVisibility(GONE);
-                        return true;
-                    }
-                    SmbFileChooserDialog.this._onBackPressedListener.onBackPressed((AlertDialog) dialog);
-                }
-                return true;
-            });
+        builder.setOnKeyListener(this);
 
         this._alertDialog = builder.create();
 
@@ -1282,7 +1273,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             this._list.setDrawSelectorOnTop(true);
             this._list.setItemsCanFocus(true);
             this._list.setOnItemSelectedListener(this);
-            this._alertDialog.setOnKeyListener(this);
         }
         return this;
     }
@@ -1703,7 +1693,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
 
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE) {
             if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE) {
                 _newFolderView.setVisibility(GONE);
                 return true;
