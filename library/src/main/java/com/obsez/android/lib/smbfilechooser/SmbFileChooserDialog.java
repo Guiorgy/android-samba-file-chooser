@@ -1214,7 +1214,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             }
                                             SmbFileChooserDialog.this._adapter.clearSelected();
 
-                                            SmbFile currentDir = EXECUTOR.submit(() -> {
+                                            SmbFileChooserDialog.this._currentDir = EXECUTOR.submit(() -> {
                                                 if (!SmbFileChooserDialog.this._currentDir.exists()) {
                                                     SmbFile parent;
 
@@ -1230,8 +1230,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 }
                                                 return SmbFileChooserDialog.this._currentDir;
                                             }).get();
-
-                                            SmbFileChooserDialog.this._currentDir = currentDir;
 
                                             refreshDirs();
                                         } catch (InterruptedException | ExecutionException e) {
@@ -1551,7 +1549,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 final SmbFile newDir = new SmbFile(SmbFileChooserDialog.this._currentDir.getPath() + "/" + name, SmbFileChooserDialog.this._smbContext);
                 if (!newDir.exists()) {
                     newDir.mkdirs();
-                    runOnUiThread(() -> refreshDirs());
+                    runOnUiThread(this::refreshDirs);
                 }
             } catch (MalformedURLException | SmbException e) {
                 e.printStackTrace();
