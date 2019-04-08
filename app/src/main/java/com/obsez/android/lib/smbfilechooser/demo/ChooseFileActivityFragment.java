@@ -46,6 +46,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
     private CheckBox displayIcon;
     private CheckBox dateFormat;
     private CheckBox darkTheme;
+    private CheckBox dpad;
 
     private String _server = "smb://";
     private String _path = null;
@@ -76,6 +77,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         displayIcon = root.findViewById(R.id.checkbox_display_icon);
         dateFormat = root.findViewById(R.id.checkbox_date_format);
         darkTheme = root.findViewById(R.id.checkbox_dark_theme);
+        dpad = root.findViewById(R.id.checkbox_dpad);
 
         enableSamba.setOnCheckedChangeListener(this);
         root.findViewById(R.id.btn_show_dialog).setOnClickListener(this);
@@ -171,6 +173,9 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             if (dateFormat.isChecked()) {
                 smbFileChooserDialog.setDateFormat("dd MMMM yyyy");
             }
+            if (dpad.isChecked()) {
+                smbFileChooserDialog.enableDpad(true);
+            }
             smbFileChooserDialog.show();
         } else {
             FileChooserDialog fileChooserDialog = FileChooserDialog.newDialog(ctx)
@@ -223,6 +228,9 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
             }
             if (dateFormat.isChecked()) {
                 fileChooserDialog.setDateFormat("dd MMMM yyyy");
+            }
+            if (dpad.isChecked()) {
+                fileChooserDialog.enableDpad(true);
             }
             fileChooserDialog.show();
         }

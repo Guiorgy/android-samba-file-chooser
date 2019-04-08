@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -18,10 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil
-import kotlinx.android.synthetic.main.activity_about.*
 
 class AboutActivity : AppCompatActivity() {
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
@@ -31,15 +29,14 @@ class AboutActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    
-        // TODO add general, readme, license tabs...
+
         setupUi()
     }
-    
+
     private fun setupUi() {
         setupRecyclerView(findViewById<RecyclerView>(R.id.recyclerView1))
     }
-    
+
     private fun setupRecyclerView(rv: RecyclerView) {
         rv.apply {
             val linearLayoutManager = object : LinearLayoutManager(this.context) {
@@ -47,23 +44,19 @@ class AboutActivity : AppCompatActivity() {
                     return UiUtil.dip2px(56)
                 }
             }
-            this.layoutManager = linearLayoutManager //LinearLayoutManager(cxt)
-            
+            this.layoutManager = linearLayoutManager
+
             this.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.HORIZONTAL))
-            //this.addDivider(R.drawable.recycler_view_divider)
-            
-            this.itemAnimator = DefaultItemAnimator() //adapter.animator
-            //val animation = AnimationUtils.loadLayoutAnimation(this.context, RvTool.layoutAnimationResId)
-            //this.layoutAnimation = animation
-            
+
+            this.itemAnimator = DefaultItemAnimator()
+
             this.adapter = MainAdapter(this@AboutActivity, aboutItems)
         }
     }
-    
+
     class MainAdapter(private val ctx: AppCompatActivity, items: List<Items>) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
-        
+
         var plainItems: MutableList<Item> = mutableListOf()
-        
         init {
             for (it in items) {
                 if (it.items.isNotEmpty())
@@ -71,7 +64,7 @@ class AboutActivity : AppCompatActivity() {
                 plainItems.addAll(it.items)
             }
         }
-        
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             //return ViewHolder(TextView(parent.context))
             return ViewHolder(LayoutInflater.from(ctx).inflate(R.layout.li_about_item, parent, false)) { _, holder ->
@@ -97,17 +90,17 @@ class AboutActivity : AppCompatActivity() {
                 }
             }
         }
-        
+
         override fun getItemCount(): Int {
             return plainItems.size
         }
-        
+
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val it = plainItems[position]
             holder.mTitleView.text = it.title
             holder.mSubTitleView.text = it.subTitle
             holder.mValueView.text = it.value
-            
+
             if (it.subTitle.isBlank()) {
                 holder.mSubTitleView.visibility = View.GONE
             } else {
@@ -119,30 +112,26 @@ class AboutActivity : AppCompatActivity() {
             } else {
                 holder.mCatalogView.visibility = View.GONE
             }
-    
+
             //holder.mValueView.isClickable = !it.valueLink.isBlank()
             holder.mValueView.tag = it.valueLink
             //holder.mIconView.text = it.title
         }
-        
+
         class ViewHolder(view: View, clicking: ((v: View, holder: MainAdapter.ViewHolder) -> Unit)? = null) : RecyclerView.ViewHolder(view) {
             internal var mTitleView = view.findViewById<TextView>(R.id.title)
             internal var mSubTitleView = view.findViewById<TextView>(R.id.sub_title)
             internal var mValueView = view.findViewById<TextView>(R.id.value)
             internal var mCatalogView = view.findViewById<TextView>(R.id.catalog)
-            internal var mIconView = view.findViewById<ImageView>(R.id.icon)
-            
+
             init {
-                // mValueView.setOnClickListener {
-                //     clicking?.invoke(it, this)
-                // }
                 view.findViewById<View>(R.id.row)?.setOnClickListener {
                     clicking?.invoke(it, this)
                 }
             }
         }
     }
-    
+
     companion object {
         val aboutItems = listOf(
             Items("Information", listOf(
@@ -150,7 +139,7 @@ class AboutActivity : AppCompatActivity() {
                 Item("Issues", "Report to us", "https://github.com/hedzr/android-file-chooser/issues/new"),
                 Item("License", "Apache 2.0", "https://github.com/hedzr/android-file-chooser/blob/master/LICENSE"),
                 Item("Rate me", "Like!", "market://details?id=" + "com.obsez.android.lib.filechooser")
-            
+
             )),
             Items("Credits", listOf(
                 Item("Hedzr Yeh", "Email", "mailto:hedzrz@gmail.com", "Maintainer"),

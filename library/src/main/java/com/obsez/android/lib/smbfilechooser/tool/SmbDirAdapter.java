@@ -97,7 +97,6 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         view.setVisibility(GONE);
 
         _loadViewsAsync.tryBindView(hashCode, view, isSelected);
-
         return view;
     }
 
@@ -180,7 +179,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
         private void bindView(final View view, final FileInfo file, final boolean isSelected) {
             if (isCancelled()) return;
-            
+
             if (adapter == null || view == null) {
                 cancel(true);
                 return;
