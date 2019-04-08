@@ -341,27 +341,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     @NonNull
-    public SmbFileChooserDialog setCancelable(boolean cancelable) {
-        this._cancelable = cancelable;
-        return this;
-    }
-
-    @NonNull
     public SmbFileChooserDialog cancelOnTouchOutside(boolean cancelOnTouchOutside) {
         this._cancelOnTouchOutside = cancelOnTouchOutside;
-        return this;
-    }
-
-    @NonNull
-    public SmbFileChooserDialog dismissOnButtonClick(boolean dismissOnButtonClick) {
-        this._dismissOnButtonClick = dismissOnButtonClick;
-        if (dismissOnButtonClick) {
-            this._defaultLastBack = Dialog::dismiss;
-        } else {
-            this._defaultLastBack = dialog -> {
-                //
-            };
-        }
         return this;
     }
 
@@ -384,12 +365,20 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         return this;
     }
 
+    /**
+     *  called every time {@link KeyEvent#KEYCODE_BACK} is caught,
+     *  and current directory is not the root of Primary/SdCard storage.
+     */
     @NonNull
     public SmbFileChooserDialog setOnBackPressedListener(@NonNull OnBackPressedListener listener) {
         this._onBackPressed = listener;
         return this;
     }
 
+    /**
+     *  called if {@link KeyEvent#KEYCODE_BACK} is caught,
+     *  and current directory is the root of Primary/SdCard storage.
+     */
     @NonNull
     public SmbFileChooserDialog setOnLastBackPressedListener(@NonNull OnBackPressedListener listener) {
         this._onLastBackPressed = listener;
@@ -727,10 +716,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             }
         }
 
-        builder.setCancelable(this._cancelable)
-            .setOnKeyListener((dialog, keyCode, event) -> {
+        builder.setOnKeyListener((dialog, keyCode, event) -> {
                 if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-                    SmbFileChooserDialog.this._onBackPressed.onBackPressed((AlertDialog) dialog);
+                    if (SmbFileChooserDialog.this._newFolderView != null && SmbFileChooserDialog.this._newFolderView.getVisibility() == VISIBLE) {
+                        SmbFileChooserDialog.this._newFolderView.setVisibility(GONE);
+                        return true;
+                    }
+                    SmbFileChooserDialog.this._onBackPressedListener.onBackPressed((AlertDialog) dialog);
                 }
                 return true;
             });
@@ -743,57 +735,35 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         this._alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(final DialogInterface dialog) {
-                final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
-                final Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-                final Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                _list.requestFocus();
+                _btnNeutral = _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                _btnNegative = _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                _btnPositive = _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
                 // ensure that the buttons have the right order
-                ViewGroup parentLayout = (ViewGroup) positive.getParent();
-                parentLayout.removeAllViews();
-                parentLayout.addView(options, 0);
-                parentLayout.addView(negative, 1);
-                parentLayout.addView(positive, 2);
+                ViewGroup buttonBar = (ViewGroup) _btnPositive.getParent();
+                buttonBar.removeAllViews();
+                ViewGroup.LayoutParams btnParams = _btnNeutral.getLayoutParams();
+                if (buttonBar instanceof LinearLayout) {
+                    ((LinearLayout.LayoutParams) btnParams).weight = 1;
+                } else if (buttonBar instanceof FrameLayout) {
+                    ((FrameLayout.LayoutParams) btnParams).gravity = CENTER;
+                }
+                buttonBar.addView(_btnNeutral, 0);
+                buttonBar.addView(_btnNegative, 1);
+                buttonBar.addView(_btnPositive, 2);
 
                 if (_enableMultiple && !_dirOnly) {
                     _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
                 }
 
                 if (_enableDpad) {
-                    options.setBackgroundResource(R.drawable.listview_item_selector);
-                    negative.setBackgroundResource(R.drawable.listview_item_selector);
-                    positive.setBackgroundResource(R.drawable.listview_item_selector);
+                    _btnNeutral.setBackgroundResource(R.drawable.listview_item_selector);
+                    _btnNegative.setBackgroundResource(R.drawable.listview_item_selector);
+                    _btnPositive.setBackgroundResource(R.drawable.listview_item_selector);
                 }
 
-                if (!SmbFileChooserDialog.this._dismissOnButtonClick) {
-                    negative.setOnClickListener(v -> {
-                        if (SmbFileChooserDialog.this._negativeListener != null) {
-                            SmbFileChooserDialog.this._negativeListener.onClick(SmbFileChooserDialog.this._alertDialog, AlertDialog.BUTTON_NEGATIVE);
-                        }
-                    });
-
-                    if (SmbFileChooserDialog.this._dirOnly) {
-                        positive.setOnClickListener(v -> {
-                            if (SmbFileChooserDialog.this._enableMultiple) {
-                                if (SmbFileChooserDialog.this._adapter.isAnySelected()) {
-                                    if (SmbFileChooserDialog.this._adapter.isOneSelected()) {
-                                        if (SmbFileChooserDialog.this._onChosenListener != null) {
-                                            final SmbFile selected = _adapter.getSelected().get(0);
-                                            SmbFileChooserDialog.this._onChosenListener.onChoosePath(selected.getPath(), selected);
-                                        }
-                                    } else {
-                                        if (SmbFileChooserDialog.this._onSelectedListener != null) {
-                                            SmbFileChooserDialog.this._onSelectedListener.onSelectFiles(_adapter.getSelected());
-                                        }
-                                    }
-                                }
-                            } else if (SmbFileChooserDialog.this._onChosenListener != null) {
-                                SmbFileChooserDialog.this._onChosenListener.onChoosePath(SmbFileChooserDialog.this._currentDir.getPath(), SmbFileChooserDialog.this._currentDir);
-                            }
-                        });
-                    }
-                }
-
-                final int buttonColor = options.getCurrentTextColor();
+                final int buttonColor = _btnNeutral.getCurrentTextColor();
                 final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
 
                 // Root view (FrameLayout) of the ListView in the AlertDialog.
@@ -840,9 +810,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 });
 
                 if (SmbFileChooserDialog.this._enableOptions) {
-                    options.setText("");
-                    options.setTextColor(buttonColor);
-                    options.setVisibility(VISIBLE);
+                    _btnNeutral.setText("");
+                    _btnNeutral.setTextColor(buttonColor);
+                    _btnNeutral.setVisibility(VISIBLE);
                     Drawable dots;
                     if (SmbFileChooserDialog.this._optionsIconRes != null) {
                         dots = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._optionsIconRes);
@@ -852,7 +822,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         dots = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_menu_24dp);
                     if (dots != null) {
                         dots.setColorFilter(filter);
-                        options.setCompoundDrawablesWithIntrinsicBounds(dots, null, null, null);
+                        _btnNeutral.setCompoundDrawablesWithIntrinsicBounds(dots, null, null, null);
                     }
 
                     final class Integer {
@@ -921,7 +891,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         }
                     };
 
-                    options.setOnClickListener(new View.OnClickListener() {
+                    _btnNeutral.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
                             if (UiUtil.getListYScroll(SmbFileChooserDialog.this._list) == -1
@@ -1644,7 +1614,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             }
                         } else if ((!_dirOnly) && _onChosenListener != null) {
                             _onChosenListener.onChoosePath(path, file);
-                            if (_dismissOnButtonClick) _alertDialog.dismiss();
+                            _alertDialog.dismiss();
                         }
                         lastSelected = false;
                         break;
@@ -1729,10 +1699,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         lastSelected = false;
     }
 
-    private Button neutral;
-    private Button negative;
-    private Button positive;
-
     @Override
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
@@ -1743,22 +1709,16 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 return true;
             }
 
-            _onBackPressed.onBackPressed((AlertDialog) dialog);
+            _onBackPressedListener.onBackPressed((AlertDialog) dialog);
             return true;
         }
 
         if (!_enableDpad) return true;
 
-        if (neutral == null || negative == null || positive == null) {
-            neutral = _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            negative = _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            positive = _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        }
-
         if (!_list.hasFocus()) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (neutral.hasFocus() || negative.hasFocus() || positive.hasFocus()) {
+                    if (_btnNeutral.hasFocus() || _btnNegative.hasFocus() || _btnPositive.hasFocus()) {
                         if (_options != null && _options.getVisibility() == VISIBLE) {
                             _options.requestFocus(View.FOCUS_LEFT);
                             return true;
@@ -1777,22 +1737,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         return true;
                     }
                     break;
-                /*case KeyEvent.KEYCODE_DPAD_LEFT:
-                    if (negative.hasFocus()) {
-                        neutral.requestFocus();
-                        return true;
-                    } else if (positive.hasFocus()) {
-                        negative.requestFocus();
-                        return true;
-                    }
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    if (neutral.hasFocus()) {
-                        negative.requestFocus();
-                        return true;
-                    } else if (negative.hasFocus()) {
-                        positive.requestFocus();
-                        return true;
-                    }*/
                 default:
                     return false;
             }
@@ -1801,7 +1745,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         if (_list.hasFocus()) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    _onBackPressed.onBackPressed(_alertDialog);
+                    _onBackPressedListener.onBackPressed(_alertDialog);
                     lastSelected = false;
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -1884,9 +1828,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private boolean _displayPath;
     private TextView _pathView;
     private CustomizePathView _pathViewCallback;
-    private boolean _cancelable = true;
     private boolean _cancelOnTouchOutside;
-    private boolean _dismissOnButtonClick = true;
     private DialogInterface.OnDismissListener _onDismissListener;
     private boolean _enableOptions;
     private View _options;
@@ -1905,7 +1847,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private boolean _allowSelectDir = false;
     private boolean _enableDpad;
     private PermissionsUtil.OnPermissionListener _permissionListener;
-
+    private Button _btnNeutral;
+    private Button _btnNegative;
+    private Button _btnPositive;
 
     @FunctionalInterface
     public interface AdapterSetter {
@@ -1931,24 +1875,42 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     private final static CanNavigateTo _defaultNavToCB = dir -> true;
 
+    /**
+     * attempts to move to the parent directory
+     *
+     * @return true if successful. false otherwise
+     */
+    public boolean goBack() {
+        if (_entries.size() > 0 &&
+            (_entries.get(0).getName().equals(".."))) {
+            _list.performItemClick(_list, 0, 0);
+            return true;
+        }
+        return false;
+    }
+
     @FunctionalInterface
     public interface OnBackPressedListener {
         void onBackPressed(@NonNull AlertDialog dialog);
     }
 
-    private OnBackPressedListener _onBackPressed = dialog -> {
+    private OnBackPressedListener _onBackPressedListener = dialog -> {
         if (SmbFileChooserDialog.this._entries.size() > 0
             && (SmbFileChooserDialog.this._entries.get(0) instanceof RootSmbFile)) {
-            SmbFileChooserDialog.this.onItemClick(null, SmbFileChooserDialog.this._list, 0, 0);
+            if (SmbFileChooserDialog.this._onBackPressed != null)
+                SmbFileChooserDialog.this._onBackPressed.onBackPressed(dialog);
+            else SmbFileChooserDialog.this._defaultBack.onBackPressed(dialog);
         } else {
             if (SmbFileChooserDialog.this._onLastBackPressed != null)
                 SmbFileChooserDialog.this._onLastBackPressed.onBackPressed(dialog);
-            else SmbFileChooserDialog.this._defaultLastBack.onBackPressed(dialog);
+            else SmbFileChooserDialog._defaultLastBack.onBackPressed(dialog);
         }
     };
-    private OnBackPressedListener _onLastBackPressed;
 
-    private OnBackPressedListener _defaultLastBack = Dialog::dismiss;
+    private OnBackPressedListener _onBackPressed;
+    private OnBackPressedListener _onLastBackPressed;
+    private final OnBackPressedListener _defaultBack = dialog -> SmbFileChooserDialog.this._list.performItemClick(SmbFileChooserDialog.this._list, 0, 0);
+    private static final OnBackPressedListener _defaultLastBack = Dialog::cancel;
 
     private static final int CHOOSE_MODE_NORMAL = 0;
     private static final int CHOOSE_MODE_DELETE = 1;

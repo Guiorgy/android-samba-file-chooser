@@ -184,27 +184,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     @NonNull
-    public FileChooserDialog setCancelable(final boolean cancelable) {
-        this._cancelable = cancelable;
-        return this;
-    }
-
-    @NonNull
     public FileChooserDialog cancelOnTouchOutside(final boolean cancelOnTouchOutside) {
         this._cancelOnTouchOutside = cancelOnTouchOutside;
-        return this;
-    }
-
-    @NonNull
-    public FileChooserDialog dismissOnButtonClick(final boolean dismissOnButtonClick) {
-        this._dismissOnButtonClick = dismissOnButtonClick;
-        if (dismissOnButtonClick) {
-            this._defaultLastBack = Dialog::dismiss;
-        } else {
-            this._defaultLastBack = dialog -> {
-                //
-            };
-        }
         return this;
     }
 
@@ -227,12 +208,20 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         return this;
     }
 
+    /**
+     *  called every time {@link KeyEvent#KEYCODE_BACK} is caught,
+     *  and current directory is not the root of Primary/SdCard storage.
+     */
     @NonNull
     public FileChooserDialog setOnBackPressedListener(@NonNull final OnBackPressedListener listener) {
         this._onBackPressed = listener;
         return this;
     }
 
+    /**
+     *  called if {@link KeyEvent#KEYCODE_BACK} is caught,
+     *  and current directory is the root of Primary/SdCard storage.
+     */
     @NonNull
     public FileChooserDialog setOnLastBackPressedListener(@NonNull final OnBackPressedListener listener) {
         this._onLastBackPressed = listener;
@@ -533,15 +522,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             }
         }
 
-        builder.setCancelable(this._cancelable)
-            .setOnKeyListener((dialog, keyCode, event) -> {
+        builder.setOnKeyListener((dialog, keyCode, event) -> {
                 if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
                     if (FileChooserDialog.this._newFolderView != null && FileChooserDialog.this._newFolderView.getVisibility() == VISIBLE) {
                         FileChooserDialog.this._newFolderView.setVisibility(GONE);
                         return true;
                     }
-
-                    FileChooserDialog.this._onBackPressed.onBackPressed((AlertDialog) dialog);
+                    FileChooserDialog.this._onBackPressedListener.onBackPressed((AlertDialog) dialog);
                 }
                 return true;
             });
@@ -552,65 +539,41 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         this._alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(final DialogInterface dialog) {
-                FileChooserDialog.this._list.requestFocus();
-
-                final Button options = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
-                final Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-                final Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                _list.requestFocus();
+                _btnNeutral = _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                _btnNegative = _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                _btnPositive = _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
                 // ensure that the buttons have the right order
-                ViewGroup parentLayout = (ViewGroup) positive.getParent();
-                parentLayout.removeAllViews();
-                parentLayout.addView(options, 0);
-                parentLayout.addView(negative, 1);
-                parentLayout.addView(positive, 2);
+                ViewGroup buttonBar = (ViewGroup) _btnPositive.getParent();
+                buttonBar.removeAllViews();
+                ViewGroup.LayoutParams btnParams = _btnNeutral.getLayoutParams();
+                if (buttonBar instanceof LinearLayout) {
+                    ((LinearLayout.LayoutParams) btnParams).weight = 1;
+                } else if (buttonBar instanceof FrameLayout) {
+                    ((FrameLayout.LayoutParams) btnParams).gravity = CENTER;
+                }
+                buttonBar.addView(_btnNeutral, 0);
+                buttonBar.addView(_btnNegative, 1);
+                buttonBar.addView(_btnPositive, 2);
 
                 if (_enableMultiple && !_dirOnly) {
                     _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
                 }
 
                 if (_enableDpad) {
-                    options.setBackgroundResource(R.drawable.listview_item_selector);
-                    negative.setBackgroundResource(R.drawable.listview_item_selector);
-                    positive.setBackgroundResource(R.drawable.listview_item_selector);
-                }
-
-                if (!FileChooserDialog.this._dismissOnButtonClick) {
-                    negative.setOnClickListener(v -> {
-                        if (FileChooserDialog.this._negativeListener != null) {
-                            FileChooserDialog.this._negativeListener.onClick(FileChooserDialog.this._alertDialog, AlertDialog.BUTTON_NEGATIVE);
-                        }
-                    });
-
-                    if (FileChooserDialog.this._dirOnly || FileChooserDialog.this._enableMultiple) {
-                        positive.setOnClickListener(v -> {
-                            if (FileChooserDialog.this._enableMultiple) {
-                                if (FileChooserDialog.this._adapter.isAnySelected()) {
-                                    if (FileChooserDialog.this._adapter.isOneSelected()) {
-                                        if (FileChooserDialog.this._onChosenListener != null) {
-                                            final File selected = _adapter.getSelected().get(0);
-                                            FileChooserDialog.this._onChosenListener.onChoosePath(selected.getAbsolutePath(), selected);
-                                        }
-                                    } else {
-                                        if (FileChooserDialog.this._onSelectedListener != null) {
-                                            FileChooserDialog.this._onSelectedListener.onSelectFiles(_adapter.getSelected());
-                                        }
-                                    }
-                                }
-                            } else if (FileChooserDialog.this._onChosenListener != null) {
-                                FileChooserDialog.this._onChosenListener.onChoosePath(FileChooserDialog.this._currentDir.getAbsolutePath(), FileChooserDialog.this._currentDir);
-                            }
-                        });
-                    }
+                    _btnNeutral.setBackgroundResource(R.drawable.listview_item_selector);
+                    _btnNegative.setBackgroundResource(R.drawable.listview_item_selector);
+                    _btnPositive.setBackgroundResource(R.drawable.listview_item_selector);
                 }
 
                 if (FileChooserDialog.this._enableOptions) {
-                    final int buttonColor = options.getCurrentTextColor();
+                    final int buttonColor = _btnNeutral.getCurrentTextColor();
                     final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
 
-                    options.setText("");
-                    options.setVisibility(VISIBLE);
-                    options.setTextColor(buttonColor);
+                    _btnNeutral.setText("");
+                    _btnNeutral.setVisibility(VISIBLE);
+                    _btnNeutral.setTextColor(buttonColor);
                     Drawable dots;
                     if (FileChooserDialog.this._optionsIconRes != null) {
                         dots = ContextCompat.getDrawable(getBaseContext(), FileChooserDialog.this._optionsIconRes);
@@ -620,7 +583,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         dots = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_menu_24dp);
                     if (dots != null) {
                         dots.setColorFilter(filter);
-                        options.setCompoundDrawablesWithIntrinsicBounds(dots, null, null, null);
+                        _btnNeutral.setCompoundDrawablesWithIntrinsicBounds(dots, null, null, null);
                     }
 
                     final class Integer {
@@ -688,7 +651,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         }
                     };
 
-                    options.setOnClickListener(new View.OnClickListener() {
+                    _btnNeutral.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
                             if (FileChooserDialog.this._newFolderView != null && FileChooserDialog.this._newFolderView.getVisibility() == VISIBLE)
@@ -1374,7 +1337,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         }
                     } else if ((!_dirOnly) && _onChosenListener != null) {
                         _onChosenListener.onChoosePath(file.getAbsolutePath(), file);
-                        if (_dismissOnButtonClick) _alertDialog.dismiss();
+                        _alertDialog.dismiss();
                     }
                     lastSelected = false;
                     break;
@@ -1449,10 +1412,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         lastSelected = false;
     }
 
-    private Button neutral;
-    private Button negative;
-    private Button positive;
-
     @Override
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
@@ -1463,22 +1422,16 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 return true;
             }
 
-            _onBackPressed.onBackPressed((AlertDialog) dialog);
+            _onBackPressedListener.onBackPressed(_alertDialog);
             return true;
         }
 
         if (!_enableDpad) return true;
 
-        if (neutral == null || negative == null || positive == null) {
-            neutral = _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            negative = _alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            positive = _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        }
-
         if (!_list.hasFocus()) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (neutral.hasFocus() || negative.hasFocus() || positive.hasFocus()) {
+                    if (_btnNeutral.hasFocus() || _btnNegative.hasFocus() || _btnPositive.hasFocus()) {
                         if (_options != null && _options.getVisibility() == VISIBLE) {
                             _options.requestFocus(View.FOCUS_LEFT);
                             return true;
@@ -1497,22 +1450,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         return true;
                     }
                     break;
-                /*case KeyEvent.KEYCODE_DPAD_LEFT:
-                    if (negative.hasFocus()) {
-                        neutral.requestFocus();
-                        return true;
-                    } else if (positive.hasFocus()) {
-                        negative.requestFocus();
-                        return true;
-                    }
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    if (neutral.hasFocus()) {
-                        negative.requestFocus();
-                        return true;
-                    } else if (negative.hasFocus()) {
-                        positive.requestFocus();
-                        return true;
-                    }*/
                 default:
                     return false;
             }
@@ -1521,7 +1458,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (_list.hasFocus()) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    _onBackPressed.onBackPressed(_alertDialog);
+                    _onBackPressedListener.onBackPressed(_alertDialog);
                     lastSelected = false;
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -1599,9 +1536,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private boolean _displayPath;
     private TextView _pathView;
     private CustomizePathView _pathViewCallback;
-    private boolean _cancelable = true;
     private boolean _cancelOnTouchOutside;
-    private boolean _dismissOnButtonClick = true;
     private DialogInterface.OnDismissListener _onDismissListener;
     private boolean _enableOptions;
     private View _options;
@@ -1620,6 +1555,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     private boolean _allowSelectDir = false;
     private boolean _enableDpad;
     private PermissionsUtil.OnPermissionListener _permissionListener;
+    private Button _btnNeutral;
+    private Button _btnNegative;
+    private Button _btnPositive;
 
     @FunctionalInterface
     public interface AdapterSetter {
@@ -1645,24 +1583,42 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     private final static CanNavigateTo _defaultNavToCB = dir -> true;
 
+    /**
+     * attempts to move to the parent directory
+     *
+     * @return true if successful. false otherwise
+     */
+    public boolean goBack() {
+        if (_entries.size() > 0 &&
+            (_entries.get(0).getName().equals(".."))) {
+            _list.performItemClick(_list, 0, 0);
+            return true;
+        }
+        return false;
+    }
+
     @FunctionalInterface
     public interface OnBackPressedListener {
         void onBackPressed(@NonNull final AlertDialog dialog);
     }
 
-    private OnBackPressedListener _onBackPressed = (dialog -> {
+    private OnBackPressedListener _onBackPressedListener = (dialog -> {
         if (FileChooserDialog.this._entries.size() > 0
             && (FileChooserDialog.this._entries.get(0).getName().equals(".."))) {
-            FileChooserDialog.this.onItemClick(null, FileChooserDialog.this._list, 0, 0);
+            if (FileChooserDialog.this._onBackPressed != null)
+                FileChooserDialog.this._onBackPressed.onBackPressed(dialog);
+            else FileChooserDialog.this._defaultBack.onBackPressed(dialog);
         } else {
             if (FileChooserDialog.this._onLastBackPressed != null)
                 FileChooserDialog.this._onLastBackPressed.onBackPressed(dialog);
-            else FileChooserDialog.this._defaultLastBack.onBackPressed(dialog);
+            else FileChooserDialog._defaultLastBack.onBackPressed(dialog);
         }
     });
-    private OnBackPressedListener _onLastBackPressed;
 
-    private OnBackPressedListener _defaultLastBack = Dialog::dismiss;
+    private OnBackPressedListener _onBackPressed;
+    private OnBackPressedListener _onLastBackPressed;
+    private final OnBackPressedListener _defaultBack = dialog -> FileChooserDialog.this._list.performItemClick(FileChooserDialog.this._list, 0, 0);
+    private static final OnBackPressedListener _defaultLastBack = Dialog::cancel;
 
     private static final int CHOOSE_MODE_NORMAL = 0;
     private static final int CHOOSE_MODE_DELETE = 1;
