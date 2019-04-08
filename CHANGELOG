@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1s - 2019-04-08
+
+\+ fileListItemFocusedDrawable attribute added
+\* bug fixes (especially with Dpad controls)
+\+ FileChooser now remembers directory when going back
+\- SmbFileChooser however no longer scrolls to top when list refreshes (the above feature should be added soon)
+
 ## 1.4.0s - 2019-03-25
 
 \+ added FileChooser style. You can now set a custom theme

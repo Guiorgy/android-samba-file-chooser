@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.obsez.android.lib.smbfilechooser.FileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.R;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
@@ -111,6 +112,11 @@ public class DirAdapter extends MyAdapter<File> {
     public long getItemId(int position) {
         //noinspection ConstantConditions
         return getItem(position).hashCode();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return getCount() == 0 || (getCount() == 1 && getItem(0) instanceof FileChooserDialog.RootFile);
     }
 }
 
