@@ -773,9 +773,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 final int buttonColor = _btnNeutral.getCurrentTextColor();
                 final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
 
-                final int buttonColor = options.getCurrentTextColor();
-                final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
-
                 // Root view (FrameLayout) of the ListView in the AlertDialog.
                 final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
                 final ViewGroup root = ((AlertDialog) dialog).findViewById(rootId);
