@@ -549,7 +549,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 buttonBar.addView(_btnPositive, 2);
 
                 if (_enableMultiple && !_dirOnly) {
-                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
+                    _btnPositive.setVisibility(INVISIBLE);
                 }
 
                 if (_enableDpad) {
@@ -868,7 +868,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                     overlay.setVisibility(GONE);
                                                     overlay.clearFocus();
                                                     if (FileChooserDialog.this._enableDpad) {
-                                                        Button b = FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                                                        Button b = FileChooserDialog.this._btnNeutral;
                                                         b.setFocusable(true);
                                                         b.requestFocus();
                                                         FileChooserDialog.this._list.setFocusable(true);
@@ -882,7 +882,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (FileChooserDialog.this._enableDpad) {
-                                                    Button b = FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                                                    Button b = FileChooserDialog.this._btnNeutral;
                                                     b.setFocusable(true);
                                                     b.requestFocus();
                                                     FileChooserDialog.this._list.setFocusable(true);
@@ -894,7 +894,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (FileChooserDialog.this._enableDpad) {
-                                                    Button b = FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                                                    Button b = FileChooserDialog.this._btnNeutral;
                                                     b.setFocusable(true);
                                                     b.requestFocus();
                                                     FileChooserDialog.this._list.setFocusable(true);
@@ -908,14 +908,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             FileChooserDialog.this._newFolderView.setVisibility(VISIBLE);
                                             if (FileChooserDialog.this._enableDpad) {
                                                 FileChooserDialog.this._newFolderView.requestFocus();
-                                                FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(false);
+                                                FileChooserDialog.this._btnNeutral.setFocusable(false);
                                                 FileChooserDialog.this._list.setFocusable(false);
                                             }
                                         } else {
                                             FileChooserDialog.this._newFolderView.setVisibility(GONE);
                                             if (FileChooserDialog.this._enableDpad) {
                                                 FileChooserDialog.this._newFolderView.clearFocus();
-                                                FileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                FileChooserDialog.this._btnNeutral.setFocusable(true);
                                                 FileChooserDialog.this._list.setFocusable(true);
                                             }
                                         }
@@ -973,13 +973,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             if (FileChooserDialog.this._chooseMode == CHOOSE_MODE_DELETE) {
                                                 final int color1 = 0x80ff0000;
                                                 final PorterDuffColorFilter red = new PorterDuffColorFilter(color1, PorterDuff.Mode.SRC_IN);
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].setColorFilter(red);
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color1);
+                                                _btnNeutral.getCompoundDrawables()[0].setColorFilter(red);
+                                                _btnNeutral.setTextColor(color1);
                                                 delete.getCompoundDrawables()[0].setColorFilter(red);
                                                 delete.setTextColor(color1);
                                             } else {
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].clearColorFilter();
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(buttonColor);
+                                                _btnNeutral.getCompoundDrawables()[0].clearColorFilter();
+                                                _btnNeutral.setTextColor(buttonColor);
                                                 delete.getCompoundDrawables()[0].clearColorFilter();
                                                 delete.setTextColor(buttonColor);
                                             }
@@ -1344,7 +1344,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         if (!_adapter.isAnySelected()) {
                             _chooseMode = CHOOSE_MODE_NORMAL;
                             if (!_dirOnly)
-                                _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
+                                _btnPositive.setVisibility(INVISIBLE);
                         }
                     }
                     break;
@@ -1380,11 +1380,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (!_adapter.isAnySelected()) {
             _chooseMode = CHOOSE_MODE_NORMAL;
             if (!_dirOnly)
-                _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
+                _btnPositive.setVisibility(INVISIBLE);
         } else {
             _chooseMode = CHOOSE_MODE_SELECT_MULTIPLE;
             if (!_dirOnly)
-                _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(VISIBLE);
+                _btnPositive.setVisibility(VISIBLE);
         }
         if (FileChooserDialog.this._deleteMode != null) FileChooserDialog.this._deleteMode.run();
         return true;
@@ -1452,7 +1452,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     lastSelected = false;
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    //onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
                     _list.performItemClick(_list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
                     lastSelected = false;
                     return true;
@@ -1462,7 +1461,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         if (_options != null && _options.getVisibility() == VISIBLE) {
                             _options.requestFocus();
                         } else {
-                            _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).requestFocus();
+                            if (_btnNeutral.getVisibility() == VISIBLE)
+                                _btnNeutral.requestFocus();
+                            else _btnNegative.requestFocus();
                         }
                         return true;
                     }

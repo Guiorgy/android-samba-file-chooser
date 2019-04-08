@@ -745,7 +745,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 buttonBar.addView(_btnPositive, 2);
 
                 if (_enableMultiple && !_dirOnly) {
-                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
+                    _btnPositive.setVisibility(INVISIBLE);
                 }
 
                 if (_enableDpad) {
@@ -1129,7 +1129,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (SmbFileChooserDialog.this._enableDpad) {
-                                                    SmbFileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                    SmbFileChooserDialog.this._btnNeutral.setFocusable(true);
                                                     SmbFileChooserDialog.this._list.setFocusable(true);
                                                 }
                                             });
@@ -1139,7 +1139,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 overlay.setVisibility(GONE);
                                                 overlay.clearFocus();
                                                 if (SmbFileChooserDialog.this._enableDpad) {
-                                                    SmbFileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                    SmbFileChooserDialog.this._btnNeutral.setFocusable(true);
                                                     SmbFileChooserDialog.this._list.setFocusable(true);
                                                 }
                                             });
@@ -1151,7 +1151,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             SmbFileChooserDialog.this._newFolderView.setVisibility(VISIBLE);
                                             if (SmbFileChooserDialog.this._enableDpad) {
                                                 SmbFileChooserDialog.this._newFolderView.requestFocus();
-                                                SmbFileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(false);
+                                                SmbFileChooserDialog.this._btnNeutral.setFocusable(false);
                                                 SmbFileChooserDialog.this._list.setFocusable(false);
                                             }
                                             if (this.input != null) {
@@ -1169,7 +1169,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             SmbFileChooserDialog.this._newFolderView.setVisibility(GONE);
                                             if (SmbFileChooserDialog.this._enableDpad) {
                                                 SmbFileChooserDialog.this._newFolderView.clearFocus();
-                                                SmbFileChooserDialog.this._alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setFocusable(true);
+                                                SmbFileChooserDialog.this._btnNeutral.setFocusable(true);
                                                 SmbFileChooserDialog.this._list.setFocusable(true);
                                             }
                                         }
@@ -1234,13 +1234,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             if (SmbFileChooserDialog.this._chooseMode == CHOOSE_MODE_DELETE) {
                                                 final int color1 = 0x80ff0000;
                                                 final PorterDuffColorFilter red = new PorterDuffColorFilter(color1, PorterDuff.Mode.SRC_IN);
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].setColorFilter(red);
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(color1);
+                                                _btnNeutral.getCompoundDrawables()[0].setColorFilter(red);
+                                                _btnNeutral.setTextColor(color1);
                                                 delete.getCompoundDrawables()[0].setColorFilter(red);
                                                 delete.setTextColor(color1);
                                             } else {
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getCompoundDrawables()[0].clearColorFilter();
-                                                _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(buttonColor);
+                                                _btnNeutral.getCompoundDrawables()[0].clearColorFilter();
+                                                _btnNeutral.setTextColor(buttonColor);
                                                 delete.getCompoundDrawables()[0].clearColorFilter();
                                                 delete.setTextColor(buttonColor);
                                             }
@@ -1621,7 +1621,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             if (!_adapter.isAnySelected()) {
                                 _chooseMode = CHOOSE_MODE_NORMAL;
                                 if (!_dirOnly)
-                                    _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
+                                    _btnPositive.setVisibility(INVISIBLE);
                             }
                         }
                         break;
@@ -1660,11 +1660,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 if (!_adapter.isAnySelected()) {
                     _chooseMode = CHOOSE_MODE_NORMAL;
                     if (!_dirOnly)
-                        _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(INVISIBLE);
+                        _btnPositive.setVisibility(INVISIBLE);
                 } else {
                     _chooseMode = CHOOSE_MODE_SELECT_MULTIPLE;
                     if (!_dirOnly)
-                        _alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(VISIBLE);
+                        _btnPositive.setVisibility(VISIBLE);
                 }
                 if (SmbFileChooserDialog.this._deleteMode != null)
                     SmbFileChooserDialog.this._deleteMode.run();
@@ -1739,7 +1739,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     lastSelected = false;
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    //onItemClick(null, _list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
                     _list.performItemClick(_list, _list.getSelectedItemPosition(), _list.getSelectedItemId());
                     lastSelected = false;
                     return true;
@@ -1749,7 +1748,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         if (_options != null && _options.getVisibility() == VISIBLE) {
                             _options.requestFocus();
                         } else {
-                            _alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).requestFocus();
+                            if (_btnNeutral.getVisibility() == VISIBLE)
+                                _btnNeutral.requestFocus();
+                            else _btnNegative.requestFocus();
                         }
                         return true;
                     }
