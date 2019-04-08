@@ -18,6 +18,7 @@ import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import androidx.annotation.NonNull;
 import androidx.collection.SparseArrayCompat;
@@ -192,10 +193,15 @@ abstract class MyAdapter<T> extends BaseAdapter {
         return getCount() == 0 || (getCount() == 1 && (getItem(0) instanceof FileChooserDialog.RootFile || getItem(0) instanceof SmbFileChooserDialog.RootSmbFile));
     }
 
+    public Stack<Integer> getIndexStack() {
+        return _indexStack;
+    }
+
     protected static SimpleDateFormat _formatter;
     protected Drawable _defaultFolderIcon = null;
     protected Drawable _defaultFileIcon = null;
     protected boolean _resolveFileType = false;
     protected PorterDuffColorFilter _colorFilter;
     protected GetView _getView = null;
+    private Stack<Integer> _indexStack = new Stack<>();
 }

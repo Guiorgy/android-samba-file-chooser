@@ -1311,7 +1311,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (position < 0 || position >= _entries.size()) return;
 
         View focus = _list;
-        boolean scrollToTop = false;
+        int scrollTo = 0;
         File file = _entries.get(position);
         if (file instanceof RootFile) {
             if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
@@ -1320,7 +1320,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
                 if (_deleteMode != null) _deleteMode.run();
                 lastSelected = false;
-                scrollToTop = true;
+                scrollTo = _adapter.getIndexStack().pop();
             }
         } else {
             switch (_chooseMode) {
@@ -1329,11 +1329,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
                         if (_folderNavToCB.canNavigate(file)) {
                             _currentDir = file;
-                            scrollToTop = true;
+                            scrollTo = 0;
+                            _adapter.getIndexStack().push(position);
                         }
                     } else if ((!_dirOnly) && _onChosenListener != null) {
                         _onChosenListener.onChoosePath(file.getAbsolutePath(), file);
                         _alertDialog.dismiss();
+                        return;
                     }
                     lastSelected = false;
                     break;
@@ -1342,7 +1344,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
                         if (_folderNavToCB.canNavigate(file)) {
                             _currentDir = file;
-                            scrollToTop = true;
+                            scrollTo = 0;
+                            _adapter.getIndexStack().push(position);
                         }
                     } else {
                         if (_enableDpad) focus = _alertDialog.getCurrentFocus();
@@ -1370,7 +1373,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             }
         }
         refreshDirs();
-        if (scrollToTop) _list.setSelection(0);
+        _list.setSelection(scrollTo);
         if (_enableDpad) {
             if (focus == null) _list.requestFocus();
             else focus.requestFocus();
