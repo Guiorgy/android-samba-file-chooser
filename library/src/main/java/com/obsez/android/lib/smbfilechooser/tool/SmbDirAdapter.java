@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.obsez.android.lib.smbfilechooser.R;
+import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 
 import java.util.Date;
@@ -232,6 +233,11 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         clear();
         addAll(entries);
         notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return getCount() == 0 || (getCount() == 1 && getItem(0) instanceof SmbFileChooserDialog.RootSmbFile);
     }
 
     private LoadFilesAsync _loadViewsAsync;

@@ -1597,7 +1597,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         _currentDir = file;
                         _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
                         if (_deleteMode != null) _deleteMode.run();
-                        lastSelected = false;
+                        lastSelected = _adapter.isEmpty();
                         if (!_adapter.getIndexStack().empty()) {
                             scrollTo.set(_adapter.getIndexStack().pop());
                         }
