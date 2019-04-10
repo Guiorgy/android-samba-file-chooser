@@ -1291,6 +1291,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             this._list.setDrawSelectorOnTop(true);
             this._list.setItemsCanFocus(true);
             this._list.setOnItemSelectedListener(this);
+            this._list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
         return this;
     }

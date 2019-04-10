@@ -1029,6 +1029,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             this._list.setDrawSelectorOnTop(true);
             this._list.setItemsCanFocus(true);
             this._list.setOnItemSelectedListener(this);
+            this._list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
         return this;
     }
@@ -1319,12 +1320,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             throw new IOException("Couldn't delete \"" + file.getName() + "\" at \"" + file.getParent());
     }
 
+    private int scrollTo;
+
     @Override
     public void onItemClick(@Nullable final AdapterView<?> parent, @NonNull final View list, final int position, final long id) {
         if (position < 0 || position >= _entries.size()) return;
 
+        scrollTo = 0;
         View focus = _list;
-        int scrollTo = 0;
         File file = _entries.get(position);
         if (file instanceof RootFile) {
             if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
@@ -1389,6 +1392,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
         refreshDirs();
         _list.setSelection(scrollTo);
+        _list.post(() -> _list.setSelection(scrollTo));
         if (_enableDpad) {
             if (focus == null) _list.requestFocus();
             else focus.requestFocus();
