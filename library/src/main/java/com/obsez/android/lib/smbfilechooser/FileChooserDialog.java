@@ -754,20 +754,21 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                                         if (FileChooserDialog.this._newFolderView == null) {
                                             // region Draw a view with input to create new folder. (this only happens the first time one clicks on New folder)
-                                            try {
-                                                //noinspection ConstantConditions
-                                                ((AlertDialog) dialog).getWindow().clearFlags(FLAG_NOT_FOCUSABLE | FLAG_ALT_FOCUSABLE_IM);
-                                                //noinspection ConstantConditions
-                                                ((AlertDialog) dialog).getWindow().setSoftInputMode(SOFT_INPUT_STATE_VISIBLE);
-                                            } catch (NullPointerException e) {
-                                                e.printStackTrace();
-                                            }
-
                                             TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
                                             int style = ta.getResourceId(R.styleable.FileChooser_fileChooserNewFolderStyle, R.style.FileChooserNewFolderStyle);
                                             final Context context = getThemeWrappedContext(style);
                                             ta.recycle();
                                             ta = context.obtainStyledAttributes(R.styleable.FileChooser);
+
+                                            try {
+                                                //noinspection ConstantConditions
+                                                ((AlertDialog) dialog).getWindow().clearFlags(FLAG_NOT_FOCUSABLE | FLAG_ALT_FOCUSABLE_IM);
+                                                //noinspection ConstantConditions
+                                                ((AlertDialog) dialog).getWindow().setSoftInputMode(SOFT_INPUT_STATE_VISIBLE
+                                                    | ta.getInt(R.styleable.FileChooser_fileChooserNewFolderSoftInputMode, 0x30));
+                                            } catch (NullPointerException e) {
+                                                e.printStackTrace();
+                                            }
 
                                             // A semitransparent background overlay.
                                             final FrameLayout overlay = new FrameLayout(getBaseContext());
