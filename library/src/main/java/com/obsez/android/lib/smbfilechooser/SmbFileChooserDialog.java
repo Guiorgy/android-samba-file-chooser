@@ -1000,9 +1000,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             } catch (MalformedURLException | SmbException e) {
                                                 e.printStackTrace();
                                                 runOnUiThread(() -> {
-                                                    if (input != null) {
-                                                        _exceptionHandler.handleException(e);
-                                                    }
+                                                    _exceptionHandler.handleException(e);
                                                 });
                                                 return "";
                                             }
@@ -1170,15 +1168,22 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 SmbFileChooserDialog.this._list.setFocusable(false);
                                             }
                                             if (this.input != null) {
-
                                                 try {
-                                                    if (!futureNewFile.isDone())
+                                                    if (!futureNewFile.isCancelled())
                                                         this.input.setText(futureNewFile.get());
                                                 } catch (InterruptedException | ExecutionException e) {
                                                     e.printStackTrace();
-                                                    _exceptionHandler.handleException(e);
+                                                    SmbFileChooserDialog.this._exceptionHandler.handleException(e);
                                                     this.input.setText("");
                                                 }
+                                            }
+                                            if (SmbFileChooserDialog.this._pathView != null &&
+                                                SmbFileChooserDialog.this._pathView.getVisibility() == View.VISIBLE) {
+                                                SmbFileChooserDialog.this._newFolderView.setPadding(0, UiUtil.dip2px(32),
+                                                    0, UiUtil.dip2px(12));
+                                            } else {
+                                                SmbFileChooserDialog.this._newFolderView.setPadding(0, UiUtil.dip2px(12),
+                                                    0, UiUtil.dip2px(12));
                                             }
                                         } else {
                                             SmbFileChooserDialog.this._newFolderView.setVisibility(GONE);

@@ -838,7 +838,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             params.setMargins(3, 2, 3, 0);
                                             holder.addView(input, params);
 
-                                            this.input = input; //todo: input get cut if list is empty
+                                            this.input = input;
 
                                             // A FrameLayout to hold buttons
                                             final FrameLayout buttons = new FrameLayout(getBaseContext());
@@ -920,6 +920,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                 FileChooserDialog.this._newFolderView.requestFocus();
                                                 FileChooserDialog.this._btnNeutral.setFocusable(false);
                                                 FileChooserDialog.this._list.setFocusable(false);
+                                            }
+                                            if (FileChooserDialog.this._pathView != null &&
+                                                FileChooserDialog.this._pathView.getVisibility() == View.VISIBLE) {
+                                                FileChooserDialog.this._newFolderView.setPadding(0, UiUtil.dip2px(32),
+                                                    0, UiUtil.dip2px(12));
+                                            } else {
+                                                FileChooserDialog.this._newFolderView.setPadding(0, UiUtil.dip2px(12),
+                                                    0, UiUtil.dip2px(12));
                                             }
                                         } else {
                                             FileChooserDialog.this._newFolderView.setVisibility(GONE);
