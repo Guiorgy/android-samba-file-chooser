@@ -786,15 +786,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
                 ViewGroup.MarginLayoutParams params;
                 if (root instanceof LinearLayout) {
-                    params = new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1);
+                    params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                 } else {
-                    params = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT, CENTER);
+                    params = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, CENTER);
                 }
 
                 View list = root.getChildAt(0);
                 root.removeView(list);
                 SmbFileChooserDialog.this._swipeLayout = new SwipeRefreshLayout(getBaseContext());
-                SmbFileChooserDialog.this._swipeLayout.addView(list, new SwipeRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+                SmbFileChooserDialog.this._swipeLayout.addView(list, new SwipeRefreshLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
                 root.addView(SmbFileChooserDialog.this._swipeLayout, params);
 
                 ProgressBar progressBar;
@@ -821,6 +821,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     SmbFileChooserDialog.this._swipeLayout.setRefreshing(false);
                 });
 
+                // region options view
                 if (SmbFileChooserDialog.this._enableOptions) {
                     _btnNeutral.setText("");
                     _btnNeutral.setTextColor(buttonColor);
@@ -1281,6 +1282,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         }
                     });
                 }
+                // endregion
             }
         });
 
