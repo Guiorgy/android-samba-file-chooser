@@ -1038,7 +1038,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         Window window = _alertDialog.getWindow();
         if (window != null) {
             TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setLayout(ta.getInt(R.styleable.FileChooser_fileChooserDialogWidth, WindowManager.LayoutParams.WRAP_CONTENT),
+                ta.getInt(R.styleable.FileChooser_fileChooserDialogHeight, WindowManager.LayoutParams.WRAP_CONTENT));
             window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);

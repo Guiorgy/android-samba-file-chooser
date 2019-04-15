@@ -16,8 +16,16 @@
             <flag name="start" value="8388611" />
             <flag name="end" value="8388613" />
         </attr>
-        <attr name="fileChooserDialogBackgroundDimAmount" format="float|reference" />
         <attr name="fileChooserDialogStyle" format="reference" />
+        <attr name="fileChooserDialogBackgroundDimAmount" format="float|reference" />
+        <attr name="fileChooserDialogWidth" format="flags|integer|reference">
+            <flag name="match_parent" value="-1" />
+            <flag name="wrap_content" value="-2" />
+        </attr>
+        <attr name="fileChooserDialogHeight" format="flags|integer|reference">
+            <flag name="match_parent" value="-1" />
+            <flag name="wrap_content" value="-2" />
+        </attr>
         <attr name="fileChooserListItemStyle" format="reference" />
         <attr name="fileChooserTextNameStyle" format="reference" />
         <attr name="fileChooserTextSizeStyle" format="reference" />
