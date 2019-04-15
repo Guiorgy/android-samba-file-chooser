@@ -755,9 +755,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 } else if (buttonBar instanceof FrameLayout) {
                     ((FrameLayout.LayoutParams) btnParams).gravity = CENTER;
                 }
-                buttonBar.addView(_btnNeutral, 0);
-                buttonBar.addView(_btnNegative, 1);
-                buttonBar.addView(_btnPositive, 2);
+                buttonBar.addView(_btnNeutral, 0, btnParams);
+                buttonBar.addView(_btnNegative, 1, btnParams);
+                buttonBar.addView(_btnPositive, 2, btnParams);
 
                 if (_enableMultiple && !_dirOnly) {
                     _btnPositive.setVisibility(INVISIBLE);
