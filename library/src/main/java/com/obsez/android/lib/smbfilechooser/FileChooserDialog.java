@@ -542,14 +542,20 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                 // ensure that the buttons have the right order
                 ViewGroup buttonBar = (ViewGroup) _btnPositive.getParent();
+                ViewGroup.LayoutParams btnParams = buttonBar.getLayoutParams();
+                btnParams.width = MATCH_PARENT;
+                buttonBar.setLayoutParams(btnParams);
                 buttonBar.removeAllViews();
-                ViewGroup.LayoutParams btnParams = _btnNeutral.getLayoutParams();
+                btnParams = _btnNeutral.getLayoutParams();
                 if (buttonBar instanceof LinearLayout) {
                     ((LinearLayout.LayoutParams) btnParams).weight = 1;
-                } else if (buttonBar instanceof FrameLayout) {
-                    ((FrameLayout.LayoutParams) btnParams).gravity = CENTER;
+                    ((LinearLayout.LayoutParams) btnParams).width = 0;
                 }
-                buttonBar.addView(_btnNeutral, 0, btnParams);
+                if (_enableOptions) {
+                    buttonBar.addView(_btnNeutral, 0, btnParams);
+                } else {
+                    buttonBar.addView(new Space(getBaseContext()), 0, btnParams);
+                }
                 buttonBar.addView(_btnNegative, 1, btnParams);
                 buttonBar.addView(_btnPositive, 2, btnParams);
 
