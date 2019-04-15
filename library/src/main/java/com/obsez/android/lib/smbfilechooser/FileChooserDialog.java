@@ -67,6 +67,8 @@ import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.END;
 import static android.view.Gravity.START;
 import static android.view.Gravity.TOP;
+import static android.view.View.FOCUS_LEFT;
+import static android.view.View.FOCUS_RIGHT;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -1451,10 +1453,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 case KeyEvent.KEYCODE_DPAD_UP:
                     if (_btnNeutral.hasFocus() || _btnNegative.hasFocus() || _btnPositive.hasFocus()) {
                         if (_options != null && _options.getVisibility() == VISIBLE) {
-                            _options.requestFocus(View.FOCUS_LEFT);
+                            _options.requestFocus(_btnNeutral.hasFocus() ? FOCUS_RIGHT : FOCUS_LEFT);
                             return true;
                         } else if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE) {
-                            _newFolderView.requestFocus(View.FOCUS_LEFT);
+                            _newFolderView.requestFocus(_btnNeutral.hasFocus() ? FOCUS_RIGHT : FOCUS_LEFT);
                             return true;
                         } else {
                             _list.requestFocus();
