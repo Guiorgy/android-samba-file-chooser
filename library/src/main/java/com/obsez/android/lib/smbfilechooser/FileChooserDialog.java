@@ -453,10 +453,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
 
         TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-        int style = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getThemeWrappedContext(style),
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext(),
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
-        style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
+        final int style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
         ta.recycle();
         final Context context = getThemeWrappedContext(style);
         ta = context.obtainStyledAttributes(R.styleable.FileChooser);
@@ -1038,13 +1037,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         Window window = _alertDialog.getWindow();
         if (window != null) {
             TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-            window.setLayout(ta.getInt(R.styleable.FileChooser_fileChooserDialogWidth, WindowManager.LayoutParams.WRAP_CONTENT),
-                ta.getInt(R.styleable.FileChooser_fileChooserDialogHeight, WindowManager.LayoutParams.WRAP_CONTENT));
             window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
-            WindowManager.LayoutParams lp = window.getAttributes();
-            lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);
-            lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-            window.setAttributes(lp);
             ta.recycle();
         }
         _alertDialog.show();
