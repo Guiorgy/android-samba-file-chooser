@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -629,6 +628,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                         }
                                         FileChooserDialog.this._options.setVisibility(VISIBLE);
                                         FileChooserDialog.this._options.requestFocus();
+                                        viewTreeObserver.removeOnPreDrawListener(this);
                                         return true;
                                     }
                                 });
@@ -1193,6 +1193,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                             param.topMargin = _pathView.getHeight();
                         }
                         _list.setLayoutParams(param);
+                        viewTreeObserver.removeOnPreDrawListener(this);
                         return true;
                     }
                 });

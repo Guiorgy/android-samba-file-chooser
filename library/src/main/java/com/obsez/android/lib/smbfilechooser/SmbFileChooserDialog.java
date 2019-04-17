@@ -901,6 +901,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                         }
                                         SmbFileChooserDialog.this._options.setVisibility(VISIBLE);
                                         SmbFileChooserDialog.this._options.requestFocus();
+                                        viewTreeObserver.removeOnPreDrawListener(this);
                                         return true;
                                     }
                                 });
@@ -1315,7 +1316,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             this._list.setOnItemLongClickListener(this);
         }
 
-        _list.setOnTouchListener((v, event) -> !_isScrollable && event.getAction() == MotionEvent.ACTION_MOVE);
+        //this._list.setOnTouchListener((v, event) -> !_isScrollable && event.getAction() == MotionEvent.ACTION_MOVE);
 
         if (this._enableDpad) {
             this._list.setSelector(listview_item_selector);
@@ -1473,6 +1474,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             param.topMargin = UiUtil.px2dip(_pathView.getHeight());
                         }
                         _swipeLayout.setLayoutParams(param);
+                        viewTreeObserver.removeOnPreDrawListener(this);
                         return true;
                     }
                 });
