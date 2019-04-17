@@ -131,14 +131,14 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private IExceptionHandler _exceptionHandler = new IExceptionHandler() {
         @Override
         public void handleException(@NonNull final Throwable exception) {
-            _terminate = _handler != null && _handler.handle(exception, ExceptionId.UNDEFINED);
-            if (_alertDialog != null && _terminate) _alertDialog.dismiss();
+            _terminate = _handler == null || _handler.handle(exception, ExceptionId.UNDEFINED);
+            if (_alertDialog != null && _terminate) _alertDialog.cancel();
         }
 
         @Override
         public void handleException(@NonNull final Throwable exception, final int id) {
-            _terminate = _handler != null && _handler.handle(exception, id);
-            if (_alertDialog != null && _terminate) _alertDialog.dismiss();
+            _terminate = _handler == null || _handler.handle(exception, id);
+            if (_alertDialog != null && _terminate) _alertDialog.cancel();
         }
     };
 
