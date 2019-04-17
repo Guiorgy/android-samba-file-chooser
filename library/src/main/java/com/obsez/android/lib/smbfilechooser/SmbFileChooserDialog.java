@@ -16,12 +16,12 @@ import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -829,6 +829,19 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         refreshDirs();
                     }
                     SmbFileChooserDialog.this._swipeLayout.setRefreshing(false);
+
+                SmbFileChooserDialog.this._list.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    }
+
+                    @Override
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        if (view == SmbFileChooserDialog.this._list) {
+                            SmbFileChooserDialog.this._swipeLayout.setEnabled(firstVisibleItem == 0 && UiUtil.getListYScroll(view) == 0);
+                        }
+                    }
+                });
                 });
 
                 // region options view

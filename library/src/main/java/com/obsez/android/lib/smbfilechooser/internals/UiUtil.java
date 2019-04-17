@@ -14,7 +14,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-import android.widget.ListView;
+import android.widget.AbsListView;
 
 import java.util.List;
 
@@ -113,12 +113,12 @@ public final class UiUtil {
     }
 
     // This only works assuming that all list items have the same height!
-    public static int getListYScroll(@NonNull final ListView list) {
+    public static int getListYScroll(@NonNull final AbsListView list) {
         View child = list.getChildAt(0);
         return child == null ? -1 : list.getFirstVisiblePosition() * child.getHeight() - child.getTop() + list.getPaddingTop();
     }
 
-    public static int getListYScrollDeep(@NonNull final ListView list) {
+    public static int getListYScrollDeep(@NonNull final AbsListView list) {
         final int padding = list.getChildAt(0).getTop() - list.getPaddingTop();
         final int visible = list.getFirstVisiblePosition();
         int scroll = 0;
