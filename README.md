@@ -63,7 +63,7 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
             e.printStackTrace();
         }
         // This is NOT main UI thread. you can NOT access SmbFiles on UI thread.
-        Handler mainHandler = new Handler(ctx.getMainLooper());
+        Handler mainHandler = new Handler(context.getMainLooper());
         mainHandler.post(() -> {
             Toast.makeText(context,
                 msg,
@@ -93,7 +93,7 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 	dialog.setAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_expandable_list_item_1, paths) , null);
 	dialog.show();
 })
-.enableDpad(/*enables Dpad controls (mainly fot Android TVs)*/ true)
+.enableDpad(/*enables Dpad controls (mainly for Android TVs)*/ true)
 .cancelOnTouchOutside(true)
 .setTheme(R.style.FileChooserStyle)
 .setAdapterSetter(adapter -> {
@@ -123,15 +123,25 @@ FileChooserDialog.setOnSelectedListener(files -> {
         paths.add(file.getPath());
     }
 
-    new AlertDialog.Builder(ctx)
+    new AlertDialog.Builder(context)
         .setTitle(files.size() + " files selected:")
-        .setAdapter(new ArrayAdapter<>(ctx,
+        .setAdapter(new ArrayAdapter<>(context,
             android.R.layout.simple_expandable_list_item_1, paths), null)
         .create()
         .show();
 });
 ```
 - there's no _**titleFollowsDir**_ option, and _**displayPath**_ is false by default
+- in _**SmbFileChooserDialog**_ use _**setExceptionHandler**_ to handle exceptions
+```java
+interface ExceptionHandler {
+    /**
+     * @return true to attempt to terminate.
+     * false to attempt to ignore exception and continue
+     */
+    boolean handle(Throwable exception, int id);
+}
+```
 
 For more information please refer to the [upstream repo](https://github.com/hedzr/android-file-chooser).
 
