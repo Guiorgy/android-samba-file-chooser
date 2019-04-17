@@ -136,7 +136,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                     publishProgress(new Pair<>(FileInfo.hashCode(file), new FileInfo(file.getShare(), name, icon, isDirectory, lastModified, fileSize, file.isHidden())));
                 } catch (SmbException e) {
                     e.printStackTrace();
-                    this.adapter._exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.ADAPTER_GETVIEW);
+                    this.adapter._exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.ADAPTER_GET_VIEW);
                 }
             }
             return null;

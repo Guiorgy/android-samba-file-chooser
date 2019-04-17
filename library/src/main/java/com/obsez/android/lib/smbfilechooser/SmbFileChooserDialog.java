@@ -119,6 +119,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private IExceptionHandler.ExceptionHandler _handler;
     private boolean _terminate;
 
+    /**
+     * idealy exceptions should be cought and handled here
+     * @param handler see {@link IExceptionHandler.ExceptionHandler}
+     */
     public SmbFileChooserDialog setExceptionHandler(@NonNull final IExceptionHandler.ExceptionHandler handler) {
         this._handler = handler;
         return this;
@@ -152,6 +156,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         this(context, null, serverIP, null);
     }
 
+    /**
+     * @param properties see {@link PropertyConfiguration} to find all properties and their default values
+     */
     private SmbFileChooserDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP) {
         this(context, properties, serverIP, null);
     }
@@ -160,6 +167,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         this(context, null, serverIP, auth);
     }
 
+    /**
+     * @param properties see {@link PropertyConfiguration} to find all properties and their default values
+     */
     private SmbFileChooserDialog(@NonNull final Context context, @Nullable final Properties properties, @NonNull final String serverIP, @Nullable final NtlmPasswordAuthenticator auth) {
         super(context);
 
