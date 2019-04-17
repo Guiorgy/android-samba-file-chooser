@@ -842,6 +842,21 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         }
                     }
                 });
+
+                SmbFileChooserDialog.this._list.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
+                                                                           int leftWas, int topWas, int rightWas, int bottomWas) -> {
+                    final int heightWas = bottomWas - topWas;
+                    final int heightIs = v.getHeight();
+                    if (heightIs != heightWas) {
+                        ViewGroup.LayoutParams param = SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
+                        param.height = heightIs;
+                        SmbFileChooserDialog.this._swipeLayout.setLayoutParams(param);
+                    } else if (SmbFileChooserDialog.this._list.getLastVisiblePosition() < SmbFileChooserDialog.this._list.getCount() - 1) {
+                        ViewGroup.LayoutParams param = SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
+                        param.height = -1;
+                        SmbFileChooserDialog.this._swipeLayout.setLayoutParams(param);
+                    }
+                });
                 });
 
                 // region options view
