@@ -103,8 +103,8 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
     private static class LoadFilesAsync extends AsyncTask<SmbFile, Pair<Integer, FileInfo>, Void> {
         private final SmbDirAdapter adapter;
-        private SparseArrayCompat<FileInfo> files = new SparseArrayCompat<>();
-        private SparseArrayCompat<Pair<View, Boolean>> views = new SparseArrayCompat<>();
+        private volatile SparseArrayCompat<FileInfo> files = new SparseArrayCompat<>();
+        private volatile SparseArrayCompat<Pair<View, Boolean>> views = new SparseArrayCompat<>();
 
         LoadFilesAsync(SmbDirAdapter adapter) {
             this.adapter = adapter;
