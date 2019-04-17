@@ -188,7 +188,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
                     if (continueFromLast.isChecked()) {
                         _path = dir;
                     }
-                    Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ctx, (dirFile.isDirectory() ? "FOLDER: " : "FILE: ") + dir, Toast.LENGTH_LONG).show();
                     _tv.setText(dir);
                     if (dirFile.isFile()) _iv.setImageBitmap(ImageUtil.decodeFile(dirFile));
                 });
