@@ -74,9 +74,8 @@ public class DirAdapter extends MyAdapter<File> {
         long lastModified = file.isDirectory() ? 0L : file.lastModified();
         if (lastModified != 0L) {
             tvDate.setText(_formatter.format(new Date(lastModified)));
-            tvDate.setVisibility(View.VISIBLE);
         } else {
-            tvDate.setVisibility(View.GONE);
+            tvDate.setText("");
         }
 
         tvSize.setText(file.isDirectory() ? "" : FileUtil.getReadableFileSize(file.length()));

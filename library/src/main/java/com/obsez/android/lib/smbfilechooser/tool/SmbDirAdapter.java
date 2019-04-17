@@ -198,9 +198,8 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
                 if (file.lastModified != 0L) {
                     tvDate.setText(_formatter.format(new Date(file.lastModified)));
-                    tvDate.setVisibility(VISIBLE);
                 } else {
-                    tvDate.setVisibility(GONE);
+                    tvDate.setText("");
                 }
                 tvSize.setText(file.fileSize);
                 if (root.getBackground() == null)
