@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
+import android.database.DataSetObserver;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -121,6 +122,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     /**
      * idealy exceptions should be cought and handled here
+     *
      * @param handler see {@link IExceptionHandler.ExceptionHandler}
      */
     public SmbFileChooserDialog setExceptionHandler(@NonNull final IExceptionHandler.ExceptionHandler handler) {
@@ -804,7 +806,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 View list = root.getChildAt(0);
                 root.removeView(list);
                 SmbFileChooserDialog.this._swipeLayout = new SwipeRefreshLayout(getBaseContext());
-                SmbFileChooserDialog.this._swipeLayout.addView(list, new SwipeRefreshLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+                LinearLayout container = new LinearLayout(getBaseContext());
+                container.setOrientation(LinearLayout.VERTICAL);
+                container.addView(list, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+                SmbFileChooserDialog.this._swipeLayout.addView(container, new SwipeRefreshLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
                 root.addView(SmbFileChooserDialog.this._swipeLayout, params);
 
                 ProgressBar progressBar;
@@ -844,11 +849,16 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                     }
                 });
 
-                SmbFileChooserDialog.this._list.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
+                /*SmbFileChooserDialog.this._list.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
                                                                            int leftWas, int topWas, int rightWas, int bottomWas) -> {
+
+//                    Log.d("TEST", SmbFileChooserDialog.this._list.getHeight() + " "
+//                        + SmbFileChooserDialog.this._swipeLayout.getHeight() + " "
+//                        + SmbFileChooserDialog.this._list.getLastVisiblePosition() + " "
+//                        + SmbFileChooserDialog.this._list.getCount());
                     final int heightWas = bottomWas - topWas;
                     final int heightIs = v.getHeight();
-                    if (heightIs != heightWas) {
+                    if (heightIs < heightWas) {
                         ViewGroup.LayoutParams param = SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
                         param.height = heightIs;
                         SmbFileChooserDialog.this._swipeLayout.setLayoutParams(param);
@@ -856,6 +866,29 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         ViewGroup.LayoutParams param = SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
                         param.height = -1;
                         SmbFileChooserDialog.this._swipeLayout.setLayoutParams(param);
+                    }
+                });*/
+
+                SmbFileChooserDialog.this._adapter.registerDataSetObserver(new DataSetObserver() {
+                    @Override
+                    public void onChanged() {
+                        /*Log.d("TEST", SmbFileChooserDialog.this._list.getHeight() + " "
+                            + SmbFileChooserDialog.this._swipeLayout.getHeight() + " "
+                            + SmbFileChooserDialog.this._list.getLastVisiblePosition() + " "
+                            + SmbFileChooserDialog.this._list.getCount());*/
+                        if (SmbFileChooserDialog.this._list.getCount() == 0
+                            || SmbFileChooserDialog.this._list.getLastVisiblePosition() == -1)
+                            return;
+                        if (SmbFileChooserDialog.this._list.getHeight()
+                            < SmbFileChooserDialog.this._swipeLayout.getHeight()) {
+                            ViewGroup.LayoutParams param = SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
+                            param.height = SmbFileChooserDialog.this._list.getHeight();
+                            SmbFileChooserDialog.this._swipeLayout.setLayoutParams(param);
+                        } else if (SmbFileChooserDialog.this._list.getLastVisiblePosition() < SmbFileChooserDialog.this._list.getCount() - 1) {
+                            ViewGroup.LayoutParams param = SmbFileChooserDialog.this._swipeLayout.getLayoutParams();
+                            param.height = -1;
+                            SmbFileChooserDialog.this._swipeLayout.setLayoutParams(param);
+                        }
                     }
                 });
 

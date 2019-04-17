@@ -166,6 +166,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 if (pair == null) continue;
                 bindView(pair.getFirst(), file, pair.getSecond());
             }
+            adapter.notifyDataSetChanged();
         }
 
         void tryBindView(final int hashCode, final View view, final boolean isSelected) {
