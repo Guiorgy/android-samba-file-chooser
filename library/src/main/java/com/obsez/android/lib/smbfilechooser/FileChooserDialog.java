@@ -682,15 +682,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 }
                                 root.addView(options, params);
                                 options.setFocusable(false);
-
                                 if (root instanceof FrameLayout) {
                                     _list.bringToFront();
                                 }
-
-                                if (root instanceof FrameLayout) {
-                                    _list.bringToFront();
-                                }
-
                                 options.setOnClickListener(null);
 
                                 // Create a button for the option to create a new directory/folder.
