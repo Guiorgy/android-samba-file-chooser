@@ -829,6 +829,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         refreshDirs();
                     }
                     SmbFileChooserDialog.this._swipeLayout.setRefreshing(false);
+                });
 
                 SmbFileChooserDialog.this._list.setOnScrollListener(new AbsListView.OnScrollListener() {
                     @Override
@@ -856,7 +857,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         param.height = -1;
                         SmbFileChooserDialog.this._swipeLayout.setLayoutParams(param);
                     }
-                });
                 });
 
                 // region options view
