@@ -188,25 +188,29 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
             }
 
             if (adapter._bindView == null) {
-                final View root = view.findViewById(R.id.root);
-                final TextView tvName = view.findViewById(R.id.text);
-                final TextView tvSize = view.findViewById(R.id.txt_size);
-                final TextView tvDate = view.findViewById(R.id.txt_date);
-                //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
+                view.post(() -> {
+                    final View root = view.findViewById(R.id.root);
+                    final TextView tvName = view.findViewById(R.id.text);
+                    final TextView tvSize = view.findViewById(R.id.txt_size);
+                    final TextView tvDate = view.findViewById(R.id.txt_date);
+                    //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
 
-                tvName.setText(file.name);
-                tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
-                if (file.lastModified != 0L) {
-                    tvDate.setText(_formatter.format(new Date(file.lastModified)));
-                } else {
-                    tvDate.setText("");
-                }
-                tvSize.setText(file.fileSize);
-                if (root.getBackground() == null)
-                    root.setBackgroundResource(R.color.li_row_background);
-                if (isSelected) root.getBackground().setColorFilter(adapter._colorFilter);
-                else root.getBackground().clearColorFilter();
-            } else adapter._bindView.bindView(file, isSelected, view);
+                    tvName.setText(file.name);
+                    tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
+                    if (file.lastModified != 0L) {
+                        tvDate.setText(_formatter.format(new Date(file.lastModified)));
+                    } else {
+                        tvDate.setText("");
+                    }
+                    tvSize.setText(file.fileSize);
+                    if (root.getBackground() == null)
+                        root.setBackgroundResource(R.color.li_row_background);
+                    if (isSelected) root.getBackground().setColorFilter(adapter._colorFilter);
+                    else root.getBackground().clearColorFilter();
+                });
+            } else {
+                view.post(() -> adapter._bindView.bindView(file, isSelected, view));
+            }
 
             view.setVisibility(VISIBLE);
         }
