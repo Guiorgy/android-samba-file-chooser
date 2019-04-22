@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -67,6 +66,8 @@ import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.END;
 import static android.view.Gravity.START;
 import static android.view.Gravity.TOP;
+import static android.view.View.FOCUS_LEFT;
+import static android.view.View.FOCUS_RIGHT;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -290,6 +291,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         return this;
     }
 
+    public FileChooserDialog setOptionIcons(@Nullable Drawable optionsIcon, @Nullable Drawable createDirIcon, @Nullable Drawable deleteIcon) {
+        this._optionsIcon = optionsIcon;
+        this._createDirIcon = createDirIcon;
+        this._deleteIcon = deleteIcon;
+        return this;
+    }
+
     @NonNull
     public FileChooserDialog setIcon(@Nullable @DrawableRes final Integer iconId) {
         this._iconRes = iconId;
@@ -453,10 +461,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
 
         TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-        int style = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getThemeWrappedContext(style),
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext(),
             ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
-        style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
+        final int style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
         ta.recycle();
         final Context context = getThemeWrappedContext(style);
         ta = context.obtainStyledAttributes(R.styleable.FileChooser);
@@ -543,16 +550,22 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                 // ensure that the buttons have the right order
                 ViewGroup buttonBar = (ViewGroup) _btnPositive.getParent();
+                ViewGroup.LayoutParams btnParams = buttonBar.getLayoutParams();
+                btnParams.width = MATCH_PARENT;
+                buttonBar.setLayoutParams(btnParams);
                 buttonBar.removeAllViews();
-                ViewGroup.LayoutParams btnParams = _btnNeutral.getLayoutParams();
+                btnParams = _btnNeutral.getLayoutParams();
                 if (buttonBar instanceof LinearLayout) {
                     ((LinearLayout.LayoutParams) btnParams).weight = 1;
-                } else if (buttonBar instanceof FrameLayout) {
-                    ((FrameLayout.LayoutParams) btnParams).gravity = CENTER;
+                    ((LinearLayout.LayoutParams) btnParams).width = 0;
                 }
-                buttonBar.addView(_btnNeutral, 0);
-                buttonBar.addView(_btnNegative, 1);
-                buttonBar.addView(_btnPositive, 2);
+                if (_enableOptions) {
+                    buttonBar.addView(_btnNeutral, 0, btnParams);
+                } else {
+                    buttonBar.addView(new Space(getBaseContext()), 0, btnParams);
+                }
+                buttonBar.addView(_btnNegative, 1, btnParams);
+                buttonBar.addView(_btnPositive, 2, btnParams);
 
                 if (_enableMultiple && !_dirOnly) {
                     _btnPositive.setVisibility(INVISIBLE);
@@ -613,7 +626,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                         if (FileChooserDialog.this._options.getHeight() <= 0) {
                                             return false;
                                         }
-                                        FileChooserDialog.this._options.getViewTreeObserver().removeOnPreDrawListener(this);
+                                        viewTreeObserver.removeOnPreDrawListener(this);
                                         scroll.Int = getListYScroll(FileChooserDialog.this._list);
                                         if (FileChooserDialog.this._options.getParent() instanceof FrameLayout) {
                                             final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) FileChooserDialog.this._list.getLayoutParams();
@@ -675,15 +688,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 }
                                 root.addView(options, params);
                                 options.setFocusable(false);
-
                                 if (root instanceof FrameLayout) {
-                                    _list.bringToFront();
+                                    FileChooserDialog.this._list.bringToFront();
                                 }
-
-                                if (root instanceof FrameLayout) {
-                                    _list.bringToFront();
-                                }
-
                                 options.setOnClickListener(null);
 
                                 // Create a button for the option to create a new directory/folder.
@@ -708,7 +715,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     createDir.setBackgroundResource(listview_item_selector);
                                 }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
-                                params.leftMargin = 10;
+                                params.leftMargin = UiUtil.dip2px(10);
                                 options.addView(createDir, params);
 
                                 // Create a button for the option to delete a file.
@@ -733,7 +740,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     delete.setBackgroundResource(listview_item_selector);
                                 }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
-                                params.rightMargin = 10;
+                                params.rightMargin = UiUtil.dip2px(10);
                                 options.addView(delete, params);
 
                                 FileChooserDialog.this._options = options;
@@ -1038,12 +1045,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         Window window = _alertDialog.getWindow();
         if (window != null) {
             TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
             window.setGravity(ta.getInt(R.styleable.FileChooser_fileChooserDialogGravity, Gravity.CENTER));
-            WindowManager.LayoutParams lp = window.getAttributes();
-            lp.dimAmount = ta.getFloat(R.styleable.FileChooser_fileChooserDialogBackgroundDimAmount, 0.3f);
-            lp.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-            window.setAttributes(lp);
             ta.recycle();
         }
         _alertDialog.show();
@@ -1150,7 +1152,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         if (path == null) {
             _pathView.setVisibility(GONE);
-
             ViewGroup.MarginLayoutParams param = ((ViewGroup.MarginLayoutParams) _list.getLayoutParams());
             if (_pathView.getParent() instanceof FrameLayout) {
                 param.topMargin = 0;
@@ -1186,7 +1187,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         if (_pathView.getHeight() <= 0) {
                             return false;
                         }
-                        _pathView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        viewTreeObserver.removeOnPreDrawListener(this);
                         if (_pathView.getParent() instanceof FrameLayout) {
                             param.topMargin = _pathView.getHeight();
                         }
@@ -1451,10 +1452,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                 case KeyEvent.KEYCODE_DPAD_UP:
                     if (_btnNeutral.hasFocus() || _btnNegative.hasFocus() || _btnPositive.hasFocus()) {
                         if (_options != null && _options.getVisibility() == VISIBLE) {
-                            _options.requestFocus(View.FOCUS_LEFT);
+                            _options.requestFocus(_btnNeutral.hasFocus() ? FOCUS_RIGHT : FOCUS_LEFT);
                             return true;
                         } else if (_newFolderView != null && _newFolderView.getVisibility() == VISIBLE) {
-                            _newFolderView.requestFocus(View.FOCUS_LEFT);
+                            _newFolderView.requestFocus(_btnNeutral.hasFocus() ? FOCUS_RIGHT : FOCUS_LEFT);
                             return true;
                         } else {
                             _list.requestFocus();

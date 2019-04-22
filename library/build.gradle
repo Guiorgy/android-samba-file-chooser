@@ -1,25 +1,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.github.dcendents.android-maven' // ADD THIS
+apply plugin: 'com.github.dcendents.android-maven'
 
-
-//apply plugin: 'maven'
-//version = "1.1.3"
-//group = "com.obsez.android.lib.filechooser"
-//不是必须的
 group = GROUP
 version = VERSION_NAME
 
 android {
-    //compileSdkVersion 22
-    //buildToolsVersion "23.0.0 rc2"
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-    resourcePrefix "obsez_fc__"
 
     defaultConfig {
-        //minSdkVersion 8
-        //targetSdkVersion 22
         minSdkVersion project.ANDROID_MIN_SDK_VERSION
         targetSdkVersion project.ANDROID_TARGET_SDK_VERSION
         versionCode Integer.parseInt(project.VERSION_CODE)
@@ -45,7 +35,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha03'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha04'
     implementation 'eu.agno3.jcifs:jcifs-ng:2.1.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
@@ -53,16 +43,15 @@ dependencies {
 task createPom {
     pom {
         project {
-            groupId 'com.github.Guiorgy'
-            artifactId 'android-smbfile-chooser'
+            groupId POM_GROUP_ID
+            artifactId POM_ARTIFACT_ID
             version VERSION_NAME
-
-            inceptionYear '2018'
+            inceptionYear POM_INCEPTION_YEAR
             licenses {
                 license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
+                    name POM_LICENCE_NAME
+                    url POM_LICENCE_URL
+                    distribution POM_LICENCE_DIST
                 }
             }
         }
