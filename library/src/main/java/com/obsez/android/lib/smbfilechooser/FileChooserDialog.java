@@ -619,7 +619,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                         if (FileChooserDialog.this._options.getHeight() <= 0) {
                                             return false;
                                         }
-                                        FileChooserDialog.this._options.getViewTreeObserver().removeOnPreDrawListener(this);
+                                        viewTreeObserver.removeOnPreDrawListener(this);
                                         scroll.Int = getListYScroll(FileChooserDialog.this._list);
                                         if (FileChooserDialog.this._options.getParent() instanceof FrameLayout) {
                                             final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) FileChooserDialog.this._list.getLayoutParams();
@@ -628,7 +628,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                         }
                                         FileChooserDialog.this._options.setVisibility(VISIBLE);
                                         FileChooserDialog.this._options.requestFocus();
-                                        viewTreeObserver.removeOnPreDrawListener(this);
                                         return true;
                                     }
                                 });
@@ -1181,12 +1180,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                         if (_pathView.getHeight() <= 0) {
                             return false;
                         }
-                        _pathView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        viewTreeObserver.removeOnPreDrawListener(this);
                         if (_pathView.getParent() instanceof FrameLayout) {
                             param.topMargin = _pathView.getHeight();
                         }
                         _list.setLayoutParams(param);
-                        viewTreeObserver.removeOnPreDrawListener(this);
                         return true;
                     }
                 });

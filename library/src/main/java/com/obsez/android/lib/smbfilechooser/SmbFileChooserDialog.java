@@ -858,7 +858,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                         if (SmbFileChooserDialog.this._options.getHeight() <= 0) {
                                             return false;
                                         }
-                                        SmbFileChooserDialog.this._options.getViewTreeObserver().removeOnPreDrawListener(this);
+                                        viewTreeObserver.removeOnPreDrawListener(this);
                                         scroll.Int = getListYScroll(SmbFileChooserDialog.this._list);
                                         if (SmbFileChooserDialog.this._options.getParent() instanceof FrameLayout) {
                                             final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) SmbFileChooserDialog.this._list.getLayoutParams();
@@ -867,7 +867,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                         }
                                         SmbFileChooserDialog.this._options.setVisibility(VISIBLE);
                                         SmbFileChooserDialog.this._options.requestFocus();
-                                        viewTreeObserver.removeOnPreDrawListener(this);
                                         return true;
                                     }
                                 });
@@ -1432,12 +1431,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         if (_pathView.getHeight() <= 0) {
                             return false;
                         }
-                        _pathView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        viewTreeObserver.removeOnPreDrawListener(this);
                         if (_pathView.getParent() instanceof FrameLayout) {
                             param.topMargin = UiUtil.px2dip(_pathView.getHeight());
                         }
                         _list.setLayoutParams(param);
-                        viewTreeObserver.removeOnPreDrawListener(this);
                         return true;
                     }
                 });
