@@ -45,16 +45,15 @@ dependencies {
 task createPom {
     pom {
         project {
-            groupId 'com.github.Guiorgy'
-            artifactId 'android-smbfile-chooser'
+            groupId POM_GROUP_ID
+            artifactId POM_ARTIFACT_ID
             version VERSION_NAME
-
-            inceptionYear '2018'
+            inceptionYear POM_INCEPTION_YEAR
             licenses {
                 license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
+                    name POM_LICENCE_NAME
+                    url POM_LICENCE_URL
+                    distribution POM_LICENCE_DIST
                 }
             }
         }
