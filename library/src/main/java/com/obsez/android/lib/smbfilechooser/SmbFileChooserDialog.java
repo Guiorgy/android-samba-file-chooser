@@ -1433,7 +1433,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         }
                         viewTreeObserver.removeOnPreDrawListener(this);
                         if (_pathView.getParent() instanceof FrameLayout) {
-                            param.topMargin = UiUtil.px2dip(_pathView.getHeight());
+                            param.topMargin = _pathView.getHeight();
                         }
                         _list.setLayoutParams(param);
                         return true;
@@ -1441,7 +1441,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 });
             } else {
                 if (_pathView.getParent() instanceof FrameLayout) {
-                    param.topMargin = UiUtil.px2dip(_pathView.getHeight());
+                    param.topMargin = _pathView.getHeight();
                 }
                 _list.setLayoutParams(param);
             }
