@@ -117,7 +117,7 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
         if (enableSamba.isChecked()) {
             SmbFileChooserDialog smbFileChooserDialog = SmbFileChooserDialog.newDialog(ctx, _server)
                 .setResources(R.string.title_choose_folder, R.string.title_choose, R.string.dialog_cancel)
-                .setOptionResources(R.string.option_create_folder, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
+                .setOptionResources(R.string.option_create_folder, R.string.option_refresh, R.string.options_delete, R.string.new_folder_cancel, R.string.new_folder_ok)
                 .disableTitle(disableTitle.isChecked())
                 .enableOptions(enableOptions.isChecked())
                 .displayPath(displayPath.isChecked())
