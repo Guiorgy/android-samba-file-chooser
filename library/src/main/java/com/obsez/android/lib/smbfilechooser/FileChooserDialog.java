@@ -683,7 +683,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 root.addView(options, params);
                                 options.setFocusable(false);
                                 if (root instanceof FrameLayout) {
-                                    _list.bringToFront();
+                                    FileChooserDialog.this._list.bringToFront();
                                 }
                                 options.setOnClickListener(null);
 
@@ -1146,7 +1146,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
         if (path == null) {
             _pathView.setVisibility(GONE);
-
             ViewGroup.MarginLayoutParams param = ((ViewGroup.MarginLayoutParams) _list.getLayoutParams());
             if (_pathView.getParent() instanceof FrameLayout) {
                 param.topMargin = 0;
