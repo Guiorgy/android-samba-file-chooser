@@ -103,8 +103,8 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
 
     private static class LoadFilesAsync extends AsyncTask<SmbFile, Pair<Integer, FileInfo>, Void> {
         private final SmbDirAdapter adapter;
-        private SparseArrayCompat<FileInfo> files = new SparseArrayCompat<>();
-        private SparseArrayCompat<Pair<View, Boolean>> views = new SparseArrayCompat<>();
+        private volatile SparseArrayCompat<FileInfo> files = new SparseArrayCompat<>();
+        private volatile SparseArrayCompat<Pair<View, Boolean>> views = new SparseArrayCompat<>();
 
         LoadFilesAsync(SmbDirAdapter adapter) {
             this.adapter = adapter;
@@ -136,7 +136,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                     publishProgress(new Pair<>(FileInfo.hashCode(file), new FileInfo(file.getShare(), name, icon, isDirectory, lastModified, fileSize, file.isHidden())));
                 } catch (SmbException e) {
                     e.printStackTrace();
-                    this.adapter._exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.ADAPTER_GETVIEW);
+                    this.adapter._exceptionHandler.handleException(e, IExceptionHandler.ExceptionId.ADAPTER_GET_VIEW);
                 }
             }
             return null;
@@ -166,6 +166,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 if (pair == null) continue;
                 bindView(pair.getFirst(), file, pair.getSecond());
             }
+            adapter.notifyDataSetChanged();
         }
 
         void tryBindView(final int hashCode, final View view, final boolean isSelected) {
@@ -187,26 +188,29 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
             }
 
             if (adapter._bindView == null) {
-                final View root = view.findViewById(R.id.root);
-                final TextView tvName = view.findViewById(R.id.text);
-                final TextView tvSize = view.findViewById(R.id.txt_size);
-                final TextView tvDate = view.findViewById(R.id.txt_date);
-                //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
+                view.post(() -> {
+                    final View root = view.findViewById(R.id.root);
+                    final TextView tvName = view.findViewById(R.id.text);
+                    final TextView tvSize = view.findViewById(R.id.txt_size);
+                    final TextView tvDate = view.findViewById(R.id.txt_date);
+                    //ImageView ivIcon = (ImageView) view.findViewById(R.id.icon);
 
-                tvName.setText(file.name);
-                tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
-                if (file.lastModified != 0L) {
-                    tvDate.setText(_formatter.format(new Date(file.lastModified)));
-                    tvDate.setVisibility(VISIBLE);
-                } else {
-                    tvDate.setVisibility(GONE);
-                }
-                tvSize.setText(file.fileSize);
-                if (root.getBackground() == null)
-                    root.setBackgroundResource(R.color.li_row_background);
-                if (isSelected) root.getBackground().setColorFilter(adapter._colorFilter);
-                else root.getBackground().clearColorFilter();
-            } else adapter._bindView.bindView(file, isSelected, view);
+                    tvName.setText(file.name);
+                    tvName.setCompoundDrawablesWithIntrinsicBounds(file.icon, null, null, null);
+                    if (file.lastModified != 0L) {
+                        tvDate.setText(_formatter.format(new Date(file.lastModified)));
+                    } else {
+                        tvDate.setText("");
+                    }
+                    tvSize.setText(file.fileSize);
+                    if (root.getBackground() == null)
+                        root.setBackgroundResource(R.color.li_row_background);
+                    if (isSelected) root.getBackground().setColorFilter(adapter._colorFilter);
+                    else root.getBackground().clearColorFilter();
+                });
+            } else {
+                view.post(() -> adapter._bindView.bindView(file, isSelected, view));
+            }
 
             view.setVisibility(VISIBLE);
         }
