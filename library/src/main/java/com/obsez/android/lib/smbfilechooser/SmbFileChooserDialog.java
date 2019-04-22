@@ -425,8 +425,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     @NonNull
-    public SmbFileChooserDialog setOptionResources(@Nullable @StringRes final Integer createDirRes, @Nullable @StringRes final Integer deleteRes, @Nullable @StringRes final Integer newFolderCancelRes, @Nullable @StringRes final Integer newFolderOkRes) {
+    public SmbFileChooserDialog setOptionResources(@Nullable @StringRes final Integer createDirRes, @Nullable @StringRes final Integer refreshRes, @Nullable @StringRes final Integer deleteRes, @Nullable @StringRes final Integer newFolderCancelRes, @Nullable @StringRes final Integer newFolderOkRes) {
         this._createDirRes = createDirRes;
+        this._refreshRes = refreshRes;
         this._deleteRes = deleteRes;
         this._newFolderCancelRes = newFolderCancelRes;
         this._newFolderOkRes = newFolderOkRes;
@@ -434,9 +435,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     @NonNull
-    public SmbFileChooserDialog setOptionResources(@Nullable final String createDir, @Nullable final String delete, @Nullable final String newFolderCancel, @Nullable final String newFolderOk) {
+    public SmbFileChooserDialog setOptionResources(@Nullable final String createDir, @Nullable final String refresh, @Nullable final String delete, @Nullable final String newFolderCancel, @Nullable final String newFolderOk) {
         if (createDir != null) {
             this._createDir = createDir;
+        }
+        if (refresh != null) {
+            this._refresh = refresh;
         }
         if (delete != null) {
             this._delete = delete;
@@ -451,10 +455,19 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     }
 
     @NonNull
-    public SmbFileChooserDialog setOptionIcons(@DrawableRes final int optionsIconRes, @DrawableRes final int createDirIconRes, @DrawableRes final int deleteRes) {
+    public SmbFileChooserDialog setOptionIcons(@DrawableRes final int optionsIconRes, @DrawableRes final int createDirIconRes, @DrawableRes final int refreshIconRes, @DrawableRes final int deleteRes) {
         this._optionsIconRes = optionsIconRes;
         this._createDirIconRes = createDirIconRes;
+        this._refreshIconRes = refreshIconRes;
         this._deleteIconRes = deleteRes;
+        return this;
+    }
+
+    public SmbFileChooserDialog setOptionIcons(@Nullable Drawable optionsIcon, @Nullable Drawable createDirIcon, @Nullable Drawable refreshIcon, @Nullable Drawable deleteIcon) {
+        this._optionsIcon = optionsIcon;
+        this._createDirIcon = createDirIcon;
+        this._refreshIcon = refreshIcon;
+        this._deleteIcon = deleteIcon;
         return this;
     }
 
@@ -947,6 +960,32 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 params.leftMargin = UiUtil.dip2px(10);
                                 options.addView(createDir, params);
 
+                                // Create a button for the refreshing data.
+                                final Button refresh = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                if (SmbFileChooserDialog.this._refreshRes == null)
+                                    refresh.setText(SmbFileChooserDialog.this._refresh);
+                                else refresh.setText(SmbFileChooserDialog.this._refreshRes);
+                                refresh.setTextColor(buttonColor);
+                                Drawable round;
+                                if (SmbFileChooserDialog.this._refreshIconRes != null) {
+                                    round = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._refreshIconRes);
+                                } else if (SmbFileChooserDialog.this._refreshIcon != null) {
+                                    round = SmbFileChooserDialog.this._refreshIcon;
+                                } else
+                                    round = ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_refresh_24dp);
+                                if (round != null) {
+                                    round.setColorFilter(filter);
+                                    refresh.setCompoundDrawablesWithIntrinsicBounds(round, null, null, null);
+                                }
+
+                                if (SmbFileChooserDialog.this._enableDpad) {
+                                    refresh.setBackgroundResource(listview_item_selector);
+                                }
+                                params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, CENTER);
+                                params.leftMargin = UiUtil.dip2px(10);
+                                params.rightMargin = UiUtil.dip2px(10);
+                                options.addView(refresh, params);
+
                                 // Create a button for the option to delete a file.
                                 final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
                                 if (SmbFileChooserDialog.this._deleteRes == null)
@@ -1191,8 +1230,11 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                         }
                                     }
                                 });
+                                refresh.setOnClickListener(v1 -> {
+                                    hideOptions.run();
+                                    refreshDirs();
+                                });
                                 delete.setOnClickListener(v1 -> {
-                                    //Toast.makeText(getBaseContext(), "delete clicked", Toast.LENGTH_SHORT).show();
                                     hideOptions.run();
 
                                     if (SmbFileChooserDialog.this._chooseMode == CHOOSE_MODE_SELECT_MULTIPLE) {
@@ -1835,14 +1877,14 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private View _options;
     private @Nullable
     @StringRes
-    Integer _createDirRes = null, _deleteRes = null, _newFolderCancelRes = null, _newFolderOkRes = null;
+    Integer _createDirRes = null, _refreshRes = null, _deleteRes = null, _newFolderCancelRes = null, _newFolderOkRes = null;
     private @NonNull
-    String _createDir = "New folder", _delete = "Delete", _newFolderCancel = "Cancel", _newFolderOk = "Ok";
+    String _createDir = "New folder", _refresh = "Refresh", _delete = "Delete", _newFolderCancel = "Cancel", _newFolderOk = "Ok";
     private @Nullable
     @DrawableRes
-    Integer _optionsIconRes = null, _createDirIconRes = null, _deleteIconRes = null;
+    Integer _optionsIconRes = null, _createDirIconRes = null, _refreshIconRes = null, _deleteIconRes = null;
     private @Nullable
-    Drawable _optionsIcon = null, _createDirIcon = null, _deleteIcon = null;
+    Drawable _optionsIcon = null, _createDirIcon = null, _refreshIcon = null, _deleteIcon = null;
     private View _newFolderView;
     private boolean _enableMultiple;
     private boolean _allowSelectDir = false;

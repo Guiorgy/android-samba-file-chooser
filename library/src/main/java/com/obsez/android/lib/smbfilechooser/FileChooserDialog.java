@@ -291,6 +291,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         return this;
     }
 
+    public FileChooserDialog setOptionIcons(@Nullable Drawable optionsIcon, @Nullable Drawable createDirIcon, @Nullable Drawable deleteIcon) {
+        this._optionsIcon = optionsIcon;
+        this._createDirIcon = createDirIcon;
+        this._deleteIcon = deleteIcon;
+        return this;
+    }
+
     @NonNull
     public FileChooserDialog setIcon(@Nullable @DrawableRes final Integer iconId) {
         this._iconRes = iconId;
