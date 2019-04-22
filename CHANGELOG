@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.2s - 2019-04-22
+
+\- removed refreshLayout
+\+ instead, added refresh button in the options menu
+\* bumped gradle
+\* bugs fixed
+
 ## 1.4.1s - 2019-04-08
 
 \+ fileListItemFocusedDrawable attribute added

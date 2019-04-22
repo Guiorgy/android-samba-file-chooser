@@ -82,7 +82,7 @@ SmbFileChooserDialog.newDialog(context, "**.***.*.**", authenticator)
 ```java
 .displayPath(/*displays the current path in the title (title must be enabled)*/ true)
 .enableOptions(/*enables 'New folder' and 'Delete'*/ true)
-.setOptionResources("New folder", "Delete", "Cancel", "OK")
+.setOptionResources("New folder", /*only on `SmbFileChooserDialog`*/ "Refresh", "Delete", "Cancel", "OK")
 .setNewFolderFilter(new NewFolderFilter(/*max length of 10*/ 10, /*regex pattern that only allows a to z (lowercase)*/ "^[a-z]*$"))
 .enableMultiple(/*enables the ability to select multiple*/ true, /*allows selecting folders along with files*/ true)
 .setOnSelectedListener(/*this gets called, when user selects more than 1 file*/ (files) -> {
