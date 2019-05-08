@@ -670,10 +670,15 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                             if (FileChooserDialog.this._options == null) {
                                 // region Draw options view. (this only happens the first time one clicks on options)
                                 // Root view (FrameLayout) of the ListView in the AlertDialog.
-                                final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
-                                final ViewGroup root = ((AlertDialog) dialog).findViewById(rootId);
-                                // In case the id was changed or not found.
-                                if (root == null) return;
+                                int rootId = getResources().getIdentifier("contentPanel", "id", getPackageName());
+                                ViewGroup tmpRoot = ((AlertDialog) dialog).findViewById(rootId);
+                                // In case the root id was changed or not found.
+                                if (tmpRoot == null) {
+                                    rootId = getResources().getIdentifier("contentPanel", "id", "android");
+                                    tmpRoot = ((AlertDialog) dialog).findViewById(rootId);
+                                    if (tmpRoot == null) return;
+                                }
+                                final ViewGroup root = tmpRoot;
 
                                 // Create options view.
                                 final FrameLayout options = new FrameLayout(getBaseContext());
@@ -1113,10 +1118,14 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
     private void displayPath(@Nullable String path) {
         if (_pathView == null) {
-            final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
-            final ViewGroup root = ((AlertDialog) _alertDialog).findViewById(rootId);
-            // In case the id was changed or not found.
-            if (root == null) return;
+            int rootId = getResources().getIdentifier("contentPanel", "id", getPackageName());
+            ViewGroup root = ((AlertDialog) _alertDialog).findViewById(rootId);
+            // In case the root id was changed or not found.
+            if (root == null) {
+                rootId = getResources().getIdentifier("contentPanel", "id", "android");
+                root = ((AlertDialog) _alertDialog).findViewById(rootId);
+                if (root == null) return;
+            }
 
             ViewGroup.MarginLayoutParams params;
             if (root instanceof LinearLayout) {
