@@ -136,7 +136,7 @@ abstract class MyAdapter<T> extends BaseAdapter {
         if (_selected.get(id, null) == null) {
             _selected.append(id, getItem(position));
         } else {
-            _selected.delete(id);
+            _selected.remove(id);
         }
         notifyDataSetChanged();
     }

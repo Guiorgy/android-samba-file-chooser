@@ -109,7 +109,6 @@ public class DirAdapter extends MyAdapter<File> {
 
     @Override
     public long getItemId(int position) {
-        //noinspection ConstantConditions
         return getItem(position).hashCode();
     }
 
