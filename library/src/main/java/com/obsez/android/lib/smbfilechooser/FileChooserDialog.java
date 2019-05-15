@@ -993,8 +993,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             }
                                         }
 
-                                        refreshDirs();
                                         FileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
+                                        FileChooserDialog.this._btnPositive.setVisibility(INVISIBLE);
+                                        FileChooserDialog.this._adapter.clearSelected();
+                                        refreshDirs();
                                         return;
                                     }
 

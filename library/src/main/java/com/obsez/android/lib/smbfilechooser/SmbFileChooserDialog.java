@@ -1277,14 +1277,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 }
                                                 return SmbFileChooserDialog.this._currentDir;
                                             }).get();
-
-                                            refreshDirs();
                                         } catch (InterruptedException | ExecutionException e) {
                                             e.printStackTrace();
                                             _exceptionHandler.handleException(e);
+                                        } finally {
+                                            SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
+                                            SmbFileChooserDialog.this._btnPositive.setVisibility(INVISIBLE);
+                                            SmbFileChooserDialog.this._adapter.clearSelected();
+                                            refreshDirs();
                                         }
-
-                                        SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
                                         return;
                                     }
 
