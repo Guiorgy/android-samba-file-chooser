@@ -2,9 +2,19 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+def VERSION_NAME = project.VERSION_NAME
+def VERSION_CODE = Integer.parseInt(project.VERSION_CODE)
+
+def ANDROID_COMPILE_SDK_VERSION = Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+def ANDROID_TARGET_SDK_VERSION = Integer.parseInt(project.ANDROID_TARGET_SDK_VERSION)
+def ANDROID_BUILD_TOOLS_VERSION = project.ANDROID_BUILD_TOOLS_VERSION
+def ANDROID_MIN_SDK_VERSION = Integer.parseInt(project.ANDROID_MIN_SDK_VERSION)
+
+def JAVA_COMPATIBILITY =  JavaVersion.valueOf(project.JAVA_COMPATIBILITY)
+
 android {
-    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
-    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+    compileSdkVersion ANDROID_COMPILE_SDK_VERSION
+    buildToolsVersion ANDROID_BUILD_TOOLS_VERSION
 
     signingConfigs {
         Properties properties = new Properties()
@@ -28,22 +38,24 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.obsez.android.lib.filechooser.demo"
-        minSdkVersion project.ANDROID_MIN_SDK_VERSION
-        targetSdkVersion project.ANDROID_TARGET_SDK_VERSION
-        versionCode Integer.parseInt(project.VERSION_CODE)
-        versionName project.VERSION_NAME
+        applicationId "com.obsez.android.lib.smbfilechooser.demo"
+        minSdkVersion ANDROID_MIN_SDK_VERSION
+        targetSdkVersion ANDROID_TARGET_SDK_VERSION
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
     buildTypes {
         debug {
-            minifyEnabled true
+            minifyEnabled false
             shrinkResources false
+            multiDexEnabled true
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled true
             shrinkResources true
+            multiDexEnabled false
             useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -53,8 +65,8 @@ android {
         abortOnError false
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JAVA_COMPATIBILITY
+        targetCompatibility JAVA_COMPATIBILITY
     }
     lintOptions {
         lintConfig rootProject.file('lint.xml')
@@ -74,9 +86,11 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
     implementation 'eu.agno3.jcifs:jcifs-ng:2.1.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha5'
+
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta1'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
+    debugImplementation 'androidx.multidex:multidex:2.0.1'
 
     /** LeakCanary - https://github.com/square/leakcanary */
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
