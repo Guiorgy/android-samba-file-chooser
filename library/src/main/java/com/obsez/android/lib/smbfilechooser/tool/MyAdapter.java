@@ -66,8 +66,8 @@ abstract class MyAdapter<T> extends BaseAdapter {
     @SuppressLint("SimpleDateFormat")
     private void init(String dateFormat) {
         _formatter = new SimpleDateFormat(dateFormat != null && !"".equals(dateFormat.trim()) ? dateFormat.trim() : "yyyy/MM/dd HH:mm:ss");
-        _defaultFolderIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_folder);
-        _defaultFileIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_file);
+        if (_defaultFolderIcon == null) _defaultFolderIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_folder);
+        if (_defaultFileIcon == null) _defaultFileIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_file);
 
         TypedArray ta = getContext().obtainStyledAttributes(R.styleable.FileChooser);
         int colorFilter = ta.getColor(R.styleable.FileChooser_fileListItemSelectedTint, getContext().getResources().getColor(R.color.li_row_background_tint));

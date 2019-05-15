@@ -1,5 +1,10 @@
 # RELEASES
 
+## 1.4.3s - 2019-05-15
+
+\* fully moved to AndroidX
+\* moved to AppCompad themes
+
 ## 1.4.2s - 2019-04-22
 
 \- removed refreshLayout

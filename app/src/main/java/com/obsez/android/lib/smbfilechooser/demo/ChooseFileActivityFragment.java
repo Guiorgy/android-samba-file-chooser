@@ -1,6 +1,5 @@
 package com.obsez.android.lib.smbfilechooser.demo;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
@@ -88,11 +88,16 @@ public class ChooseFileActivityFragment extends Fragment implements View.OnClick
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
+            final Context ctx = getContext();
+            if (ctx == null) {
+                buttonView.setChecked(false);
+                return;
+            }
             AlertDialog.Builder alert;
-            alert = darkTheme.isChecked() ? new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle_Dark) : new AlertDialog.Builder(getContext(), R.style.FileChooserDialogStyle);
+            alert = darkTheme.isChecked() ? new AlertDialog.Builder(ctx, R.style.FileChooserDialogStyle_Dark) : new AlertDialog.Builder(ctx, R.style.FileChooserDialogStyle);
             alert.setTitle("Set server");
             alert.setCancelable(false);
-            final EditText input = new EditText(getContext());
+            final EditText input = new EditText(ctx);
             input.setText(_server);
             alert.setView(input);
             alert.setPositiveButton("Ok", (dialog, whichButton) -> _server = input.getText().toString());

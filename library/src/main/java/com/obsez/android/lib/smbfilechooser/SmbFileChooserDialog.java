@@ -2,7 +2,6 @@ package com.obsez.android.lib.smbfilechooser;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
@@ -800,10 +800,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 final PorterDuffColorFilter filter = new PorterDuffColorFilter(buttonColor, PorterDuff.Mode.SRC_IN);
 
                 // Root view (FrameLayout) of the ListView in the AlertDialog.
-                final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
-                final ViewGroup root = ((AlertDialog) dialog).findViewById(rootId);
-                // In case the id was changed or not found.
-                if (root == null) return;
+                int rootId = getResources().getIdentifier("contentPanel", "id", getPackageName());
+                ViewGroup tmpRoot = ((AlertDialog) dialog).findViewById(rootId);
+                // In case the root id was changed or not found.
+                if (tmpRoot == null) {
+                    rootId = getResources().getIdentifier("contentPanel", "id", "android");
+                    tmpRoot = ((AlertDialog) dialog).findViewById(rootId);
+                    if (tmpRoot == null) return;
+                }
+                final ViewGroup root = tmpRoot;
 
                 ViewGroup.MarginLayoutParams params;
                 ProgressBar progressBar;
@@ -1406,10 +1411,14 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     private void displayPath(@Nullable String path) {
         if (_pathView == null) {
-            final int rootId = getResources().getIdentifier("contentPanel", "id", "android");
-            final ViewGroup root = ((AlertDialog) _alertDialog).findViewById(rootId);
-            // In case the id was changed or not found.
-            if (root == null) return;
+            int rootId = getResources().getIdentifier("contentPanel", "id", getPackageName());
+            ViewGroup root = ((AlertDialog) _alertDialog).findViewById(rootId);
+            // In case the root id was changed or not found.
+            if (root == null) {
+                rootId = getResources().getIdentifier("contentPanel", "id", "android");
+                root = ((AlertDialog) _alertDialog).findViewById(rootId);
+                if (root == null) return;
+            }
 
             ViewGroup.MarginLayoutParams params;
             if (root instanceof LinearLayout) {

@@ -238,7 +238,7 @@ public class FileUtil {
 
         public LightContextWrapper(@NonNull final Context context) {
             this.context = context;
-            if (context instanceof AppCompatActivity || context instanceof Activity) {
+            if (context instanceof Activity) {
                 this.activity = (Activity) context;
             }
         }
@@ -251,6 +251,11 @@ public class FileUtil {
         @Nullable
         public Activity getActivity() {
             return activity;
+        }
+
+        @NonNull
+        public String getPackageName() {
+            return context.getPackageName();
         }
 
         @NonNull
