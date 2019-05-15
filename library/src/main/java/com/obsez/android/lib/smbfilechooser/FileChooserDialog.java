@@ -30,6 +30,17 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+
 import com.obsez.android.lib.smbfilechooser.internals.ExtFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 import com.obsez.android.lib.smbfilechooser.internals.RegexFileFilter;
@@ -47,17 +58,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.regex.Pattern;
-
-import androidx.annotation.DrawableRes;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
-import androidx.annotation.StyleRes;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
@@ -1383,6 +1383,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                             if (!_dirOnly)
                                 _btnPositive.setVisibility(INVISIBLE);
                         }
+                        return;
                     }
                     break;
                 case CHOOSE_MODE_DELETE:
@@ -1394,6 +1395,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     }
                     _chooseMode = CHOOSE_MODE_NORMAL;
                     if (_deleteMode != null) _deleteMode.run();
+                    scrollTo = -1;
                     break;
                 default:
                     // ERROR! It shouldn't get here...
@@ -1401,8 +1403,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             }
         }
         refreshDirs();
-        _list.setSelection(scrollTo);
-        _list.post(() -> _list.setSelection(scrollTo));
+        if (scrollTo != -1) {
+            _list.setSelection(scrollTo);
+            _list.post(() -> _list.setSelection(scrollTo));
+        }
         if (_enableDpad) {
             if (focus == null) _list.requestFocus();
             else focus.requestFocus();
