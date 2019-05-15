@@ -46,14 +46,16 @@ android {
     }
     buildTypes {
         debug {
-            minifyEnabled true
+            minifyEnabled false
             shrinkResources false
+            multiDexEnabled true
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled true
             shrinkResources true
+            multiDexEnabled false
             useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -87,6 +89,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta1'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
+    debugImplementation 'androidx.multidex:multidex:2.0.1'
 
     /** LeakCanary - https://github.com/square/leakcanary */
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
