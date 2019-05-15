@@ -309,7 +309,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         this._icon = icon;
         return this;
     }
-  
+
     @NonNull
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public FileChooserDialog setLayoutView(@Nullable @LayoutRes final Integer layoutResId) {

@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.obsez.android.lib.smbfilechooser.FileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.R;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
@@ -18,8 +20,6 @@ import com.obsez.android.lib.smbfilechooser.internals.WrappedDrawable;
 
 import java.io.File;
 import java.util.Date;
-
-import androidx.annotation.NonNull;
 
 /**
  * Created by coco on 6/7/15.

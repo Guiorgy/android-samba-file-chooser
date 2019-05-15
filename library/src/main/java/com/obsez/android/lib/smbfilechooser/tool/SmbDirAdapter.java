@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.collection.SparseArrayCompat;
+
 import com.obsez.android.lib.smbfilechooser.R;
 import com.obsez.android.lib.smbfilechooser.SmbFileChooserDialog;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
@@ -17,8 +20,6 @@ import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 import java.util.Date;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.collection.SparseArrayCompat;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import kotlin.Pair;
