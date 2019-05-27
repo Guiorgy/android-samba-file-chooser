@@ -79,7 +79,6 @@ import kotlin.Triple;
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.END;
 import static android.view.Gravity.START;
 import static android.view.Gravity.TOP;
@@ -923,7 +922,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             if (SmbFileChooserDialog.this._options == null) {
                                 // region Draw options view. (this only happens the first time one clicks on options)
                                 // Create options view.
-                                final FrameLayout options = new FrameLayout(getBaseContext());
+                                final LinearLayout options = new LinearLayout(getBaseContext());
                                 ViewGroup.MarginLayoutParams params;
                                 if (root instanceof LinearLayout) {
                                     params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
@@ -939,6 +938,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     SmbFileChooserDialog.this._progressBar.bringToFront();
                                 }
                                 options.setOnClickListener(null);
+                                options.setOrientation(LinearLayout.HORIZONTAL);
 
                                 // Create a button for the option to create a new directory/folder.
                                 final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
@@ -946,6 +946,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);
                                 createDir.setTextColor(buttonColor);
+                                createDir.setSingleLine();
                                 Drawable plus;
                                 if (SmbFileChooserDialog.this._createDirIconRes != null) {
                                     plus = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._createDirIconRes);
@@ -961,8 +962,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     createDir.setBackgroundResource(listview_item_selector);
                                 }
-                                params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
-                                params.leftMargin = UiUtil.dip2px(10);
+                                params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
+                                params.leftMargin = UiUtil.dip2px(6);
                                 options.addView(createDir, params);
 
                                 // Create a button for the refreshing data.
@@ -971,6 +972,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     refresh.setText(SmbFileChooserDialog.this._refresh);
                                 else refresh.setText(SmbFileChooserDialog.this._refreshRes);
                                 refresh.setTextColor(buttonColor);
+                                refresh.setSingleLine();
                                 Drawable round;
                                 if (SmbFileChooserDialog.this._refreshIconRes != null) {
                                     round = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._refreshIconRes);
@@ -986,9 +988,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     refresh.setBackgroundResource(listview_item_selector);
                                 }
-                                params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, CENTER);
-                                params.leftMargin = UiUtil.dip2px(10);
-                                params.rightMargin = UiUtil.dip2px(10);
+                                params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
+                                params.leftMargin = UiUtil.dip2px(6);
+                                params.rightMargin = UiUtil.dip2px(6);
                                 options.addView(refresh, params);
 
                                 // Create a button for the option to delete a file.
@@ -997,6 +999,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     delete.setText(SmbFileChooserDialog.this._delete);
                                 else delete.setText(SmbFileChooserDialog.this._deleteRes);
                                 delete.setTextColor(buttonColor);
+                                delete.setSingleLine();
                                 Drawable bin;
                                 if (SmbFileChooserDialog.this._deleteIconRes != null) {
                                     bin = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._deleteIconRes);
@@ -1012,8 +1015,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     delete.setBackgroundResource(listview_item_selector);
                                 }
-                                params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
-                                params.rightMargin = UiUtil.dip2px(10);
+                                params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
+                                params.rightMargin = UiUtil.dip2px(6);
                                 options.addView(delete, params);
 
                                 SmbFileChooserDialog.this._options = options;
