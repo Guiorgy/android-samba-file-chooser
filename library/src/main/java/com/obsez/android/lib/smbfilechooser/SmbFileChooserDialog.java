@@ -1247,7 +1247,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 });
                                 refresh.setOnClickListener(v1 -> {
                                     hideOptions.run();
-                                    refreshDirs();
+                                    refreshDirs(0);
                                 });
                                 delete.setOnClickListener(v1 -> {
                                     hideOptions.run();
