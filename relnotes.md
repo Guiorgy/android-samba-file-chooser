@@ -1,5 +1,12 @@
 # RELEASES
 
+## 1.4.4s - 2019-05-27
+
+\* switched to AppCompat AlertDialog and AppCompat themes
+\+ reimplemented the feature removed in 1.4.1s (now scrolls to top after refresh)
+\+ implemented backtracking (scrolling to the directory you were in when going back) to SmbFileChooser
+\* minor layout and scrolling fixes
+
 ## 1.4.3s - 2019-05-15
 
 \* fully moved to AndroidX
