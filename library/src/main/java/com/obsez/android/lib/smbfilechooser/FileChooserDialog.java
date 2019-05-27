@@ -30,6 +30,17 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+
 import com.obsez.android.lib.smbfilechooser.internals.ExtFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.FileUtil;
 import com.obsez.android.lib.smbfilechooser.internals.RegexFileFilter;
@@ -47,17 +58,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.regex.Pattern;
-
-import androidx.annotation.DrawableRes;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
-import androidx.annotation.StyleRes;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
@@ -210,8 +210,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     /**
-     *  called every time {@link KeyEvent#KEYCODE_BACK} is caught,
-     *  and current directory is not the root of Primary/SdCard storage.
+     * called every time {@link KeyEvent#KEYCODE_BACK} is caught,
+     * and current directory is not the root of Primary/SdCard storage.
      */
     @NonNull
     public FileChooserDialog setOnBackPressedListener(@NonNull final OnBackPressedListener listener) {
@@ -220,8 +220,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     /**
-     *  called if {@link KeyEvent#KEYCODE_BACK} is caught,
-     *  and current directory is the root of Primary/SdCard storage.
+     * called if {@link KeyEvent#KEYCODE_BACK} is caught,
+     * and current directory is the root of Primary/SdCard storage.
      */
     @NonNull
     public FileChooserDialog setOnLastBackPressedListener(@NonNull final OnBackPressedListener listener) {
@@ -309,7 +309,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         this._icon = icon;
         return this;
     }
-  
+
     @NonNull
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public FileChooserDialog setLayoutView(@Nullable @LayoutRes final Integer layoutResId) {
@@ -847,6 +847,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_FILTER | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                                             input.setFilters(new InputFilter[]{FileChooserDialog.this._newFolderFilter != null ? FileChooserDialog.this._newFolderFilter : new NewFolderFilter()});
                                             input.setGravity(CENTER_HORIZONTAL);
+                                            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                                             params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                                             params.setMargins(3, 2, 3, 0);
                                             holder.addView(input, params);
@@ -883,6 +884,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
 
+                                            final int id = cancel.hashCode();
+                                            cancel.setId(id);
+                                            ok.setNextFocusLeftId(id);
+                                            input.setNextFocusLeftId(id);
+
                                             // Event Listeners.
                                             input.setOnEditorActionListener((v23, actionId, event) -> {
                                                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -891,9 +897,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                     overlay.setVisibility(GONE);
                                                     overlay.clearFocus();
                                                     if (FileChooserDialog.this._enableDpad) {
-                                                        Button b = FileChooserDialog.this._btnNeutral;
-                                                        b.setFocusable(true);
-                                                        b.requestFocus();
+                                                        FileChooserDialog.this._btnNeutral.setFocusable(true);
+                                                        FileChooserDialog.this._btnNeutral.requestFocus();
                                                         FileChooserDialog.this._list.setFocusable(true);
                                                     }
                                                     return true;
@@ -993,8 +998,10 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             }
                                         }
 
-                                        refreshDirs();
                                         FileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
+                                        FileChooserDialog.this._btnPositive.setVisibility(INVISIBLE);
+                                        FileChooserDialog.this._adapter.clearSelected();
+                                        refreshDirs();
                                         return;
                                     }
 
@@ -1337,7 +1344,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (position < 0 || position >= _entries.size()) return;
 
         scrollTo = 0;
-        View focus = _list;
         File file = _entries.get(position);
         if (file instanceof RootFile) {
             if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
@@ -1376,13 +1382,13 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                             _adapter.getIndexStack().push(position);
                         }
                     } else {
-                        if (_enableDpad) focus = _alertDialog.getCurrentFocus();
                         _adapter.selectItem(position);
                         if (!_adapter.isAnySelected()) {
                             _chooseMode = CHOOSE_MODE_NORMAL;
                             if (!_dirOnly)
                                 _btnPositive.setVisibility(INVISIBLE);
                         }
+                        return;
                     }
                     break;
                 case CHOOSE_MODE_DELETE:
@@ -1394,6 +1400,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                     }
                     _chooseMode = CHOOSE_MODE_NORMAL;
                     if (_deleteMode != null) _deleteMode.run();
+                    scrollTo = -1;
                     break;
                 default:
                     // ERROR! It shouldn't get here...
@@ -1401,11 +1408,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
             }
         }
         refreshDirs();
-        _list.setSelection(scrollTo);
-        _list.post(() -> _list.setSelection(scrollTo));
-        if (_enableDpad) {
-            if (focus == null) _list.requestFocus();
-            else focus.requestFocus();
+        if (scrollTo != -1) {
+            _list.setSelection(scrollTo);
+            _list.post(() -> _list.setSelection(scrollTo));
         }
     }
 

@@ -79,7 +79,6 @@ import kotlin.Triple;
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.END;
 import static android.view.Gravity.START;
 import static android.view.Gravity.TOP;
@@ -923,7 +922,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             if (SmbFileChooserDialog.this._options == null) {
                                 // region Draw options view. (this only happens the first time one clicks on options)
                                 // Create options view.
-                                final FrameLayout options = new FrameLayout(getBaseContext());
+                                final LinearLayout options = new LinearLayout(getBaseContext());
                                 ViewGroup.MarginLayoutParams params;
                                 if (root instanceof LinearLayout) {
                                     params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
@@ -939,6 +938,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     SmbFileChooserDialog.this._progressBar.bringToFront();
                                 }
                                 options.setOnClickListener(null);
+                                options.setOrientation(LinearLayout.HORIZONTAL);
 
                                 // Create a button for the option to create a new directory/folder.
                                 final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
@@ -946,6 +946,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);
                                 createDir.setTextColor(buttonColor);
+                                createDir.setSingleLine();
                                 Drawable plus;
                                 if (SmbFileChooserDialog.this._createDirIconRes != null) {
                                     plus = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._createDirIconRes);
@@ -961,8 +962,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     createDir.setBackgroundResource(listview_item_selector);
                                 }
-                                params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
-                                params.leftMargin = UiUtil.dip2px(10);
+                                params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
+                                params.leftMargin = UiUtil.dip2px(6);
                                 options.addView(createDir, params);
 
                                 // Create a button for the refreshing data.
@@ -971,6 +972,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     refresh.setText(SmbFileChooserDialog.this._refresh);
                                 else refresh.setText(SmbFileChooserDialog.this._refreshRes);
                                 refresh.setTextColor(buttonColor);
+                                refresh.setSingleLine();
                                 Drawable round;
                                 if (SmbFileChooserDialog.this._refreshIconRes != null) {
                                     round = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._refreshIconRes);
@@ -986,9 +988,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     refresh.setBackgroundResource(listview_item_selector);
                                 }
-                                params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, CENTER);
-                                params.leftMargin = UiUtil.dip2px(10);
-                                params.rightMargin = UiUtil.dip2px(10);
+                                params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
+                                params.leftMargin = UiUtil.dip2px(6);
+                                params.rightMargin = UiUtil.dip2px(6);
                                 options.addView(refresh, params);
 
                                 // Create a button for the option to delete a file.
@@ -997,6 +999,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     delete.setText(SmbFileChooserDialog.this._delete);
                                 else delete.setText(SmbFileChooserDialog.this._deleteRes);
                                 delete.setTextColor(buttonColor);
+                                delete.setSingleLine();
                                 Drawable bin;
                                 if (SmbFileChooserDialog.this._deleteIconRes != null) {
                                     bin = ContextCompat.getDrawable(getBaseContext(), SmbFileChooserDialog.this._deleteIconRes);
@@ -1012,8 +1015,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 if (SmbFileChooserDialog.this._enableDpad) {
                                     delete.setBackgroundResource(listview_item_selector);
                                 }
-                                params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
-                                params.rightMargin = UiUtil.dip2px(10);
+                                params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
+                                params.rightMargin = UiUtil.dip2px(6);
                                 options.addView(delete, params);
 
                                 SmbFileChooserDialog.this._options = options;
@@ -1125,6 +1128,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_FILTER | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                                             input.setFilters(new InputFilter[]{SmbFileChooserDialog.this._newFolderFilter != null ? SmbFileChooserDialog.this._newFolderFilter : new NewFolderFilter()});
                                             input.setGravity(CENTER_HORIZONTAL);
+                                            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                                             params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                                             params.setMargins(3, 2, 3, 0);
                                             holder.addView(input, params);
@@ -1162,16 +1166,22 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
 
+                                            final int id = cancel.hashCode();
+                                            cancel.setId(id);
+                                            ok.setNextFocusLeftId(id);
+                                            input.setNextFocusLeftId(id);
+
                                             // Event Listeners.
                                             input.setOnEditorActionListener((v23, actionId, event) -> {
                                                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                                                     UiUtil.hideKeyboardFrom(getBaseContext(), input);
-                                                    if (!SmbFileChooserDialog.this._enableDpad) {
-                                                        SmbFileChooserDialog.this.createNewDirectory(input.getText().toString());
-                                                        overlay.setVisibility(GONE);
-                                                        overlay.clearFocus();
-                                                    } else {
-                                                        input.requestFocus();
+                                                    SmbFileChooserDialog.this.createNewDirectory(input.getText().toString());
+                                                    overlay.setVisibility(GONE);
+                                                    overlay.clearFocus();
+                                                    if (SmbFileChooserDialog.this._enableDpad) {
+                                                        SmbFileChooserDialog.this._btnNeutral.setFocusable(true);
+                                                        SmbFileChooserDialog.this._btnNeutral.requestFocus();
+                                                        SmbFileChooserDialog.this._list.setFocusable(true);
                                                     }
                                                     return true;
                                                 }
@@ -1237,7 +1247,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 });
                                 refresh.setOnClickListener(v1 -> {
                                     hideOptions.run();
-                                    refreshDirs();
+                                    refreshDirs(0);
                                 });
                                 delete.setOnClickListener(v1 -> {
                                     hideOptions.run();
@@ -1277,14 +1287,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                                 }
                                                 return SmbFileChooserDialog.this._currentDir;
                                             }).get();
-
-                                            refreshDirs();
                                         } catch (InterruptedException | ExecutionException e) {
                                             e.printStackTrace();
                                             _exceptionHandler.handleException(e);
+                                        } finally {
+                                            SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
+                                            SmbFileChooserDialog.this._btnPositive.setVisibility(INVISIBLE);
+                                            SmbFileChooserDialog.this._adapter.clearSelected();
+                                            refreshDirs();
                                         }
-
-                                        SmbFileChooserDialog.this._chooseMode = CHOOSE_MODE_NORMAL;
                                         return;
                                     }
 
@@ -1532,8 +1543,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
     private void listDirs(final int scrollTo) {
         if (_progressBar != null) _progressBar.setVisibility(VISIBLE);
         _isScrollable = false;
-        AtomicBoolean displayPath = new AtomicBoolean(false);
         EXECUTOR.execute(() -> {
+            AtomicBoolean displayPath = new AtomicBoolean(false);
             try {
                 _entries.clear();
                 // Add the ".." entry
@@ -1579,7 +1590,10 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             displayPath(null);
                         }
                     }
-                    if (scrollTo != -1) _list.setSelection(scrollTo);
+                    if (scrollTo != -1) {
+                        _list.setSelection(scrollTo);
+                        _list.post(() -> _list.setSelection(scrollTo));
+                    }
                 });
             }
         });
@@ -1631,7 +1645,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         try {
             if (position < 0 || position >= _entries.size()) return;
 
-            //AtomicInteger scrollTo = new AtomicInteger(0);
             Triple<SmbFile, Boolean, String> triple = EXECUTOR.submit(() -> {
                 SmbFile file = _entries.get(position);
                 if (file instanceof RootSmbFile) {
@@ -1641,9 +1654,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
                         if (_deleteMode != null) _deleteMode.run();
                         lastSelected = _adapter.isEmpty();
-                        /*if (!_adapter.getIndexStack().empty()) {
-                            scrollTo.set(_adapter.getIndexStack().pop());
-                        }*/
                         return new Triple<SmbFile, Boolean, String>(file, true, null);
                     }
                 }
@@ -1653,16 +1663,21 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
             final SmbFile file = triple.getFirst();
             final boolean isDirectory = triple.getSecond();
             final String path = triple.getThird();
+            int scrollTo = 0;
 
             if (file != null) {
-                switch (_chooseMode) {
+                if (file instanceof RootSmbFile) {
+                    if (!_adapter.getIndexStack().empty()) {
+                        scrollTo = _adapter.getIndexStack().pop();
+                    }
+                } else switch (_chooseMode) {
                     case CHOOSE_MODE_NORMAL:
                         if (isDirectory) {
                             if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
                             if (_folderNavToCB.canNavigate(file)) {
                                 _currentDir = file;
-                                //scrollTo.set(0);
-                                //if (path != null) _adapter.getIndexStack().push(position);
+                                scrollTo = 0;
+                                _adapter.getIndexStack().push(position);
                             }
                         } else if ((!_dirOnly) && _onChosenListener != null) {
                             _onChosenListener.onChoosePath(path, file);
@@ -1676,8 +1691,8 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             if (_folderNavToCB == null) _folderNavToCB = _defaultNavToCB;
                             if (_folderNavToCB.canNavigate(file)) {
                                 _currentDir = file;
-                                //scrollTo.set(0);
-                                //if (path != null) _adapter.getIndexStack().push(position);
+                                scrollTo = 0;
+                                _adapter.getIndexStack().push(position);
                             }
                         } else {
                             _adapter.selectItem(position);
@@ -1693,6 +1708,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         deleteFile(file);
                         _chooseMode = CHOOSE_MODE_NORMAL;
                         if (_deleteMode != null) _deleteMode.run();
+                        scrollTo = -1;
                         break;
                     default:
                         // ERROR! It shouldn't get here...
@@ -1700,7 +1716,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                 }
             }
 
-            refreshDirs();
+            refreshDirs(scrollTo);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             _exceptionHandler.handleException(e);
@@ -1749,6 +1765,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
     @Override
     public boolean onKey(final DialogInterface dialog, final int keyCode, final KeyEvent event) {
+        if (_progressBar != null && _progressBar.getVisibility() == VISIBLE) return true;
         if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
 
         if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE) {
@@ -1776,11 +1793,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         } else {
                             _list.requestFocus();
                             lastSelected = true;
+                            _list.setSelection(_entries.size() - 1);
                             return true;
                         }
-                    }
+                    } else
                     if (_options != null && _options.hasFocus()) {
                         _list.requestFocus();
+                        _list.setSelection(_entries.size() - 1);
                         lastSelected = true;
                         return true;
                     }
@@ -1825,12 +1844,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         //
     }
 
-    /*private void refreshDirs(final int scrollTo) {
-        listDirs(scrollTo);
-    }*/
-
     private void refreshDirs() {
         listDirs(-1);
+    }
+
+    private void refreshDirs(final int scrollTo) {
+        listDirs(scrollTo);
     }
 
     public void dismiss() {
