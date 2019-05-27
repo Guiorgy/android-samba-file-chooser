@@ -1125,6 +1125,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_FILTER | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                                             input.setFilters(new InputFilter[]{SmbFileChooserDialog.this._newFolderFilter != null ? SmbFileChooserDialog.this._newFolderFilter : new NewFolderFilter()});
                                             input.setGravity(CENTER_HORIZONTAL);
+                                            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                                             params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                                             params.setMargins(3, 2, 3, 0);
                                             holder.addView(input, params);
@@ -1162,16 +1163,22 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
 
+                                            final int id = cancel.hashCode();
+                                            cancel.setId(id);
+                                            ok.setNextFocusLeftId(id);
+                                            input.setNextFocusLeftId(id);
+
                                             // Event Listeners.
                                             input.setOnEditorActionListener((v23, actionId, event) -> {
                                                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                                                     UiUtil.hideKeyboardFrom(getBaseContext(), input);
-                                                    if (!SmbFileChooserDialog.this._enableDpad) {
-                                                        SmbFileChooserDialog.this.createNewDirectory(input.getText().toString());
-                                                        overlay.setVisibility(GONE);
-                                                        overlay.clearFocus();
-                                                    } else {
-                                                        input.requestFocus();
+                                                    SmbFileChooserDialog.this.createNewDirectory(input.getText().toString());
+                                                    overlay.setVisibility(GONE);
+                                                    overlay.clearFocus();
+                                                    if (SmbFileChooserDialog.this._enableDpad) {
+                                                        SmbFileChooserDialog.this._btnNeutral.setFocusable(true);
+                                                        SmbFileChooserDialog.this._btnNeutral.requestFocus();
+                                                        SmbFileChooserDialog.this._list.setFocusable(true);
                                                     }
                                                     return true;
                                                 }

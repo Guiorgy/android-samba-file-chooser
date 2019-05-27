@@ -210,8 +210,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     /**
-     *  called every time {@link KeyEvent#KEYCODE_BACK} is caught,
-     *  and current directory is not the root of Primary/SdCard storage.
+     * called every time {@link KeyEvent#KEYCODE_BACK} is caught,
+     * and current directory is not the root of Primary/SdCard storage.
      */
     @NonNull
     public FileChooserDialog setOnBackPressedListener(@NonNull final OnBackPressedListener listener) {
@@ -220,8 +220,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     /**
-     *  called if {@link KeyEvent#KEYCODE_BACK} is caught,
-     *  and current directory is the root of Primary/SdCard storage.
+     * called if {@link KeyEvent#KEYCODE_BACK} is caught,
+     * and current directory is the root of Primary/SdCard storage.
      */
     @NonNull
     public FileChooserDialog setOnLastBackPressedListener(@NonNull final OnBackPressedListener listener) {
@@ -847,6 +847,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_FILTER | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                                             input.setFilters(new InputFilter[]{FileChooserDialog.this._newFolderFilter != null ? FileChooserDialog.this._newFolderFilter : new NewFolderFilter()});
                                             input.setGravity(CENTER_HORIZONTAL);
+                                            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                                             params = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                                             params.setMargins(3, 2, 3, 0);
                                             holder.addView(input, params);
@@ -883,6 +884,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
 
+                                            final int id = cancel.hashCode();
+                                            cancel.setId(id);
+                                            ok.setNextFocusLeftId(id);
+                                            input.setNextFocusLeftId(id);
+
                                             // Event Listeners.
                                             input.setOnEditorActionListener((v23, actionId, event) -> {
                                                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -891,9 +897,8 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                                     overlay.setVisibility(GONE);
                                                     overlay.clearFocus();
                                                     if (FileChooserDialog.this._enableDpad) {
-                                                        Button b = FileChooserDialog.this._btnNeutral;
-                                                        b.setFocusable(true);
-                                                        b.requestFocus();
+                                                        FileChooserDialog.this._btnNeutral.setFocusable(true);
+                                                        FileChooserDialog.this._btnNeutral.requestFocus();
                                                         FileChooserDialog.this._list.setFocusable(true);
                                                     }
                                                     return true;
@@ -1339,7 +1344,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (position < 0 || position >= _entries.size()) return;
 
         scrollTo = 0;
-        View focus = _list;
         File file = _entries.get(position);
         if (file instanceof RootFile) {
             if (_folderNavUpCB == null) _folderNavUpCB = _defaultNavUpCB;
@@ -1378,7 +1382,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                             _adapter.getIndexStack().push(position);
                         }
                     } else {
-                        if (_enableDpad) focus = _alertDialog.getCurrentFocus();
                         _adapter.selectItem(position);
                         if (!_adapter.isAnySelected()) {
                             _chooseMode = CHOOSE_MODE_NORMAL;
@@ -1408,10 +1411,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (scrollTo != -1) {
             _list.setSelection(scrollTo);
             _list.post(() -> _list.setSelection(scrollTo));
-        }
-        if (_enableDpad) {
-            if (focus == null) _list.requestFocus();
-            else focus.requestFocus();
         }
     }
 
