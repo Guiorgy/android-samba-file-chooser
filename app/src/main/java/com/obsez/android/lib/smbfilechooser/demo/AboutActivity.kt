@@ -7,24 +7,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil
+import kotlinx.android.synthetic.main.activity_about.*
+import kotlinx.android.synthetic.main.li_about_item.view.*
 
 class AboutActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
-        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
-        (findViewById<FloatingActionButton>(R.id.fab)).setOnClickListener { view ->
+        setSupportActionBar(toolbar)
+        fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
@@ -34,7 +33,7 @@ class AboutActivity : AppCompatActivity() {
     }
 
     private fun setupUi() {
-        setupRecyclerView(findViewById<RecyclerView>(R.id.recyclerView1))
+        setupRecyclerView(recyclerView1)
     }
 
     private fun setupRecyclerView(rv: RecyclerView) {
@@ -57,6 +56,7 @@ class AboutActivity : AppCompatActivity() {
     class MainAdapter(private val ctx: AppCompatActivity, items: List<Items>) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
 
         var plainItems: MutableList<Item> = mutableListOf()
+
         init {
             for (it in items) {
                 if (it.items.isNotEmpty())
@@ -118,14 +118,14 @@ class AboutActivity : AppCompatActivity() {
             //holder.mIconView.text = it.title
         }
 
-        class ViewHolder(view: View, clicking: ((v: View, holder: MainAdapter.ViewHolder) -> Unit)? = null) : RecyclerView.ViewHolder(view) {
-            internal var mTitleView = view.findViewById<TextView>(R.id.title)
-            internal var mSubTitleView = view.findViewById<TextView>(R.id.sub_title)
-            internal var mValueView = view.findViewById<TextView>(R.id.value)
-            internal var mCatalogView = view.findViewById<TextView>(R.id.catalog)
+        class ViewHolder(view: View, clicking: ((v: View, holder: ViewHolder) -> Unit)? = null) : RecyclerView.ViewHolder(view) {
+            internal var mTitleView = view.title
+            internal var mSubTitleView = view.sub_title
+            internal var mValueView = view.value
+            internal var mCatalogView = view.catalog
 
             init {
-                view.findViewById<View>(R.id.row)?.setOnClickListener {
+                view.row?.setOnClickListener {
                     clicking?.invoke(it, this)
                 }
             }
