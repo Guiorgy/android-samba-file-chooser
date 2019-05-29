@@ -1498,6 +1498,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             param.topMargin = _pathView.getHeight();
                         }
                         _list.setLayoutParams(param);
+                        _list.post(() -> _list.setSelection(0));
                         return true;
                     }
                 });
