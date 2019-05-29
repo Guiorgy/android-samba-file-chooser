@@ -1,7 +1,5 @@
 # android-smbfile-chooser
 
-## Overview
-
 ![banner](captures/banner_smb.svg)
 
 ### android-file-chooser
@@ -143,8 +141,7 @@ interface ExceptionHandler {
 }
 ```
 
-For more information please refer to the [upstream repo](https://github.com/hedzr/android-file-chooser).
-
+For more information please refer to the [upstream repo](https://github.com/hedzr/android-file-chooser).\
 Logo and banner originally by: [**iqbalhood**](https://github.com/iqbalhood)
 
 ## License
