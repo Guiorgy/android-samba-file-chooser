@@ -1,4 +1,4 @@
-# android-file-chooser
+# android-smbfile-chooser
 
 ## Overview
 
