@@ -94,6 +94,14 @@ public class PermissionActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isFinishing()){
+            overridePendingTransition(0, 0);
+        }
+    }
+
     @Nullable
     private PermissionsUtil.OnPermissionListener _permissionListener;
     public int _requestCode;

@@ -26,7 +26,8 @@ A demo-app of the original can be installed from [Play Store](https://play.googl
 
 **NOTE**:
 
-Please don't forget to check the [**_upstream_**](https://github.com/hedzr/android-file-chooser) and give it a :star:!
+Please don't forget to check the [**_upstream_**](https://github.com/hedzr/android-file-chooser) and give it a :star:!\
+You can also support him via [opencollective](https://opencollective.com/android-file-chooser) and [paypal](https://paypal.me/hezr/3).
 
 If you are using  a different Support library, then use this:
 ```
