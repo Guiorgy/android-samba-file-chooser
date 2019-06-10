@@ -1465,7 +1465,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         if (!_list.hasFocus()) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (_btnNeutral == null) return;
+                    if (_btnNeutral == null) return false;
                     if (_btnNeutral.hasFocus() || _btnNegative.hasFocus() || _btnPositive.hasFocus()) {
                         if (_options != null && _options.getVisibility() == VISIBLE) {
                             _options.requestFocus(_btnNeutral.hasFocus() ? FOCUS_RIGHT : FOCUS_LEFT);
