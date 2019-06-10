@@ -1,5 +1,12 @@
 # RELEASES
 
+## 1.4.5s - 2019-06-10
+
+\* fixed not scrolling to the top on PathView first draw
+\* fixed AboutActivity and changed demo app banner and logo
+\* explicitly removed transition animations from PermissionActivity
+\* fixed hedzr#69 nullPointerException on monkeytest
+
 ## 1.4.4s - 2019-05-27
 
 \* switched to AppCompat AlertDialog and AppCompat themes
