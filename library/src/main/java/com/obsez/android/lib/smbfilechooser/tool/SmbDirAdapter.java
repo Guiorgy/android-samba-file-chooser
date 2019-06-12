@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,6 @@ import java.util.List;
 
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
-import kotlin.Pair;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -148,11 +148,11 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
         protected final void onProgressUpdate(Pair<Integer, FileInfo>... pairs) {
             if (isCancelled()) return;
             Pair<Integer, FileInfo> pair = pairs[0];
-            this.files.append(pair.getFirst(), pair.getSecond());
-            Pair<View, Boolean> view = this.views.get(pair.getFirst(), null);
+            this.files.append(pair.first, pair.second);
+            Pair<View, Boolean> view = this.views.get(pair.first, null);
             if (view != null) {
-                this.views.remove(pair.getFirst());
-                bindView(view.getFirst(), pair.getSecond(), view.getSecond());
+                this.views.remove(pair.first);
+                bindView(view.first, pair.second, view.second);
             }
         }
 
@@ -165,7 +165,7 @@ public class SmbDirAdapter extends MyAdapter<SmbFile> {
                 if (file == null) continue;
                 Pair<View, Boolean> pair = this.views.get(hashCode, null);
                 if (pair == null) continue;
-                bindView(pair.getFirst(), file, pair.getSecond());
+                bindView(pair.first, file, pair.second);
             }
             adapter.notifyDataSetChanged();
         }
