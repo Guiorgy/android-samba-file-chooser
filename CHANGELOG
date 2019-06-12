@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.6s - 2019-06-12
+
+\- removed unnecessary dependency on kotlin-android plugin
+\- removed dependency on android-maven-gradle-plugin (abandoned as of 2019-06-07)
+\+ added localization for Bahasa Indonesia (thanks joielechong)
+\+ added localization for Georgian
+
 ## 1.4.5s - 2019-06-10
 
 \* fixed not scrolling to the top on PathView first draw
