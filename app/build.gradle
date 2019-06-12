@@ -1,4 +1,13 @@
 apply plugin: 'com.android.application'
+buildscript {
+    ext.kotlin_version = '1.3.31'
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
