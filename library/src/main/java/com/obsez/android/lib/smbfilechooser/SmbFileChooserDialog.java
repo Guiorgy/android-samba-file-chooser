@@ -44,6 +44,7 @@ import androidx.core.view.ViewCompat;
 
 import com.obsez.android.lib.smbfilechooser.internals.ExtSmbFileFilter;
 import com.obsez.android.lib.smbfilechooser.internals.RegexSmbFileFilter;
+import com.obsez.android.lib.smbfilechooser.internals.Triple;
 import com.obsez.android.lib.smbfilechooser.internals.UiUtil;
 import com.obsez.android.lib.smbfilechooser.permissions.PermissionsUtil;
 import com.obsez.android.lib.smbfilechooser.tool.IExceptionHandler;
@@ -74,7 +75,6 @@ import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
-import kotlin.Triple;
 
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.CENTER;
@@ -1655,15 +1655,15 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                         _chooseMode = _chooseMode == CHOOSE_MODE_DELETE ? CHOOSE_MODE_NORMAL : _chooseMode;
                         if (_deleteMode != null) _deleteMode.run();
                         lastSelected = _adapter.isEmpty();
-                        return new Triple<SmbFile, Boolean, String>(file, true, null);
+                        return new Triple<SmbFile, Boolean, String>(file, true);
                     }
                 }
                 return new Triple<>(file, file.isDirectory(), file.getPath());
             }).get();
 
-            final SmbFile file = triple.getFirst();
-            final boolean isDirectory = triple.getSecond();
-            final String path = triple.getThird();
+            final SmbFile file = triple.first;
+            final boolean isDirectory = triple.second;
+            final String path = triple.third;
             int scrollTo = 0;
 
             if (file != null) {
