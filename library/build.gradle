@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.github.dcendents.android-maven'
 
 def VERSION_NAME = project.VERSION_NAME
 def VERSION_CODE = Integer.parseInt(project.VERSION_CODE)
@@ -42,17 +40,23 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
+    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
     implementation 'eu.agno3.jcifs:jcifs-ng:2.1.2'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    //implementation('org.slf4j:slf4j-api:1.7.26')
 }
 
 task createPom {
+    //apply plugin: 'com.github.dcendents.android-maven'
+    //apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
+    apply plugin: 'maven'
+    description "Generates pom.xml"
     pom {
         project {
             groupId POM_GROUP_ID
             artifactId POM_ARTIFACT_ID
             version VERSION_NAME
+            packaging 'aar'
+
             inceptionYear POM_INCEPTION_YEAR
             licenses {
                 license {
@@ -62,7 +66,18 @@ task createPom {
                 }
             }
         }
+    }.withXml {
+        def dependenciesNode = asNode().appendNode('dependencies')
+        configurations.implementation.allDependencies.each { dependency ->
+            if (dependency.name != 'unspecified') {
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', dependency.group)
+                dependencyNode.appendNode('artifactId', dependency.name)
+                dependencyNode.appendNode('version', dependency.version)
+            }
+        }
     }.writeTo("pom.xml")
+    // based on https://gist.github.com/delor/f70560f14674b322dcd2
 }
 
 build.finalizedBy(createPom)

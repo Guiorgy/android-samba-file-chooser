@@ -1798,8 +1798,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                             _list.setSelection(_entries.size() - 1);
                             return true;
                         }
-                    } else
-                    if (_options != null && _options.hasFocus()) {
+                    } else if (_options != null && _options.hasFocus()) {
                         _list.requestFocus();
                         _list.setSelection(_entries.size() - 1);
                         lastSelected = true;
