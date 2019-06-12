@@ -75,6 +75,7 @@ task createPom {
             }
         }
     }.writeTo("pom.xml")
+    // based on https://gist.github.com/delor/f70560f14674b322dcd2
 }
 
 build.finalizedBy(createPom)
