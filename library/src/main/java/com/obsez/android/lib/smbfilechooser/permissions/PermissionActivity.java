@@ -97,7 +97,7 @@ public class PermissionActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (isFinishing()){
+        if (isFinishing()) {
             overridePendingTransition(0, 0);
         }
     }

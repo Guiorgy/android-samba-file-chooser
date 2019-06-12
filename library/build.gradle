@@ -56,7 +56,7 @@ task createPom {
             artifactId POM_ARTIFACT_ID
             version VERSION_NAME
             packaging 'aar'
-            
+
             inceptionYear POM_INCEPTION_YEAR
             licenses {
                 license {
