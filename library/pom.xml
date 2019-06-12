@@ -4,6 +4,7 @@
   <groupId>com.github.Guiorgy</groupId>
   <artifactId>android-smbfile-chooser</artifactId>
   <version>1.4.4s</version>
+  <packaging>aar</packaging>
   <inceptionYear>2018</inceptionYear>
   <licenses>
     <license>
