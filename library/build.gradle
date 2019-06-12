@@ -47,8 +47,9 @@ dependencies {
 
 task createPom {
     //apply plugin: 'com.github.dcendents.android-maven'
+    //apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
     apply plugin: 'maven'
-    apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
+    description "Generates pom.xml"
     pom {
         project {
             groupId POM_GROUP_ID
@@ -61,6 +62,16 @@ task createPom {
                     url POM_LICENCE_URL
                     distribution POM_LICENCE_DIST
                 }
+            }
+        }
+    }.withXml {
+        def dependenciesNode = asNode().appendNode('dependencies')
+        configurations.implementation.allDependencies.each { dependency ->
+            if (dependency.name != 'unspecified') {
+                def dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', dependency.group)
+                dependencyNode.appendNode('artifactId', dependency.name)
+                dependencyNode.appendNode('version', dependency.version)
             }
         }
     }.writeTo("pom.xml")
