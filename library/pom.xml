@@ -17,7 +17,7 @@
     <dependency>
       <groupId>androidx.appcompat</groupId>
       <artifactId>appcompat</artifactId>
-      <version>1.1.0-alpha05</version>
+      <version>1.1.0-beta01</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
