@@ -18,12 +18,6 @@ public class PermissionActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     private static final String TAG = PermissionActivity.class.getName();
 
-    private String[] toArray(final List<String> list) {
-        String[] array = new String[list.size()];
-        list.toArray(array);
-        return array;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +49,7 @@ public class PermissionActivity extends AppCompatActivity {
                 finish();
             }
         } else {
-            ActivityCompat.requestPermissions(this, toArray(_permissions_denied), _requestCode);
+            ActivityCompat.requestPermissions(this, _permissions_denied.toArray(new String[0]), _requestCode);
         }
     }
 
