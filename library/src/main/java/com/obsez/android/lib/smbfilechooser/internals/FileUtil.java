@@ -97,29 +97,35 @@ public class FileUtil {
         return ext.substring(1);
     }
 
-    @NonNull
-    public static String getReadableFileSize(final long size) {
-        final int BYTES_IN_KILOBYTES = 1024;
-        final DecimalFormat dec = new DecimalFormat("###.#");
-        final String KILOBYTES = " KB";
-        final String MEGABYTES = " MB";
-        final String GIGABYTES = " GB";
-        double fileSize = 0;
-        String suffix = KILOBYTES;
+    private static final class Constants {
+        final static int BYTES_IN_KILOBYTES = 1024;
+        final static String BYTES = " B";
+        final static String KILOBYTES = " KB";
+        final static String MEGABYTES = " MB";
+        final static String GIGABYTES = " GB";
+    }
 
-        if (size > BYTES_IN_KILOBYTES) {
-            fileSize = (double) size / BYTES_IN_KILOBYTES;
-            if (fileSize > BYTES_IN_KILOBYTES) {
-                fileSize = fileSize / BYTES_IN_KILOBYTES;
-                if (fileSize > BYTES_IN_KILOBYTES) {
-                    fileSize = fileSize / BYTES_IN_KILOBYTES;
-                    suffix = GIGABYTES;
+    @NonNull
+    public static String getReadableFileSize(long size) {
+        float fileSize = 0;
+        String suffix = Constants.KILOBYTES;
+
+        if (size < Constants.BYTES_IN_KILOBYTES) {
+            fileSize = size;
+            suffix = Constants.BYTES;
+        } else {
+            fileSize = (float) size / Constants.BYTES_IN_KILOBYTES;
+            if (fileSize >= Constants.BYTES_IN_KILOBYTES) {
+                fileSize = fileSize / Constants.BYTES_IN_KILOBYTES;
+                if (fileSize >= Constants.BYTES_IN_KILOBYTES) {
+                    fileSize = fileSize / Constants.BYTES_IN_KILOBYTES;
+                    suffix = Constants.GIGABYTES;
                 } else {
-                    suffix = MEGABYTES;
+                    suffix = Constants.MEGABYTES;
                 }
             }
         }
-        return String.valueOf(dec.format(fileSize) + suffix);
+        return String.valueOf(new DecimalFormat("###.#").format(fileSize) + suffix);
     }
 
     public static String getStoragePath(final Context context, final boolean isRemovable) {
