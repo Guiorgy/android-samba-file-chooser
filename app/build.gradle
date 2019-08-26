@@ -92,7 +92,7 @@ dependencies {
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 
     /** LeakCanary - https://github.com/square/leakcanary */
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-2'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 repositories {
     mavenCentral()
