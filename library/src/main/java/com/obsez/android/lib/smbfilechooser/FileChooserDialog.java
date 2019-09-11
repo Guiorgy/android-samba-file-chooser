@@ -461,8 +461,9 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         }
 
         TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext(),
-            ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
+        final int dialogStyle = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext(), dialogStyle);
+        final  Context dialogContext = getThemeWrappedContext(dialogStyle);
         final int style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
         ta.recycle();
         final Context context = getThemeWrappedContext(style);
@@ -569,12 +570,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
 
                 if (_enableMultiple && !_dirOnly) {
                     _btnPositive.setVisibility(INVISIBLE);
-                }
-
-                if (_enableDpad) {
-                    _btnNeutral.setBackgroundResource(listview_item_selector);
-                    _btnNegative.setBackgroundResource(listview_item_selector);
-                    _btnPositive.setBackgroundResource(listview_item_selector);
                 }
 
                 if (FileChooserDialog.this._enableOptions) {
@@ -699,7 +694,7 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                 options.setOnClickListener(null);
 
                                 // Create a button for the option to create a new directory/folder.
-                                final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                final Button createDir = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                 if (FileChooserDialog.this._createDirRes == null)
                                     createDir.setText(FileChooserDialog.this._createDir);
                                 else createDir.setText(FileChooserDialog.this._createDirRes);
@@ -716,15 +711,12 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(plus, null, null, null);
                                 }
 
-                                if (FileChooserDialog.this._enableDpad) {
-                                    createDir.setBackgroundResource(listview_item_selector);
-                                }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START | CENTER_VERTICAL);
                                 params.leftMargin = UiUtil.dip2px(10);
                                 options.addView(createDir, params);
 
                                 // Create a button for the option to delete a file.
-                                final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                final Button delete = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                 if (FileChooserDialog.this._deleteRes == null)
                                     delete.setText(FileChooserDialog.this._delete);
                                 else delete.setText(FileChooserDialog.this._deleteRes);
@@ -741,9 +733,6 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                     delete.setCompoundDrawablesWithIntrinsicBounds(bin, null, null, null);
                                 }
 
-                                if (FileChooserDialog.this._enableDpad) {
-                                    delete.setBackgroundResource(listview_item_selector);
-                                }
                                 params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END | CENTER_VERTICAL);
                                 params.rightMargin = UiUtil.dip2px(10);
                                 options.addView(delete, params);
@@ -860,27 +849,21 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
                                             holder.addView(buttons, params);
 
                                             // The Cancel button.
-                                            final Button cancel = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                            final Button cancel = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                             if (FileChooserDialog.this._newFolderCancelRes == null)
                                                 cancel.setText(FileChooserDialog.this._newFolderCancel);
                                             else
                                                 cancel.setText(FileChooserDialog.this._newFolderCancelRes);
                                             cancel.setTextColor(buttonColor);
-                                            if (FileChooserDialog.this._enableDpad) {
-                                                cancel.setBackgroundResource(listview_item_selector);
-                                            }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START);
                                             buttons.addView(cancel, params);
 
                                             // The OK button.
-                                            final Button ok = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                            final Button ok = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                             if (FileChooserDialog.this._newFolderOkRes == null)
                                                 ok.setText(FileChooserDialog.this._newFolderOk);
                                             else ok.setText(FileChooserDialog.this._newFolderOkRes);
                                             ok.setTextColor(buttonColor);
-                                            if (FileChooserDialog.this._enableDpad) {
-                                                ok.setBackgroundResource(listview_item_selector);
-                                            }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
 

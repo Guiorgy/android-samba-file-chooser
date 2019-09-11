@@ -659,8 +659,9 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
         }
 
         TypedArray ta = getBaseContext().obtainStyledAttributes(R.styleable.FileChooser);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext(),
-            ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle));
+        final int dialogStyle = ta.getResourceId(R.styleable.FileChooser_fileChooserDialogStyle, R.style.FileChooserDialogStyle);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext(), dialogStyle);
+        final Context dialogContext = getThemeWrappedContext(dialogStyle);
         final int style = ta.getResourceId(R.styleable.FileChooser_fileChooserListItemStyle, R.style.FileChooserListItemStyle);
         ta.recycle();
         final Context context = getThemeWrappedContext(style);
@@ -787,12 +788,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
 
                 if (_enableMultiple && !_dirOnly) {
                     _btnPositive.setVisibility(INVISIBLE);
-                }
-
-                if (_enableDpad) {
-                    _btnNeutral.setBackgroundResource(listview_item_selector);
-                    _btnNegative.setBackgroundResource(listview_item_selector);
-                    _btnPositive.setBackgroundResource(listview_item_selector);
                 }
 
                 final int buttonColor = _btnNeutral.getCurrentTextColor();
@@ -941,7 +936,7 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                 options.setOrientation(LinearLayout.HORIZONTAL);
 
                                 // Create a button for the option to create a new directory/folder.
-                                final Button createDir = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                final Button createDir = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                 if (SmbFileChooserDialog.this._createDirRes == null)
                                     createDir.setText(SmbFileChooserDialog.this._createDir);
                                 else createDir.setText(SmbFileChooserDialog.this._createDirRes);
@@ -959,15 +954,12 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     createDir.setCompoundDrawablesWithIntrinsicBounds(plus, null, null, null);
                                 }
 
-                                if (SmbFileChooserDialog.this._enableDpad) {
-                                    createDir.setBackgroundResource(listview_item_selector);
-                                }
                                 params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
                                 params.leftMargin = UiUtil.dip2px(6);
                                 options.addView(createDir, params);
 
                                 // Create a button for the refreshing data.
-                                final Button refresh = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                final Button refresh = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                 if (SmbFileChooserDialog.this._refreshRes == null)
                                     refresh.setText(SmbFileChooserDialog.this._refresh);
                                 else refresh.setText(SmbFileChooserDialog.this._refreshRes);
@@ -985,16 +977,13 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     refresh.setCompoundDrawablesWithIntrinsicBounds(round, null, null, null);
                                 }
 
-                                if (SmbFileChooserDialog.this._enableDpad) {
-                                    refresh.setBackgroundResource(listview_item_selector);
-                                }
                                 params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
                                 params.leftMargin = UiUtil.dip2px(6);
                                 params.rightMargin = UiUtil.dip2px(6);
                                 options.addView(refresh, params);
 
                                 // Create a button for the option to delete a file.
-                                final Button delete = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                final Button delete = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                 if (SmbFileChooserDialog.this._deleteRes == null)
                                     delete.setText(SmbFileChooserDialog.this._delete);
                                 else delete.setText(SmbFileChooserDialog.this._deleteRes);
@@ -1012,9 +1001,6 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                     delete.setCompoundDrawablesWithIntrinsicBounds(bin, null, null, null);
                                 }
 
-                                if (SmbFileChooserDialog.this._enableDpad) {
-                                    delete.setBackgroundResource(listview_item_selector);
-                                }
                                 params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
                                 params.rightMargin = UiUtil.dip2px(6);
                                 options.addView(delete, params);
@@ -1141,28 +1127,22 @@ public class SmbFileChooserDialog extends LightContextWrapper implements DialogI
                                             holder.addView(buttons, params);
 
                                             // The Cancel button.
-                                            final Button cancel = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                            final Button cancel = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                             if (SmbFileChooserDialog.this._newFolderCancelRes == null)
                                                 cancel.setText(SmbFileChooserDialog.this._newFolderCancel);
                                             else
                                                 cancel.setText(SmbFileChooserDialog.this._newFolderCancelRes);
                                             cancel.setTextColor(buttonColor);
-                                            if (SmbFileChooserDialog.this._enableDpad) {
-                                                cancel.setBackgroundResource(listview_item_selector);
-                                            }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, START);
                                             buttons.addView(cancel, params);
 
                                             // The OK button.
-                                            final Button ok = new Button(getBaseContext(), null, android.R.attr.buttonBarButtonStyle);
+                                            final Button ok = new Button(dialogContext, null, android.R.attr.buttonBarButtonStyle);
                                             if (SmbFileChooserDialog.this._newFolderOkRes == null)
                                                 ok.setText(SmbFileChooserDialog.this._newFolderOk);
                                             else
                                                 ok.setText(SmbFileChooserDialog.this._newFolderOkRes);
                                             ok.setTextColor(buttonColor);
-                                            if (SmbFileChooserDialog.this._enableDpad) {
-                                                ok.setBackgroundResource(listview_item_selector);
-                                            }
                                             params = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, END);
                                             buttons.addView(ok, params);
 
