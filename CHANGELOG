@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.7s - 2019-09-11
+
+\* more localization for Bahasa Indonesia (thanks joielechong)
+\* bug fixes (mainly #63, #75, #78)
+
 ## 1.4.6s - 2019-06-12
 
 \- removed unnecessary dependency on kotlin-android plugin
