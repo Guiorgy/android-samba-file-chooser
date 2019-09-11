@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.0'
-        classpath 'com.android.tools:r8:1.4.93'
+        classpath 'com.android.tools:r8:1.5.68'
 
         // classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.9.6'
 

@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 buildscript {
-    ext.kotlin_version = '1.3.40'
+    ext.kotlin_version = '1.3.41'
     repositories {
         jcenter()
     }
@@ -92,10 +92,10 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':library')
-    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
-    implementation 'eu.agno3.jcifs:jcifs-ng:2.1.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'eu.agno3.jcifs:jcifs-ng:2.1.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     debugImplementation 'androidx.multidex:multidex:2.0.1'
