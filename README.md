@@ -151,8 +151,8 @@ Logo and banner originally by: [**iqbalhood**](https://github.com/iqbalhood)
 
 Standard Apache 2.0
 
-Copyright 2015-2019 Hedzr Yeh\
-Modified 2018-2019 Guiorgy
+Copyright 2015-2020 Hedzr Yeh\
+Modified 2018-2020 Guiorgy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
