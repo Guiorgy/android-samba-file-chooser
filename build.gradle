@@ -8,8 +8,8 @@ buildscript {
         maven { url "https://dl.bintray.com/kotlin/kotlinx/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
-        classpath 'com.android.tools:r8:1.5.68'
+        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools:r8:1.5.70'
 
         // classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.9.6'
 
