@@ -15,6 +15,9 @@
 `android-file-library` is a lightweight file/folder chooser.
 This (`android-smbfile-chooser`) is my attempt to add the ability to use [jcifs.smb.SmbFile](https://github.com/AgNO3/jcifs-ng) to browse a Windows shared directory.
 
+## FileChooserDialog DEPRECATED!
+This library contains a file chooser for both android storage, and external windows smb shared storage. Begining from Android R, FileChooserDialog which was a file chooser for android will no longer work!
+
 ### Snapshots
 
 <img src="captures/demo.gif" width="360"/><img src="captures/choose_folder_smb.png" width="360"/>
