@@ -1,5 +1,9 @@
 # RELEASES
 
+## 1.4.8s - 2020-02-24
+
+\- FileChooserDialog DEPRECATED!
+
 ## 1.4.7s - 2019-09-11
 
 \* more localization for Bahasa Indonesia (thanks joielechong)
