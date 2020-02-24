@@ -97,9 +97,11 @@ import static com.obsez.android.lib.smbfilechooser.internals.UiUtil.getListYScro
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * @deprecated FileChooserDialog uses java.io.File api. Begining from Android R, it has been restrictet, thus FileChooserDialog is only supported until Android Q!
  */
-
-@SuppressWarnings({"SpellCheckingInspection", "unused", "UnusedReturnValue"})
+@Deprecated
+@SuppressWarnings({"SpellCheckingInspection", "unused", "UnusedReturnValue", "deprecation"})
 public class FileChooserDialog extends LightContextWrapper implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemSelectedListener, DialogInterface.OnKeyListener {
     @FunctionalInterface
     public interface OnChosenListener {
@@ -111,13 +113,31 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
         void onSelectFiles(@NonNull final List<File> files);
     }
 
-    private FileChooserDialog(@NonNull final Context context) {
+    private FileChooserDialog(@NonNull final Context context, final boolean ignoreApi) {
         super(context);
+        this.ignoreApi = ignoreApi;
     }
 
+    private final boolean ignoreApi;
+
+    /***
+     * @deprecated FileChooserDialog uses java.io.File api. Begining from Android R, it has been restrictet, thus FileChooserDialog is only supported until Android Q!
+     */
+    @Deprecated
     @NonNull
     public static FileChooserDialog newDialog(@NonNull final Context context) {
-        return new FileChooserDialog(context);
+        return newDialog(context, false);
+    }
+
+    /***
+     * @deprecated FileChooserDialog uses java.io.File api. Begining from Android R, it has been restrictet, thus FileChooserDialog is only supported until Android Q!
+     */
+    @Deprecated
+    @NonNull
+    public static FileChooserDialog newDialog(@NonNull final Context context, final boolean ignoreApi) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
+            android.util.Log.w("FileChooserDialog", "FileChooserDialog uses java.io.File api. Begining from Android R, it has been restrictet, thus FileChooserDialog is only supported until Android Q!");
+        return new FileChooserDialog(context, ignoreApi);
     }
 
     @NonNull
@@ -1047,6 +1067,11 @@ public class FileChooserDialog extends LightContextWrapper implements DialogInte
     }
 
     public FileChooserDialog show() {
+        if (!ignoreApi && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            Toast.makeText(getBaseContext(), "FileChooserDialog uses java.io.File api. Begining from Android R, it has been restrictet, thus FileChooserDialog is only supported until Android Q!", Toast.LENGTH_LONG).show();
+            return this;
+        }
+
         if (_alertDialog == null || _list == null) {
             build();
         }
